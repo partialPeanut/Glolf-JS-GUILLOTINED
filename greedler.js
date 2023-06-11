@@ -1,23 +1,38 @@
 class Greedler {
     static eventQueue = []
 
-    static nextTimeline() {
-        return (Onceler.currentWorldState.prevTimeline + 1) % Onceler.currentWorldState.timelines.length
+    static doNextEvent() {
+        let tlPhase = this.nextPhase()
+        let nextEvent = new tlPhase[1](Onceler.currentWorldState, tlPhase[0])
+        Onceler.addEvent(nextEvent)
+        console.log(nextEvent.report)
     }
     static nextPhase() {
-        let phase = eventQueue.find(q => q[0] === nextTimeline())
-        if (phase === undefined) phase = this.nextDefaultPhase()
-        return phase
+        let prevTl = Onceler.currentWorldState.prevTimeline
+        let tlNum = Onceler.currentWorldState.timelines.length
+        for (let i = 1; i <= tlNum; i++) {
+            let nextTl = (prevTl + i) % tlNum
+            let queuePhase = this.eventQueue.find(q => q[0] === nextTl)
+
+            let nextPhase
+            if (queuePhase !== undefined) {
+                nextPhase = queuePhase[1]
+                this.eventQueue.splice(this.eventQueue.indexOf(queuePhase), 1)
+            }
+            else nextPhase = this.nextDefaultEventInTimeline(Onceler.currentWorldState, nextTl)
+
+            if (nextPhase !== Phase.Wait) return [nextTl, nextPhase]
+        }
+
+        // They're all waiting!!
+        return [0, this.nextDefaultPhaseInTimeline(Onceler.currentWorldState, 0, true)]
     }
-    static nextDefaultPhase() {
-        return [nextTimeline(), nextDefaultEventInTimeline(Onceler.currentWorldState, nextTimeline())]
-    }
-    static nextDefaultPhaseInTimeline(worldState, tl) {
+    static nextDefaultPhaseInTimeline(worldState, tl, endwait = false) {
         switch(worldState.timelines[tl]) {
-            case Phase.Void:
-                return Phase.TourneyStart
-            case Phase.TourneyStart:
-                return Phase.TourneyConclude
+            case EventVoid:
+                return EventTourneyStart
+            case EventTourneyStart:
+                return EventTourneyConclude
                 /*
             case "Course Start":
                 return "Weather Report"
@@ -44,8 +59,8 @@ class Greedler {
             case "Memoriam":
                 return "Tourney Conclude"
                 */
-            case Phase.TourneyConclude:
-                return Phase.Void
+            case EventTourneyConclude:
+                return EventVoid
         }
     }
 }

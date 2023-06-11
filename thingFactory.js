@@ -1,17 +1,17 @@
 class ThingFactory {
     static usedIDs = new Set()
-    static minID = 1000000
-    static maxID = 9999999
+    static minID = 100000
+    static maxID = 999999
 
     static generateNewID() {
-        let id = randomInt(minID, maxID)
-        while (this.usedIDs.has(id)) id = randomInt(minID, maxID)
+        let id = randomInt(this.minID, this.maxID)
+        while (this.usedIDs.has(id)) id = randomInt(this.minID, this.maxID)
         this.usedIDs.add(id)
         return id
     }
 
     static generateNewPlayer(worldState) {
-        let id = generateNewID()
+        let id = this.generateNewID()
         return [id, {
             "mods": [],
             "firstName": "Bees Bees Bees",
@@ -35,7 +35,7 @@ class ThingFactory {
     }
 
     static generateNewBall(worldState, playerID) {
-        let id = generateNewID()
+        let id = this.generateNewID()
         return [id, {
             "mods": [],
             "player": playerID,
@@ -52,7 +52,7 @@ class ThingFactory {
     }
 
     static generateNewHole(worldState) {
-        let id = generateNewID()
+        let id = this.generateNewID()
         return [id, {
             "mods": [],
             "wildlife": "WORMS",
@@ -76,7 +76,7 @@ class ThingFactory {
     }
 
     static generateNewCourse(worldState) {
-        let id = generateNewID()
+        let id = this.generateNewID()
         return [id, {
             "mods": [],
             "players": [],
@@ -86,7 +86,7 @@ class ThingFactory {
     }
 
     static generateNewTourney(worldState) {
-        let id = generateNewID()
+        let id = this.generateNewID()
         return [id, {
             "mods": [],
             "name": "Tournament Tourney",

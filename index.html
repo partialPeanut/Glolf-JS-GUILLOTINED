@@ -6,14 +6,16 @@
     <title>Glolf!</title>
 
     <script src="util.js"></script>
-    <script src="onceler.js"></script>
     <script src="events.js"></script>
-    <script src="phase.js"></script>
     <script src="worldStateManager.js"></script>
     <script src="thingFactory.js"></script>
+    <script src="onceler.js"></script>
+    <script src="greedler.js"></script>
 
     <script src="main.js"></script>
 </head>
-<body onload="main()">
-
+<body>
+    <button onclick="main()">Next Event!</button>
+    <button onclick="logPastEvents()">Show Past Events</button>
+    <button onclick="logWorldState()">Show World State</button>
 </body>

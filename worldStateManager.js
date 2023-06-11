@@ -2,7 +2,7 @@ class WorldStateManager {
     static nullWorldState() {
         return {
             "timelines": {
-                0: Phase.Void
+                0: EventVoid
             },
             "prevTimeline": 0,
             "players": {},
@@ -25,14 +25,23 @@ class WorldStateManager {
         for (const type of Object.keys(worldEdit)) {
             if (type == "timetravel") continue
 
+            if (type == "league") {
+                const entries = Object.entries(worldEdit.league)
+                for (let [key,val] of entries)  {
+                    worldState.league[key] = val;
+                }
+                continue
+            }
+
             for (const id of Object.keys(worldEdit[type])) {
                 if (worldState[type][id] === undefined) {
                     worldState[type][id] = worldEdit[type][id]
                 }
                 else {
-                    Object.entries(worldEdit[type][id]).forEach((key,val) => {
+                    const entries = Object.entries(worldEdit[type][id])
+                    for (let [key,val] of entries)  {
                         worldState[type][id][key] = val;
-                    })
+                    }
                 }
             }
         }

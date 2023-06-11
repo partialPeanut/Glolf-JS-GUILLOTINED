@@ -1,35 +1,44 @@
 class Event {
     constructor(worldState, tl) {
-        this.phase = Phase.Void
         this.timeline = tl
-        calculateEdit(worldState)
+        this.calculateEdit(worldState)
+        this.report = this.eventReport()
     }
 
     calculateEdit(worldState) {
         this.worldEdit = {
             "timetravel": {
                 "timeline": this.timeline,
-                "phase": this.phase
+                "phase": Event
             }
         }
     }
     eventReport() { return `Nothing happened.` }
 }
 
-class EventTourneyStart extends Event {
-    constructor(worldState, tl) {
-        this.phase = Phase.TourneyStart
-        this.timeline = tl
-        calculateEdit(worldState)
-    }
+class EventWait extends Event {
+    calculateEdit(worldState) { this.worldEdit = {} }
+}
 
+class EventVoid extends Event {
+    calculateEdit(worldState) {
+        this.worldEdit = {
+            "timetravel": {
+                "timeline": this.timeline,
+                "phase": EventVoid
+            }
+        }
+    }
+}
+
+class EventTourneyStart extends Event {
     calculateEdit(worldState) {
         const [id, tourney] = ThingFactory.generateNewTourney(worldState)
 
         this.worldEdit = {
             "timetravel": {
                 "timeline": this.timeline,
-                "phase": this.phase
+                "phase": EventTourneyStart
             },
             "tourneys": {},
             "league": {
@@ -38,26 +47,20 @@ class EventTourneyStart extends Event {
         }
         this.worldEdit.tourneys[id] = tourney
     }
-    eventReport() { return `Nothing happened.` }
+    eventReport() { return `Tourney started!` }
 }
 
 class EventTourneyConclude extends Event {
-    constructor(worldState, tl) {
-        this.phase = Phase.TourneyConclude
-        this.timeline = tl
-        calculateEdit(worldState)
-    }
-
     calculateEdit(worldState) {
         this.worldEdit = {
             "timetravel": {
                 "timeline": this.timeline,
-                "phase": this.phase
+                "phase": EventTourneyConclude
             },
             "league": {
                 "currentTourney": 0
             }
         }
     }
-    eventReport() { return `Nothing happened.` }
+    eventReport() { return `Tourney ended.` }
 }
