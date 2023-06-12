@@ -27,10 +27,22 @@ class ThingFactory {
             "firstName": randomFromArray(p_namesfirst),
             "lastName": randomFromArray(p_nameslast),
             "suffixes": [],
+            "fullName": () => {
+                return `${this.firstName} ${this.lastName} ${this.suffixes.join(" ")}`
+            },
             "gender": randomFromArray(p_genders),
             "netWorth": newNetWorth(),
             "mortality": "ALIVE",
-            "ball": this.generateNewBall(worldState, id).id,
+            "ball": {
+                "mods": [],
+                "color": 0xFFFFFF,
+                "nextStrokeType": "TEE",
+                "stroke": 0,
+                "sunk": false,
+                "past": false,
+                "distance": 0,
+                "terrain": "TEE"
+            },
             "stats": {
                 "competence": randomGaussian(6,2),
                 "smartassery": randomGaussian(6,2),
@@ -44,25 +56,6 @@ class ThingFactory {
             }
         }
         return p
-    }
-
-    static generateNewBall(worldState, playerID) {
-        let id = this.generateNewID()
-        let b = {
-            "id": id,
-            "mods": [],
-            "player": playerID,
-            "color": 0xFFFFFF,
-            "placement": {
-                "nextStrokeType": "TEE",
-                "stroke": 0,
-                "sunk": false,
-                "past": false,
-                "distance": 0,
-                "terrain": "TEE"
-            }
-        }
-        return b
     }
 
     static generateNewHole(worldState) {
@@ -84,6 +77,7 @@ class ThingFactory {
             "id": id,
             "mods": [],
             "wildlife": "WORMS",
+            "currentPlayer": -1,
             "succblow": 0,
             "stats": {
                 "roughness": randomGaussian(1, 0.16),
@@ -111,7 +105,8 @@ class ThingFactory {
             "id": id,
             "mods": [],
             "players": players,
-            "holes": [],
+            "currentHole": 0,
+            "holeNumber": 0,
             "division": division,
             "weather": "TEMPEST"
         }
@@ -131,7 +126,7 @@ class ThingFactory {
             "sinReward": randomInt(100000, 200000),
             "numCourses": 4,
             "holesPerCourse": 9,
-            "players": randomLivingPlayers(48),
+            "players": randomLivingPlayers(48).map(p => p.id),
             "courses": []
         }
         return t

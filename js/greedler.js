@@ -1,49 +1,74 @@
 class Greedler {
     static eventQueue = [
-        [0, EventCreatePlayers, 48]
+        [0, EventCreatePlayers, 96]
     ]
 
-    static doNextEvent() {
-        let tlPhase = this.nextPhase()
+    static doTimeStep(stuck = false) {
+        let tls = Onceler.currentWorldState.timelines.length
+        let didStep = false
+        for (let i = 0; i < tls; i++) {
+            if (i >= Onceler.currentWorldState.timelines.length) break
+            didStep = this.doNextEventInTimeline(i, stuck) || didStep
+        }
+        if (!didStep) this.doTimeStep(true)
+    }
+    static doNextEventInTimeline(tl, stuck) {
+        let tlPhase = this.nextPhaseInTimeline(tl, stuck)
+        if (tlPhase[1] == EventWait) return false
+
         let nextEvent = new tlPhase[1](tlPhase[0])
         nextEvent.formEvent(Onceler.currentWorldState, tlPhase.slice(2))
         Onceler.addEvent(nextEvent)
         console.log(nextEvent.report)
+        return true
     }
-    static nextPhase() {
-        let prevTl = Onceler.currentWorldState.prevTimeline
-        let tlNum = Onceler.currentWorldState.timelines.length
-        for (let i = 1; i <= tlNum; i++) {
-            let nextTl = (prevTl + i) % tlNum
-            let queuePhase = this.eventQueue.find(q => q[0] == nextTl)
-            if (queuePhase !== undefined) {
-                removeFromArray(this.eventQueue, queuePhase)
-                return queuePhase
-            }
-            else {
-                let nextPhase = this.nextDefaultPhaseInTimeline(Onceler.currentWorldState, nextTl)
-                if (nextPhase !== EventWait) return [nextTl, nextPhase]
-            }
+    static nextPhaseInTimeline(tl, stuck) {
+        let queuePhase = this.eventQueue.find(q => q[0] == tl)
+        if (queuePhase !== undefined) {
+            removeFromArray(this.eventQueue, queuePhase)
+            return queuePhase
         }
-
-        // They're all waiting!!
-        return [0, this.nextDefaultPhaseInTimeline(Onceler.currentWorldState, 0, true)]
+        else return [tl, this.nextDefaultPhaseInTimeline(Onceler.currentWorldState, tl, stuck)]
     }
-    static nextDefaultPhaseInTimeline(worldState, tl, endwait = false) {
+    static nextDefaultPhaseInTimeline(worldState, tl, stuck = false) {
+        let tls = worldState.timelines.length
         switch(worldState.timelines[tl]) {
             case EventVoid:
                 return EventTourneyStart
             case EventTourneyStart:
                 return EventDivison
+
             case EventDivison:
-                return EventTourneyConclude
+                return EventCourseStart
+            case EventMultiplication:
+                return EventCourseStart
+
+            case EventCourseStart:
+                return EventWeatherReport
+            case EventWeatherReport:
+                return EventHoleStart
+            case EventHoleStart:
+                return EventWildlifeReport
+            case EventWildlifeReport:
+                return EventUpTop
+
+            case EventUpTop:
+                return EventStrokeType
+            case EventStrokeType:
+                return EventStrokeOutcome
+            case EventStrokeOutcome:
+                return EventUpTop
+                
+            case EventHoleFinish:
+                let waiting = true
+                let thisHoleNumber = activeCourseOnTimeline(worldState, tl).holeNumber
+                for (let i = 0; i < tls; i++) {
+                    if (activeCourseOnTimeline(worldState, i).holeNumber > thisHoleNumber) waiting = false
+                }
+                if (waiting && !stuck) return EventWait
+                else if (thisHoleNumber == activeTourney(worldState).holesPerCourse) return EventCourseFinish
+                else return EventHoleStart
                 /*
-            case "Course Start":
-                return "Weather Report"
-            case "Weather Report":
-                return "Hole Setup"
-            case "Hole Setup":
-                return "Wildlife Report"
             case "Wildlife Report":
                 return "Up Top"
             case "Up Top":
@@ -63,7 +88,13 @@ class Greedler {
             case "Memoriam":
                 return "Tourney Conclude"
                 */
-            case EventTourneyConclude:
+            case EventCourseFinish:
+                if (activeTourney(worldState).courses.length > 1 && !stuck) return EventWait
+                else if (activeTourney(worldState).courses.length > 1) return EventMultiplication
+                else return EventTourneyFinish
+
+            
+            case EventTourneyFinish:
                 return EventVoid
         }
     }

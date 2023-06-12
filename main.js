@@ -35,7 +35,7 @@ function main() {
 }
 
 function nextEvent() {
-    Greedler.doNextEvent()
+    Greedler.doTimeStep()
 }
 
 function logPastEvents() {

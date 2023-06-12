@@ -56,3 +56,18 @@ function chooseNumFromArrayAndRemove(array, num) {
 function getWorldItem(worldState, type, id) {
     return worldState[type].find(t => t.id == id)
 }
+
+function activeTourney(worldState) {
+    return getWorldItem(worldState, "tourneys", worldState.league.currentTourney)
+}
+function activeCourseOnTimeline(worldState, tl) {
+    return getWorldItem(worldState, "courses", activeTourney(worldState).courses[tl])
+}
+function activeHoleOnTimeline(worldState, tl) {
+    return getWorldItem(worldState, "holes", activeCourseOnTimeline(worldState, tl).currentHole)
+}
+function activePlayerOnTimeline(worldState, tl) {
+    const playerID = activeCourseOnTimeline(worldState, tl).players.at(activeHoleOnTimeline(worldState, tl).currentPlayer)
+    const player = getWorldItem(worldState, "players", playerID)
+    return player
+}

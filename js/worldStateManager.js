@@ -6,7 +6,6 @@ class WorldStateManager {
             ],
             "prevTimeline": 0,
             "players": [],
-            "balls": [],
             "holes": [],
             "courses": [],
             "tourneys": [],
@@ -56,7 +55,13 @@ class WorldStateManager {
                 else {
                     const entries = Object.entries(thing)
                     for (let [key,val] of entries)  {
-                        wsMatch[key] = val;
+                        if (key == "ball") {
+                            const ballstuff = Object.entries(thing.ball)
+                            for (let [bkey,bval] of ballstuff)  {
+                                wsMatch.ball[bkey] = bval;
+                            }
+                        }
+                        else wsMatch[key] = val;
                     }
                 }
             }
