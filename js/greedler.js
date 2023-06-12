@@ -1,9 +1,12 @@
 class Greedler {
-    static eventQueue = []
+    static eventQueue = [
+        [0, EventCreatePlayers]
+    ]
 
     static doNextEvent() {
         let tlPhase = this.nextPhase()
-        let nextEvent = new tlPhase[1](Onceler.currentWorldState, tlPhase[0])
+        let nextEvent = new tlPhase[1](tlPhase[0])
+        nextEvent.formEvent(Onceler.currentWorldState)
         Onceler.addEvent(nextEvent)
         console.log(nextEvent.report)
     }
@@ -12,16 +15,16 @@ class Greedler {
         let tlNum = Onceler.currentWorldState.timelines.length
         for (let i = 1; i <= tlNum; i++) {
             let nextTl = (prevTl + i) % tlNum
-            let queuePhase = this.eventQueue.find(q => q[0] === nextTl)
+            let queuePhase = this.eventQueue.find(q => q[0] == nextTl)
 
             let nextPhase
             if (queuePhase !== undefined) {
                 nextPhase = queuePhase[1]
                 this.eventQueue.splice(this.eventQueue.indexOf(queuePhase), 1)
             }
-            else nextPhase = this.nextDefaultEventInTimeline(Onceler.currentWorldState, nextTl)
+            else nextPhase = this.nextDefaultPhaseInTimeline(Onceler.currentWorldState, nextTl)
 
-            if (nextPhase !== Phase.Wait) return [nextTl, nextPhase]
+            if (nextPhase !== EventWait) return [nextTl, nextPhase]
         }
 
         // They're all waiting!!

@@ -1,6 +1,9 @@
 class Event {
-    constructor(worldState, tl) {
+    constructor(tl) {
         this.timeline = tl
+    }
+
+    formEvent(worldState) {
         this.calculateEdit(worldState)
         this.report = this.eventReport()
     }
@@ -29,6 +32,27 @@ class EventVoid extends Event {
             }
         }
     }
+}
+
+class EventCreatePlayers extends Event {
+    constructor(tl, num = 96) {
+        super(tl)
+        this.numPlayers = num
+    }
+
+    calculateEdit(worldState) {
+        this.worldEdit = {
+            "timetravel": {
+                "timeline": this.timeline
+            },
+            "players": {}
+        }
+        for (let i = 0; i < this.numPlayers; i++) {
+            const [id, player] = ThingFactory.generateNewPlayer(worldState)
+            this.worldEdit.players[id] = player
+        }
+    }
+    eventReport() { return `${this.numPlayers} players created!` }
 }
 
 class EventTourneyStart extends Event {

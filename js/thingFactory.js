@@ -14,8 +14,8 @@ class ThingFactory {
         let id = this.generateNewID()
         return [id, {
             "mods": [],
-            "firstName": "Bees Bees Bees",
-            "lastName": "Chantz",
+            "firstName": randomFromArray(p_namesfirst),
+            "lastName": randomFromArray(p_nameslast),
             "suffixes": [],
             "netWorth": 0,
             "mortality": "ALIVE",

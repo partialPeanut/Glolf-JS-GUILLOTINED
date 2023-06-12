@@ -1,9 +1,9 @@
 class WorldStateManager {
     static nullWorldState() {
         return {
-            "timelines": {
-                0: EventVoid
-            },
+            "timelines": [
+                EventVoid
+            ],
             "prevTimeline": 0,
             "players": {},
             "balls": {},
