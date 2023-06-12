@@ -1,3 +1,7 @@
+function clamp(val, min, max) {
+    return val > max ? max : val < min ? min : val;
+}
+
 function randomReal(min, max) {
     if (max === undefined) {
         max = min
@@ -26,6 +30,16 @@ function randomFromArray(array) { return array.at(randomInt(array.length-1)) }
 
 function removeFromArray(array, val) { array.splice(array.indexOf(val), 1) }
 
+function chooseFromWeights(array) {
+    const totalWeight = array.reduce((total, w) => total += w)
+    let choice = randomReal(totalWeight)
+    for ([i, w] of array.entries()) {
+        choice -= w
+        if (choice < 0) return i
+    }
+    return -1
+}
+
 function chooseNumFromArray(array, num) {
     let arrayCopy = array.slice(0)
     let chosen = []
@@ -50,6 +64,35 @@ function chooseNumFromArrayAndRemove(array, num) {
             removeFromArray(array, t)
         }
         return chosen
+    }
+}
+
+function intToBird(num) {
+    if (num < -5) return "MegaBird"
+    switch(num) {
+        case -5: return "Peregrine"
+        case -4: return "Condor"
+        case -3: return "Albatross"
+        case -2: return "Eagle"
+        case -1: return "Birdie"
+        case 0: return "Par"
+        case 1: return "Bogey"
+        case 2: return "Double Bogey"
+        case 3: return "Triple Bogey"
+        case 4: return "OverBogey"
+        case 5: return "SuperBogey"
+        case 6: return "HyperBogey"
+        case 7: return "UltraBogey"
+        case 8: return "KiloBogey"
+        case 9: return "MegaBogey"
+        case 10: return "GigaBogey"
+        case 11: return "TeraBogey"
+        case 12: return "PetaBogey"
+        case 13: return "ExaBogey"
+        case 14: return "ZettaBogey"
+        case 15: return "YottaBogey"
+        case 16: return "FinalBogey"
+        default: return "BeyondBogey"
     }
 }
 

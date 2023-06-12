@@ -37,12 +37,13 @@ class ThingFactory {
             "ball": {
                 "mods": [],
                 "color": 0xFFFFFF,
-                "nextStrokeType": "TEE",
+                "nextStrokeType": StrokeType.Nothing,
                 "stroke": 0,
                 "sunk": false,
                 "past": false,
                 "distance": 0,
-                "terrain": "TEE"
+                "distanceJustFlown": 0,
+                "terrain": Terrain.Tee
             },
             "stats": {
                 "competence": randomGaussian(6,2),
@@ -81,13 +82,13 @@ class ThingFactory {
             "currentPlayer": -1,
             "succblow": 0,
             "stats": {
-                "roughness": randomGaussian(1, 0.16),
-                "heterosexuality": randomGaussian(1, 0.16),
-                "thicc": randomGaussian(1, 0.16),
-                "verdancy": randomGaussian(1, 0.16),
-                "obedience": randomGaussian(1, 0.16),
-                "quench": randomGaussian(1, 0.16),
-                "thirst": randomGaussian(1, 0.16)
+                "roughness": randomGaussian(1, 0.1),
+                "heterosexuality": randomGaussian(1, 0.1),
+                "thicc": randomGaussian(1, 0.1),
+                "verdancy": randomGaussian(1, 0.1),
+                "obedience": randomGaussian(1, 0.1),
+                "quench": randomGaussian(1, 0.1),
+                "thirst": randomGaussian(1, 0.1)
             },
             "dimensions": {
                 "length": randomReal(1000),
