@@ -7,24 +7,15 @@
     selected player:      rgba(100, 100, 255, 1)
     hovered player:       rgba(160, 160, 255, 1)
     active player:        rgba(255, 166, 102, 1)
-
 */
-@font-face {
-  font-family: 'pixel_operatorregular';
-  src: url('assets/fonts/PixelOperator/pixeloperator-webfont.woff2') format('woff2'),
-       url('assets/fonts/PixelOperator/pixeloperator-webfont.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
-
 body {
-  font-family: 'pixel_operatorregular', serif;
+  font-family: 'pixel_operator_regular', serif;
   background-color: rgba(200, 200, 200, 1); 
 }
 
 p {
-  color: rgba(117, 25, 136, 0.171);
-  font-size: 3em;
+  color: rgb(224, 67, 255);
+  font-size: 2em;
 }
 
 .display-box {
@@ -37,13 +28,13 @@ p {
 }
 
 .header-button {
+  font-family: 'pixel_operator_regular', serif;
   border: 0.2em solid #000;
   border-radius: 0px;
   margin-top: 1em;
   line-height: 2.2;
   padding: 0 1em;
-  font-size: 1em;
-  font-weight: bold;
+  font-size: 3em;
   text-align: center;
   color: #000;
   background-color: rgba(225, 225, 225, 1);
