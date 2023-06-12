@@ -11,7 +11,17 @@ class WorldStateManager {
             "courses": [],
             "tourneys": [],
             "league": {
-                "currentTourney": 0
+                "currentTourney": 0,
+                "divisionNames": [
+                    "RED",
+                    "GREEN",
+                    "BLUE",
+                    "YELLOW",
+                    "CYAN",
+                    "MAGENTA",
+                    "BLACK",
+                    "WHITE"
+                ]
             }
         }
     }
@@ -24,6 +34,11 @@ class WorldStateManager {
 
         for (const type of Object.keys(worldEdit)) {
             if (type == "timetravel") continue
+
+            if (type == "timelines") {
+                worldState.timelines = worldEdit.timelines
+                continue
+            }
 
             if (type == "league") {
                 const entries = Object.entries(worldEdit.league)

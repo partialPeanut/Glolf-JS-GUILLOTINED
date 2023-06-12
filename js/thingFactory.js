@@ -105,12 +105,12 @@ class ThingFactory {
         return h
     }
 
-    static generateNewCourse(worldState, division) {
+    static generateNewCourse(worldState, division, players) {
         let id = this.generateNewID()
         let c = {
             "id": id,
             "mods": [],
-            "players": [],
+            "players": players,
             "holes": [],
             "division": division,
             "weather": "TEMPEST"
@@ -122,22 +122,15 @@ class ThingFactory {
         let id = this.generateNewID()
         function randomLivingPlayers(num) {
             let livingPlayers = worldState.players.filter(p => p.mortality == "ALIVE")
-            let chosenPlayers = []
-            if (livingPlayers.length <= num) return livingPlayers
-            else {
-                for (let i = 0; i < num; i++) {
-                    let p = randomFromArray(livingPlayers)
-                    chosenPlayers.push(p)
-                    removeFromArray(livingPlayers, p)
-                }
-                return chosenPlayers
-            }
+            return chooseNumFromArray(livingPlayers, num)
         }
         let t = {
             "id": id,
             "mods": [],
             "name": randomFromArray(t_titles).replaceAll("[N]", randomFromArray(t_nouns)),
             "sinReward": randomInt(100000, 200000),
+            "numCourses": 4,
+            "holesPerCourse": 9,
             "players": randomLivingPlayers(48),
             "courses": []
         }

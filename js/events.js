@@ -16,7 +16,7 @@ class Event {
             }
         }
     }
-    eventReport(worldState) { return `Nothing happened.` }
+    eventReport(worldState) { return `---` }
 }
 
 class EventWait extends Event {
@@ -54,7 +54,7 @@ class EventCreatePlayers extends Event {
     }
     eventReport(worldState) {
         const num = this.worldEdit.players.length
-        return `${num} players created!`
+        return `Contracts signed. ${num} players rise from the ground.`
     }
 }
 
@@ -74,8 +74,42 @@ class EventTourneyStart extends Event {
     }
     eventReport(worldState) {
         const tourney = this.worldEdit.tourneys[0]
-        return `${tourney.name} has started!`
+        return `Wlecome to ${tourney.name}!\n
+                ${tourney.players.size} players, ${tourney.numCourses} divisions with ${tourney.holesPerCourse} holes each, and ${tourney.sinReward} $ins up for grabs!\m
+                GLOLF!! BY ANY MEANS NECESSARY.`
     }
+}
+
+class EventDivison extends Event {
+    calculateEdit(worldState) {
+        const tourney = getWorldItem(worldState, "tourneys", worldState.league.currentTourney)
+        let playersLeft = tourney.players.slice(0)
+        let playersPerCourse = Math.floor(tourney.players.length/tourney.numCourses)
+
+        const newCourses = []
+        for (let i = 0; i < tourney.numCourses-1; i++) {
+            newCourses.push(ThingFactory.generateNewCourse(worldState, worldState.league.divisionNames[i], chooseNumFromArrayAndRemove(playersLeft, playersPerCourse)))
+        }
+        newCourses.push(ThingFactory.generateNewCourse(worldState, worldState.league.divisionNames[tourney.numCourses-1], playersLeft))
+
+        this.worldEdit = {
+            "timetravel": {
+                "timeline": this.timeline
+            },
+            "timelines": [
+                EventDivison,
+                EventDivison,
+                EventDivison,
+                EventDivison
+            ],
+            "courses": newCourses,
+            "tourneys": [{
+                "id": tourney.id,
+                "courses": newCourses.map(c => c.id)
+            }]
+        }
+    }
+    eventReport(worldState) { return `The players are divided.` }
 }
 
 class EventTourneyConclude extends Event {

@@ -26,6 +26,33 @@ function randomFromArray(array) { return array.at(randomInt(array.length-1)) }
 
 function removeFromArray(array, val) { array.splice(array.indexOf(val), 1) }
 
+function chooseNumFromArray(array, num) {
+    let arrayCopy = array.slice(0)
+    let chosen = []
+    if (array.length <= num) return arrayCopy
+    else {
+        for (let i = 0; i < num; i++) {
+            let t = randomFromArray(arrayCopy)
+            chosen.push(t)
+            removeFromArray(arrayCopy, t)
+        }
+        return chosen
+    }
+}
+
+function chooseNumFromArrayAndRemove(array, num) {
+    let chosen = []
+    if (array.length <= num) return array.slice(0)
+    else {
+        for (let i = 0; i < num; i++) {
+            let t = randomFromArray(array)
+            chosen.push(t)
+            removeFromArray(array, t)
+        }
+        return chosen
+    }
+}
+
 function getWorldItem(worldState, type, id) {
     return worldState[type].find(t => t.id == id)
 }

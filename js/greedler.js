@@ -34,6 +34,8 @@ class Greedler {
             case EventVoid:
                 return EventTourneyStart
             case EventTourneyStart:
+                return EventDivison
+            case EventDivison:
                 return EventTourneyConclude
                 /*
             case "Course Start":
