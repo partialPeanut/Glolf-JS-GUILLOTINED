@@ -178,7 +178,9 @@ class EventHoleStart extends Event {
             "players": course.players.map(pid => { return {
                 "id": pid,
                 "ball": {
-                    "sunk": false
+                    "sunk": false,
+                    "stroke": 0,
+                    "distance": hole.dimensions.length
                 }
             }})
         }
@@ -219,8 +221,7 @@ class EventUpTop extends Event {
     }
     eventReport(worldState) {
         const course = activeCourseOnTimeline(worldState, this.timeline)
-        const unsunk = course.players.filter(p => !getWorldItem(worldState, "players", p).ball.sunk)
-        return `The cycle begins anew. ${unsunk.length} players still have not made it in.`
+        return `The cycle begins anew.`
     }
 }
 
@@ -230,6 +231,9 @@ class EventStrokeType extends Event {
         const hole = activeHoleOnTimeline(worldState, this.timeline)
         const oldCP = hole.currentPlayer
         let newCP = course.players.findIndex((p, i) => i > oldCP && !getWorldItem(worldState, "players", p).ball.sunk)
+        const player = playerOnTimelineAtIndex(worldState, this.timeline, newCP)
+
+        let strokeType = calculateStrokeType(worldState, this.timeline, player)
 
         this.worldEdit = {
             "timetravel": {
@@ -239,20 +243,26 @@ class EventStrokeType extends Event {
             "holes": [{
                 "id": hole.id,
                 "currentPlayer": newCP
+            }],
+            "players": [{
+                "id": player.id,
+                "ball": {
+                    "nextStrokeType": strokeType
+                }
             }]
         }
     }
     eventReport(worldState) {
         const player = playerOnTimelineAtIndex(worldState, this.timeline, this.worldEdit.holes[0].currentPlayer)
-        return `${player.fullName()} tees...`
+        const newBall = this.worldEdit.players[0].ball
+        return `${player.fullName()} ${newBall.nextStrokeType.message}`
     }
 }
 
 class EventStrokeOutcome extends Event {
     calculateEdit(worldState) {
-        const course = activeCourseOnTimeline(worldState, this.timeline)
-        const hole = activeHoleOnTimeline(worldState, this.timeline)
         const player = activePlayerOnTimeline(worldState, this.timeline)
+        this.outcome = calculateStrokeOutcome(worldState, this.timeline, player)
 
         this.worldEdit = {
             "timetravel": {
@@ -262,16 +272,32 @@ class EventStrokeOutcome extends Event {
             "players": [{
                 "id": player.id,
                 "ball": {
-                    "sunk": Math.random() < 0.9
+                    "sunk": this.outcome.result == "SINK",
+                    "stroke": this.outcome.result == "NOTHING" ? player.ball.stroke : player.ball.stroke+1,
+                    "past": this.outcome.distanceFlown > player.ball.distance && !this.outcome.newTerrain.oob ? !player.ball.past : player.ball.past,
+                    "distance": this.outcome.newTerrain.oob ? player.ball.distance : this.outcome.distanceToHole,
+                    "distanceJustFlown": this.outcome.distanceFlown,
+                    "terrain": this.outcome.newTerrain.oob ? player.ball.terrain : this.outcome.newTerrain
                 }
             }]
         }
     }
     eventReport(worldState) {
+        const hole = activeHoleOnTimeline(worldState, this.timeline)
         const player = activePlayerOnTimeline(worldState, this.timeline)
         const newBall = this.worldEdit.players[0].ball
-        let didItSink = newBall.sunk ? ` IT GOES IN!!` : ``
-        return `${player.fullName()} does a big hit!!${didItSink}`
+        switch(this.outcome.result) {
+            case "SINK":
+                if (newBall.stroke == 1) return `Hole in one!!`
+                else return `They sink it for a ${intToBird(newBall.stroke - hole.dimensions.par)}.`
+            case "FLY":
+                if (player.ball.terrain == this.outcome.newTerrain) return `The ball flies ${Math.round(this.outcome.distanceFlown)} gallons, staying ${this.outcome.newTerrain.arrivingText}`
+                else return `The ball ${player.ball.terrain.leavingText}, flying ${Math.round(this.outcome.distanceFlown)} gallons and landing ${this.outcome.newTerrain.arrivingText}`
+            case "WHIFF":
+                return `They barely tap the ball!`
+            case "NOTHING":
+                return `Nothing happens.`
+        }
     }
 }
 
