@@ -1,6 +1,6 @@
 class Greedler {
     static eventQueue = [
-        [0, EventCreatePlayers, 96]
+        [0, EventCreatePlayers, 16]
     ]
 
     static doTimeStep(stuck = false) {
@@ -71,35 +71,25 @@ class Greedler {
                     if (activeCourseOnTimeline(worldState, i).holeNumber > thisHoleNumber) waiting = false
                 }
                 if (waiting && !stuck) return EventWait
-                else if (thisHoleNumber == activeTourney(worldState).holesPerCourse) return EventCourseFinish
+                else if (thisHoleNumber == activeTourney(worldState).holesPerCourse) {
+                    if (activeTourney(worldState).courses.length > 1) return EventCourseFinish
+                    else return EventTourneyFinish
+                }
                 else return EventHoleStart
-                /*
-            case "Wildlife Report":
-                return "Up Top"
-            case "Up Top":
-                return "Stroke Type"
-            case "Stroke Type":
-                return "Stroke Outcome"
-            case "Stroke Outcome":
-                return "Hole Finish"
-            case "Hole Finish":
-                return "Course Finish"
-            case "Course Finish":
-                return "Tourney Finish"
-            case "Tourney Finish":
-                return "Tourney Reward"
-            case "Tourney Reward":
-                return "Memoriam"
-            case "Memoriam":
-                return "Tourney Conclude"
-                */
-            case EventCourseFinish:
-                if (activeTourney(worldState).courses.length > 1 && !stuck) return EventWait
-                else if (activeTourney(worldState).courses.length > 1) return EventMultiplication
-                else return EventTourneyFinish
 
+            case EventCourseFinish:
+                if (!stuck) return EventWait
+                else return EventCourseReward
+            case EventCourseReward:
+                return EventMultiplication
             
             case EventTourneyFinish:
+                return EventTourneyReward
+            case EventTourneyReward:
+                return EventMemoriam
+            case EventMemoriam:
+                return EventTourneyConclude
+            case EventTourneyConclude:
                 return EventVoid
         }
     }

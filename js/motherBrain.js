@@ -19,24 +19,26 @@ function calculateBaseDistances(worldState, tl, player) {
 }
 
 function calculateBaseWeights(worldState, tl, player, dists) {
-    const weights = dists.map(d => 4096 * curveGaussy(player.ball.distance, 200 / Math.max(player.stats.smartassery, 1), d))
-    return weights
+    let weights = dists.map(d => 4096 * curveGaussy(player.ball.distance, 200 / Math.max(player.stats.smartassery, 1), d))
+    const biggestWeight = weights.reduce((max, w) => max > w ? max : w, 1e-100)
+    // Normalized
+    return weights.map(w => w/biggestWeight)
 }
 
 function calculateStrokeType(worldState, tl, player) {
-    // Nothing chance
-    if (Math.random() < 0.001) return StrokeType.Nothing
-
     // Always tee off the tee
     if (player.ball.terrain === Terrain.Tee) return StrokeType.Tee
 
     // Probability weights of choosing strokes
     const dists = calculateBaseDistances(worldState, tl, player)
-    const weights = calculateBaseWeights(worldState, tl, player, dists)
+    let weights = calculateBaseWeights(worldState, tl, player, dists)
     weights[0] = 0
-    weights[5] = weights[5] * 0.1 / (4 + player.stats.competence)
+    // Cap nothing at ~0.2% chance
+    const biggestWeightThatIsntNothing = weights.slice(0,-1).reduce((max, w) => max > w ? max : w, 0)
+    weights[5] = Math.min(weights[5] * 0.1 / (4 + player.stats.competence), biggestWeightThatIsntNothing * 0.002)
 
-    return StrokeType.TypesArray.at(chooseFromWeights(weights))
+    if (biggestWeightThatIsntNothing == 0) return StrokeType.Drive
+    else return StrokeType.TypesArray.at(chooseFromWeights(weights))
 }
 
 function calculateStrokeResult(worldState, tl, player, dist) {

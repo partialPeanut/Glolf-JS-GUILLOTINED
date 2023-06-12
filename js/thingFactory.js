@@ -34,6 +34,7 @@ class ThingFactory {
             "gender": randomFromArray(p_genders),
             "netWorth": newNetWorth(),
             "mortality": "ALIVE",
+            "score": 0,
             "ball": {
                 "mods": [],
                 "color": 0xFFFFFF,
@@ -127,7 +128,7 @@ class ThingFactory {
             "name": randomFromArray(t_titles).replaceAll("[N]", randomFromArray(t_nouns)),
             "sinReward": randomInt(100000, 200000),
             "numCourses": 4,
-            "holesPerCourse": 9,
+            "holesPerCourse": 1,
             "players": randomLivingPlayers(48).map(p => p.id),
             "courses": []
         }

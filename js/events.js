@@ -75,7 +75,7 @@ class EventTourneyStart extends Event {
     eventReport(worldState) {
         const tourney = this.worldEdit.tourneys[0]
         return `Wlecome to ${tourney.name}!\n
-                ${tourney.players.length} players, ${tourney.numCourses} divisions with ${tourney.holesPerCourse} holes each, and ${tourney.sinReward} $ins up for grabs!\n
+                ${tourney.players.length} players, ${tourney.numCourses} divisions with ${tourney.holesPerCourse} holes each, and up to ${tourney.sinReward} $ins up for grabs!\n
                 GLOLF!! BY ANY MEANS NECESSARY.`
     }
 }
@@ -110,7 +110,31 @@ class EventDivison extends Event {
 class EventMultiplication extends Event {
     calculateEdit(worldState) {
         const tourney = activeTourney(worldState)
-        const finalCourse = ThingFactory.generateNewCourse(worldState, "FINALS", tourney.players)
+
+        let finalists = []
+        function bestOfUnchosenPlayers(pid1, pid2) {
+            if (finalists.includes(pid1)) return pid2
+            else if (finalists.includes(pid2)) return pid1
+            else return bestOfPlayers(worldState, pid1, pid2)
+        }
+
+        // Top 2 in each division
+        for (let cid of tourney.courses) {
+            let course = getWorldItem(worldState, "courses", cid)
+            for (let i = 0; i < 2; i++) {
+                let fin = course.players.reduce(bestOfUnchosenPlayers, course.players[0])
+                finalists.push(fin)
+            }
+        }
+
+        // Rest of top players
+        let numFinalists = Math.floor(tourney.players.length/tourney.numCourses)
+        for (let i = finalists.length; i < numFinalists; i++) {
+            let fin = tourney.players.reduce(unchosenBestOf, tourney.players[0])
+            finalists.push(fin)
+        }
+
+        const finalCourse = ThingFactory.generateNewCourse(worldState, "FINALS", finalists)
 
         this.worldEdit = {
             "timetravel": {
@@ -132,11 +156,16 @@ class EventMultiplication extends Event {
 
 class EventCourseStart extends Event {
     calculateEdit(worldState) {
+        const course = activeCourseOnTimeline(worldState, this.timeline)
         this.worldEdit = {
             "timetravel": {
                 "timeline": this.timeline,
                 "phase": EventCourseStart
-            }
+            },
+            "players": course.players.map(pid => { return {
+                "id": pid,
+                "score": 0
+            }})
         }
     }
     eventReport(worldState) {
@@ -312,7 +341,14 @@ class EventHoleFinish extends Event {
             "courses": [{
                 "id": course.id,
                 "currentHole": 0
-            }]
+            }],
+            "players": course.players.map(pid => {
+                const player = getWorldItem(worldState, "players", pid)
+                return {
+                    "id": pid,
+                    "score": player.score + player.ball.stroke
+                }
+            })
         }
     }
     eventReport(worldState) {
@@ -331,8 +367,53 @@ class EventCourseFinish extends Event {
         }
     }
     eventReport(worldState) {
-        const thisCourse = activeCourseOnTimeline(worldState, this.timeline)
-        return `Division ${thisCourse.division} has concluded its course.`
+        const course = activeCourseOnTimeline(worldState, this.timeline)
+        const topPlayer = getWorldItem(worldState, "players", course.players.reduce((pid1,pid2) => bestOfPlayers(worldState,pid1,pid2), course.players[0]))
+
+        return `Division ${course.division} has concluded its course. Congratulations to the divison leader: ${topPlayer.fullName()}!!`
+    }
+}
+
+class EventCourseReward extends Event {
+    calculateEdit(worldState) {
+        let winners = []
+        function bestOfUnchosenPlayers(pid1, pid2) {
+            if (winners.includes(pid1)) return pid2
+            else if (winners.includes(pid2)) return pid1
+            else return bestOfPlayers(worldState, pid1, pid2)
+        }
+
+        const course = activeCourseOnTimeline(worldState, this.timeline)
+        for (let i = 0; i < 3; i++) {
+            let wid = course.players.reduce(bestOfUnchosenPlayers, course.players[0])
+            winners.push(wid)
+        }
+        this.winners = winners
+
+        const tourney = activeTourney(worldState)
+        this.worldEdit = {
+            "timetravel": {
+                "timeline": this.timeline,
+                "phase": EventCourseReward
+            },
+            "players": this.winners.map((wid, i) => {
+                const player = getWorldItem(worldState, "players", wid)
+                return {
+                    "id": wid,
+                    "netWorth": player.netWorth + Math.floor(Math.pow(2, -1-i) * tourney.sinReward)
+                }
+            })
+        }
+    }
+    eventReport(worldState) {
+        const course = activeCourseOnTimeline(worldState, this.timeline)
+        let text = ``
+        for (let [i,w] of this.winners.entries()) {
+            const player = getWorldItem(worldState, "players", w)
+            if (i != 0) text += `\n`
+            text += `For coming ${i+1}th place, ${player.fullName()} receives ${this.worldEdit.players[i].netWorth - player.netWorth} $ins!`
+        }
+        return text
     }
 }
 
@@ -342,6 +423,82 @@ class EventTourneyFinish extends Event {
             "timetravel": {
                 "timeline": this.timeline,
                 "phase": EventTourneyFinish
+            }
+        }
+    }
+    eventReport(worldState) {
+        const course = activeCourseOnTimeline(worldState, this.timeline)
+        const topPlayer = getWorldItem(worldState, "players", course.players.reduce((pid1,pid2) => bestOfPlayers(worldState, pid1, pid2), course.players[0]))
+
+        return `The tournament is over!! Congratulations to the winner: ${topPlayer.fullName()}!!`
+    }
+}
+
+class EventTourneyReward extends Event {
+    calculateEdit(worldState) {
+        let winners = []
+        function bestOfUnchosenPlayers(pid1, pid2) {
+            if (winners.includes(pid1)) return pid2
+            else if (winners.includes(pid2)) return pid1
+            else return bestOfPlayers(worldState, pid1, pid2)
+        }
+        
+        const course = activeCourseOnTimeline(worldState, this.timeline)
+        for (let i = 0; i < 3; i++) {
+            let wid = course.players.reduce(bestOfUnchosenPlayers, course.players[0])
+            winners.push(wid)
+        }
+
+        this.winners = winners
+
+        const tourney = activeTourney(worldState)
+        this.worldEdit = {
+            "timetravel": {
+                "timeline": this.timeline,
+                "phase": EventTourneyReward
+            },
+            "players": this.winners.map((wid, i) => {
+                const player = getWorldItem(worldState, "players", wid)
+                return {
+                    "id": wid,
+                    "netWorth": player.netWorth + Math.floor(Math.pow(2, -i) * tourney.sinReward)
+                }
+            })
+        }
+    }
+    eventReport(worldState) {
+        const course = activeCourseOnTimeline(worldState, this.timeline)
+        let text = ``
+        for (let [i,w] of this.winners.entries()) {
+            const player = getWorldItem(worldState, "players", w)
+            if (i != 0) text += `\n`
+            text += `For coming ${i+1}th place, ${player.fullName()} receives ${this.worldEdit.players[i].netWorth - player.netWorth} $ins!`
+        }
+        return text
+    }
+}
+
+class EventMemoriam extends Event {
+    calculateEdit(worldState) {
+        this.worldEdit = {
+            "timetravel": {
+                "timeline": this.timeline,
+                "phase": EventMemoriam
+            }
+        }
+    }
+    eventReport(worldState) {
+        const tourney = activeTourney(worldState)
+        return `${tourney.name} has ended.`
+    }
+}
+
+class EventTourneyConclude extends Event {
+    calculateEdit(worldState) {
+        this.worldEdit = {
+            "timetravel": {
+                "timeline": this.timeline,
+                "phase": EventTourneyConclude
             },
             "league": {
                 "currentTourney": 0
@@ -349,7 +506,7 @@ class EventTourneyFinish extends Event {
         }
     }
     eventReport(worldState) {
-        const tourney = getWorldItem(worldState, "tourneys", worldState.league.currentTourney)
-        return `${tourney.name} has ended.`
+        const tourney = activeTourney(worldState)
+        return `${tourney.name} has concluded.`
     }
 }

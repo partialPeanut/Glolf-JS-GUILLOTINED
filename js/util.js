@@ -119,3 +119,11 @@ function activePlayerOnTimeline(worldState, tl) {
     const player = getWorldItem(worldState, "players", playerID)
     return player
 }
+
+function bestOfPlayers(worldState, pid1, pid2) {
+    const p1 = getWorldItem(worldState, "players", pid1)
+    const p2 = getWorldItem(worldState, "players", pid2)
+    if (p1.score < p2.score) return pid1
+    else if (p1.score == p2.score && p1.autism > p2.autism) return pid1
+    else return pid2
+}
