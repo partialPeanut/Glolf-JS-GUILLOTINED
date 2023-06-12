@@ -5,7 +5,7 @@ class Event {
 
     formEvent(worldState) {
         this.calculateEdit(worldState)
-        this.report = this.eventReport()
+        this.report = this.eventReport(worldState)
     }
 
     calculateEdit(worldState) {
@@ -16,7 +16,7 @@ class Event {
             }
         }
     }
-    eventReport() { return `Nothing happened.` }
+    eventReport(worldState) { return `Nothing happened.` }
 }
 
 class EventWait extends Event {
@@ -35,43 +35,47 @@ class EventVoid extends Event {
 }
 
 class EventCreatePlayers extends Event {
-    constructor(tl, num = 96) {
-        super(tl)
-        this.numPlayers = num
+    formEvent(worldState, args) {
+        this.calculateEdit(worldState, args)
+        this.report = this.eventReport(worldState)
     }
 
-    calculateEdit(worldState) {
+    calculateEdit(worldState, args) {
         this.worldEdit = {
             "timetravel": {
                 "timeline": this.timeline
             },
-            "players": {}
+            "players": []
         }
-        for (let i = 0; i < this.numPlayers; i++) {
-            const [id, player] = ThingFactory.generateNewPlayer(worldState)
-            this.worldEdit.players[id] = player
+        for (let i = 0; i < args[0]; i++) {
+            const player = ThingFactory.generateNewPlayer(worldState)
+            this.worldEdit.players.push(player)
         }
     }
-    eventReport() { return `${this.numPlayers} players created!` }
+    eventReport(worldState) {
+        const num = this.worldEdit.players.length
+        return `${num} players created!`
+    }
 }
 
 class EventTourneyStart extends Event {
     calculateEdit(worldState) {
-        const [id, tourney] = ThingFactory.generateNewTourney(worldState)
-
+        const tourney = ThingFactory.generateNewTourney(worldState)
         this.worldEdit = {
             "timetravel": {
                 "timeline": this.timeline,
                 "phase": EventTourneyStart
             },
-            "tourneys": {},
+            "tourneys": [ tourney ],
             "league": {
-                "currentTourney": id
+                "currentTourney": tourney.id
             }
         }
-        this.worldEdit.tourneys[id] = tourney
     }
-    eventReport() { return `Tourney started!` }
+    eventReport(worldState) {
+        const tourney = this.worldEdit.tourneys[0]
+        return `${tourney.name} has started!`
+    }
 }
 
 class EventTourneyConclude extends Event {
@@ -86,5 +90,8 @@ class EventTourneyConclude extends Event {
             }
         }
     }
-    eventReport() { return `Tourney ended.` }
+    eventReport(worldState) {
+        const tourney = getWorldItem(worldState, "tourneys", worldState.league.currentTourney)
+        return `${tourney.name} has ended.`
+    }
 }

@@ -5,11 +5,11 @@ class WorldStateManager {
                 EventVoid
             ],
             "prevTimeline": 0,
-            "players": {},
-            "balls": {},
-            "holes": {},
-            "courses": {},
-            "tourneys": {},
+            "players": [],
+            "balls": [],
+            "holes": [],
+            "courses": [],
+            "tourneys": [],
             "league": {
                 "currentTourney": 0
             }
@@ -33,14 +33,15 @@ class WorldStateManager {
                 continue
             }
 
-            for (const id of Object.keys(worldEdit[type])) {
-                if (worldState[type][id] === undefined) {
-                    worldState[type][id] = worldEdit[type][id]
+            for (const thing of worldEdit[type]) {
+                let wsMatch = worldState[type].find(t => t.id == thing.id)
+                if (wsMatch === undefined) {
+                    worldState[type].push(thing)
                 }
                 else {
-                    const entries = Object.entries(worldEdit[type][id])
+                    const entries = Object.entries(thing)
                     for (let [key,val] of entries)  {
-                        worldState[type][id][key] = val;
+                        wsMatch[key] = val;
                     }
                 }
             }

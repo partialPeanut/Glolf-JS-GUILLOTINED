@@ -12,31 +12,44 @@ class ThingFactory {
 
     static generateNewPlayer(worldState) {
         let id = this.generateNewID()
-        return [id, {
+        function newNetWorth() {
+            let r = randomReal(0,100)
+            if (r < 70)
+                return randomInt(-60000, 60000)
+            else if (r < 99)
+                return randomInt(40000, 300000)
+            else
+                return randomInt(300000, 600000)
+        }
+        let p = {
+            "id": id,
             "mods": [],
             "firstName": randomFromArray(p_namesfirst),
             "lastName": randomFromArray(p_nameslast),
             "suffixes": [],
-            "netWorth": 0,
+            "gender": randomFromArray(p_genders),
+            "netWorth": newNetWorth(),
             "mortality": "ALIVE",
-            "ball": this.generateNewBall(worldState, id)[0],
+            "ball": this.generateNewBall(worldState, id).id,
             "stats": {
-                "competence": 6,
-                "smartassery": 6,
-                "yeetness": 6,
-                "trigonometry": 6,
-                "bisexuality": 6,
-                "asexuality": 6,
-                "scrappiness": 6,
-                "charisma": 6,
-                "autism": 6
+                "competence": randomGaussian(6,2),
+                "smartassery": randomGaussian(6,2),
+                "yeetness": randomGaussian(6,2),
+                "trigonometry": randomGaussian(6,2),
+                "bisexuality": randomGaussian(6,2),
+                "asexuality": randomGaussian(6,2),
+                "scrappiness": randomGaussian(6,2),
+                "charisma": randomGaussian(6,2),
+                "autism": randomGaussian(6,2)
             }
-        }]
+        }
+        return p
     }
 
     static generateNewBall(worldState, playerID) {
         let id = this.generateNewID()
-        return [id, {
+        let b = {
+            "id": id,
             "mods": [],
             "player": playerID,
             "color": 0xFFFFFF,
@@ -48,51 +61,86 @@ class ThingFactory {
                 "distance": 0,
                 "terrain": "TEE"
             }
-        }]
+        }
+        return b
     }
 
     static generateNewHole(worldState) {
         let id = this.generateNewID()
-        return [id, {
+
+        function parFromLength(len) {
+            const plateauPar = 4.1
+            const plateauLength = 100
+            const dropSlope = -0.0045
+            const dropLength = 220
+            const riseSlope = 0.0083
+
+            if (len < plateauLength) return Math.floor(plateauPar);
+            else if (len < plateauPar + dropLength) return Math.floor(dropSlope*(len-plateauLength) + plateauPar);
+            else return Math.floor(riseSlope * (len-plateauPar-dropLength) + (plateauPar + dropSlope*dropLength));
+        }
+
+        let h = {
+            "id": id,
             "mods": [],
             "wildlife": "WORMS",
             "succblow": 0,
-            "dimensions": {
-                "length": 400,
-                "width": 100,
-                "greenRadius": 100
-            },
             "stats": {
-                "par": 4,
-                "roughness": 1,
-                "heterosexuality": 1,
-                "thicc": 1,
-                "verdancy": 1,
-                "obedience": 1,
-                "quench": 1,
-                "thirst": 1
+                "roughness": randomGaussian(1, 0.16),
+                "heterosexuality": randomGaussian(1, 0.16),
+                "thicc": randomGaussian(1, 0.16),
+                "verdancy": randomGaussian(1, 0.16),
+                "obedience": randomGaussian(1, 0.16),
+                "quench": randomGaussian(1, 0.16),
+                "thirst": randomGaussian(1, 0.16)
+            },
+            "dimensions": {
+                "length": randomReal(1000),
             }
-        }]
+        }
+        h.dimensions.width = randomGaussian(100,10) * h.stats.thicc,
+        h.dimensions.greenRadius = randomGaussian(100,10) * h.stats.verdancy,
+        h.dimensions.par = parFromLength(h.dimensions.length)
+
+        return h
     }
 
-    static generateNewCourse(worldState) {
+    static generateNewCourse(worldState, division) {
         let id = this.generateNewID()
-        return [id, {
+        let c = {
+            "id": id,
             "mods": [],
             "players": [],
             "holes": [],
+            "division": division,
             "weather": "TEMPEST"
-        }]
+        }
+        return c
     }
 
     static generateNewTourney(worldState) {
         let id = this.generateNewID()
-        return [id, {
+        function randomLivingPlayers(num) {
+            let livingPlayers = worldState.players.filter(p => p.mortality == "ALIVE")
+            let chosenPlayers = []
+            if (livingPlayers.length <= num) return livingPlayers
+            else {
+                for (let i = 0; i < num; i++) {
+                    let p = randomFromArray(livingPlayers)
+                    chosenPlayers.push(p)
+                    removeFromArray(livingPlayers, p)
+                }
+                return chosenPlayers
+            }
+        }
+        let t = {
+            "id": id,
             "mods": [],
-            "name": "Tournament Tourney",
-            "sinReward": 0,
-            "players": [],
+            "name": randomFromArray(t_titles).replaceAll("[N]", randomFromArray(t_nouns)),
+            "sinReward": randomInt(100000, 200000),
+            "players": randomLivingPlayers(48),
             "courses": []
-        }]
+        }
+        return t
     }
 }
