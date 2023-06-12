@@ -54,7 +54,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glolf!</title>
+    <title>GLOLF!!</title>
+
+    <link href="style.css" rel="stylesheet">
 
     <script src="data/lists/p_namesfirst.js"></script>
     <script src="data/lists/p_nameslast.js"></script>
@@ -69,11 +71,18 @@
     <script src="js/onceler.js"></script>
     <script src="js/greedler.js"></script>
 
-    <script src="main.js"></script>
+    <script src="js/main.js"></script>
 </head>
 <body>
-    <button onclick="nextEvent()">Next Event!</button>
-    <button onclick="logPastEvents()">Show Past Events</button>
-    <button onclick="logFutureEvents()">Show Future Events</button>
-    <button onclick="logWorldState()">Show World State</button>
+    <div class="header-buttons">
+        <button type="button" class="header-button" onclick="nextEvent()">Next Event!</button>
+        <button type="button" class="header-button" onclick="logPastEvents()">Show Past Events</button>
+        <button type="button" class="header-button" onclick="logFutureEvents()">Show Future Events</button>
+        <button type="button" class="header-button" onclick="logWorldState()">Show World State</button>
+    </div>
+    <hr class="header-divider">
+    <div class="display-box">
+        <p>pssssssssst <br>
+        i'm a lovesyou girl</p>
+    </div>
 </body>
