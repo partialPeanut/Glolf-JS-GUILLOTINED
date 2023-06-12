@@ -8,8 +8,17 @@
     hovered player:       rgba(160, 160, 255, 1)
     active player:        rgba(255, 166, 102, 1)
 
-*/ 
+*/
+@font-face {
+  font-family: 'pixel_operatorregular';
+  src: url('assets/fonts/PixelOperator/pixeloperator-webfont.woff2') format('woff2'),
+       url('assets/fonts/PixelOperator/pixeloperator-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
+  font-family: 'pixel_operatorregular', serif;
   background-color: rgba(200, 200, 200, 1); 
 }
 
