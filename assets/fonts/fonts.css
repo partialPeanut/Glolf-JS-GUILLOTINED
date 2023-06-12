@@ -104,3 +104,10 @@
     font-weight: normal;
     font-style: normal;
   }
+  @font-face {
+    font-family: 'pixel_playback';
+    src: url('PixelOperator/PixelPlayback.woff2') format('woff2'),
+         url('PixelOperator/PixelPlayback.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
