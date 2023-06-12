@@ -28,7 +28,8 @@ class ThingFactory {
             "lastName": randomFromArray(p_nameslast),
             "suffixes": [],
             "fullName": () => {
-                return `${this.firstName} ${this.lastName} ${this.suffixes.join(" ")}`
+                if (p.suffixes.length == 0) return `${p.firstName} ${p.lastName}`
+                else return `${p.firstName} ${p.lastName} ${p.suffixes.join(" ")}`
             },
             "gender": randomFromArray(p_genders),
             "netWorth": newNetWorth(),

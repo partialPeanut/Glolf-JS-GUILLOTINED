@@ -174,7 +174,13 @@ class EventHoleStart extends Event {
                 "id": course.id,
                 "currentHole": hole.id,
                 "holeNumber": course.holeNumber+1
-            }]
+            }],
+            "players": course.players.map(pid => { return {
+                "id": pid,
+                "ball": {
+                    "sunk": false
+                }
+            }})
         }
     }
     eventReport(worldState) {
@@ -211,7 +217,11 @@ class EventUpTop extends Event {
             }]
         }
     }
-    eventReport(worldState) { return `The cycle begins anew.` }
+    eventReport(worldState) {
+        const course = activeCourseOnTimeline(worldState, this.timeline)
+        const unsunk = course.players.filter(p => !getWorldItem(worldState, "players", p).ball.sunk)
+        return `The cycle begins anew. ${unsunk.length} players still have not made it in.`
+    }
 }
 
 class EventStrokeType extends Event {
@@ -219,7 +229,7 @@ class EventStrokeType extends Event {
         const course = activeCourseOnTimeline(worldState, this.timeline)
         const hole = activeHoleOnTimeline(worldState, this.timeline)
         const oldCP = hole.currentPlayer
-        let newCP = course.players.slice(oldCP+1).findIndex(p => !getWorldItem(worldState, "players", p).ball.sunk)
+        let newCP = course.players.findIndex((p, i) => i > oldCP && !getWorldItem(worldState, "players", p).ball.sunk)
 
         this.worldEdit = {
             "timetravel": {
@@ -233,8 +243,8 @@ class EventStrokeType extends Event {
         }
     }
     eventReport(worldState) {
-        const cpi = this.worldEdit.holes[0].currentPlayer
-        return `The ${cpi}th player tees.`
+        const player = playerOnTimelineAtIndex(worldState, this.timeline, this.worldEdit.holes[0].currentPlayer)
+        return `${player.fullName()} tees...`
     }
 }
 
@@ -248,12 +258,20 @@ class EventStrokeOutcome extends Event {
             "timetravel": {
                 "timeline": this.timeline,
                 "phase": EventStrokeOutcome
-            }
+            },
+            "players": [{
+                "id": player.id,
+                "ball": {
+                    "sunk": Math.random() < 0.9
+                }
+            }]
         }
     }
     eventReport(worldState) {
         const player = activePlayerOnTimeline(worldState, this.timeline)
-        return `${player.fullName()} does a big hit!!`
+        const newBall = this.worldEdit.players[0].ball
+        let didItSink = newBall.sunk ? ` IT GOES IN!!` : ``
+        return `${player.fullName()} does a big hit!!${didItSink}`
     }
 }
 

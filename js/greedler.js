@@ -19,7 +19,7 @@ class Greedler {
         let nextEvent = new tlPhase[1](tlPhase[0])
         nextEvent.formEvent(Onceler.currentWorldState, tlPhase.slice(2))
         Onceler.addEvent(nextEvent)
-        console.log(nextEvent.report)
+        console.log(`(${tl}) ${nextEvent.report}`)
         return true
     }
     static nextPhaseInTimeline(tl, stuck) {
@@ -57,8 +57,13 @@ class Greedler {
             case EventStrokeType:
                 return EventStrokeOutcome
             case EventStrokeOutcome:
-                return EventUpTop
-                
+                const course = activeCourseOnTimeline(worldState, tl)
+                const hole = activeHoleOnTimeline(worldState, tl)
+                const oldCP = hole.currentPlayer
+                if (course.players.some((p, i) => i > oldCP && !getWorldItem(worldState, "players", p).ball.sunk)) return EventStrokeType
+                else if (course.players.every(p => getWorldItem(worldState, "players", p).ball.sunk)) return EventHoleFinish
+                else return EventUpTop
+
             case EventHoleFinish:
                 let waiting = true
                 let thisHoleNumber = activeCourseOnTimeline(worldState, tl).holeNumber

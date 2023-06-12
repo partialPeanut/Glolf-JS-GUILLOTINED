@@ -66,6 +66,11 @@ function activeCourseOnTimeline(worldState, tl) {
 function activeHoleOnTimeline(worldState, tl) {
     return getWorldItem(worldState, "holes", activeCourseOnTimeline(worldState, tl).currentHole)
 }
+function playerOnTimelineAtIndex(worldState, tl, idx) {
+    const playerID = activeCourseOnTimeline(worldState, tl).players.at(idx)
+    const player = getWorldItem(worldState, "players", playerID)
+    return player
+}
 function activePlayerOnTimeline(worldState, tl) {
     const playerID = activeCourseOnTimeline(worldState, tl).players.at(activeHoleOnTimeline(worldState, tl).currentPlayer)
     const player = getWorldItem(worldState, "players", playerID)
