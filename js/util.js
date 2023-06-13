@@ -150,11 +150,11 @@ function bestOfPlayers(worldState, pid1, pid2) {
 
 function modifyFunction(type, depth, worldState, tl, func) {
     let leagueMods =  worldState.league.mods
-    let tourneyMods = activeTourney(worldState).mods
-    let courseMods =  activeCourseOnTimeline(worldState, tl).mods
-    let holeMods =    activeHoleOnTimeline(worldState, tl).mods
-    let playerMods =  activePlayerOnTimeline(worldState, tl).mods
-    let ballMods =    activePlayerOnTimeline(worldState, tl).ball.mods
+    let tourneyMods = activeTourney(worldState)              === undefined ? [] : activeTourney(worldState).mods
+    let courseMods =  activeCourseOnTimeline(worldState, tl) === undefined ? [] : activeCourseOnTimeline(worldState, tl).mods
+    let holeMods =    activeHoleOnTimeline(worldState, tl)   === undefined ? [] : activeHoleOnTimeline(worldState, tl).mods
+    let playerMods =  activePlayerOnTimeline(worldState, tl) === undefined ? [] : activePlayerOnTimeline(worldState, tl).mods
+    let ballMods =    activePlayerOnTimeline(worldState, tl) === undefined ? [] : activePlayerOnTimeline(worldState, tl).ball.mods
 
     let applicableMods = []
     if (depth == "League")  applicableMods = leagueMods
