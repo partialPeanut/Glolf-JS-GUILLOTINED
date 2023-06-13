@@ -38,7 +38,7 @@ function main() {
 
 function nextEvent() {
     Greedler.doTimeStep()
-    reports = mostRecentReports()
+    reports = Onceler.mostRecentReports()
 }
 
 function logPastEvents() {
