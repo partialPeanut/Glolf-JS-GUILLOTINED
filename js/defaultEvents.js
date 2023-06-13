@@ -111,7 +111,7 @@ class EventMultiplication extends Event {
         // Rest of top players
         let numFinalists = Math.floor(tourney.players.length/tourney.numCourses)
         for (let i = finalists.length; i < numFinalists; i++) {
-            let fin = tourney.players.reduce(unchosenBestOf, tourney.players[0])
+            let fin = tourney.players.reduce(bestOfUnchosenPlayers, tourney.players[0])
             finalists.push(fin)
         }
 
@@ -394,7 +394,7 @@ class EventCourseReward extends Event {
         for (let [i,w] of this.winners.entries()) {
             const player = getWorldItem(worldState, "players", w)
             if (i != 0) this.report += `\n`
-            this.report += `For coming ${i+1}th place, ${player.fullName()} receives ${(this.worldEdit.players[i].netWorth - player.netWorth).toLocaleString()} $ins!`
+            this.report += `For coming ${nth(i+1)} place, ${player.fullName()} receives ${(this.worldEdit.players[i].netWorth - player.netWorth).toLocaleString()} $ins!`
         }
     }
 }

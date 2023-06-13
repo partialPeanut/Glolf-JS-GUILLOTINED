@@ -2,6 +2,7 @@ class Weather {
     static Mirage = new Weather("Mirage",  "Irrelevance and Falsehoods.", 0xFFEA6BE6, {
         "strokeOutcome": (func) => {
             return function (worldState, tl, player) {
+                const course = activeCourseOnTimeline(worldState, tl)
                 if (unsunkPlayers(worldState, course).length >= 2 && Math.random() < 0.05) Greedler.queueEvent([ tl, EventWeatherMirage ])
 
                 let out = func.apply(this, arguments)
@@ -44,8 +45,8 @@ class EventWeatherMirage extends Event {
         const pidx2 = course.players.indexOf(p2.id)
 
         const newPlayRay = course.players.slice(0)
-        newPlayRay.at(pidx1) = p2.id
-        newPlayRay.at(pidx2) = p1.id
+        newPlayRay[pidx1] = p2.id
+        newPlayRay[pidx2] = p1.id
 
         this.worldEdit = {
             "timetravel": {
