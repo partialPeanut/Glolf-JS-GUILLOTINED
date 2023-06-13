@@ -134,7 +134,7 @@ function calculateNextTerrain(worldState, tl, player, result, newDist, distFlown
             // Rough, whz, bnk
             const weights = [
                 1,
-                hole.stats.quench * curveLoggy(0.10, 0.01, player.stats.trigonometry),
+                hole.stats.quench * curveLoggy(0.50, 0.01, player.stats.trigonometry),
                 hole.stats.thirst * curveLoggy(0.10, 0.01, player.stats.trigonometry)
             ]
             switch (chooseFromWeights(weights)) {

@@ -28,7 +28,7 @@ function randomGaussian(mean=0, stdev=1) {
 
 function randomFromArray(array) { return array.at(randomInt(array.length-1)) }
 
-function removeFromArray(array, val) { array.splice(array.indexOf(val), 1) }
+function removeFromArray(array, val) { if (array.includes(val)) array.splice(array.indexOf(val), 1) }
 
 function chooseFromWeights(array) {
     const totalWeight = array.reduce((total, w) => total += w)
@@ -96,6 +96,28 @@ function intToBird(num) {
     }
 }
 
+function nth(num) {
+    let end = "th"
+    const absnum = Math.abs(num)
+    if (![11,12,13].includes(absnum % 100)) {
+        if (absnum % 10 == 1) end = "st"
+        if (absnum % 10 == 2) end = "nd"
+        if (absnum % 10 == 3) end = "rd"
+    }
+    return `${num}${end}`
+}
+
+function joinGrammatically(array) {
+    if (array.length == 0) return ``
+    else if (array.length == 1) return array[0]
+    else if (array.length == 2) return array.join(" and ")
+    else {
+        const last = array.at(-1)
+        const allButLast = array.slice(0,-1)
+        return `${allButLast.join(", ")}, and ${last}`
+    }
+}
+
 function getWorldItem(worldState, type, id) {
     return worldState[type].find(t => t.id == id)
 }
@@ -115,9 +137,7 @@ function playerOnTimelineAtIndex(worldState, tl, idx) {
     return player
 }
 function activePlayerOnTimeline(worldState, tl) {
-    const playerID = activeCourseOnTimeline(worldState, tl).players.at(activeHoleOnTimeline(worldState, tl).currentPlayer)
-    const player = getWorldItem(worldState, "players", playerID)
-    return player
+    return playerOnTimelineAtIndex(worldState, tl, activeHoleOnTimeline(worldState, tl).currentPlayer)
 }
 
 function bestOfPlayers(worldState, pid1, pid2) {
@@ -126,4 +146,28 @@ function bestOfPlayers(worldState, pid1, pid2) {
     if (p1.score < p2.score) return pid1
     else if (p1.score == p2.score && p1.autism > p2.autism) return pid1
     else return pid2
+}
+
+function modifyFunction(type, depth, worldState, tl, func) {
+    let leagueMods =  worldState.league.mods
+    let tourneyMods = activeTourney(worldState).mods
+    let courseMods =  activeCourseOnTimeline(worldState, tl).mods
+    let holeMods =    activeHoleOnTimeline(worldState, tl).mods
+    let playerMods =  activePlayerOnTimeline(worldState, tl).mods
+    let ballMods =    activePlayerOnTimeline(worldState, tl).ball.mods
+
+    let applicableMods = []
+    if (depth == "League")  applicableMods = leagueMods
+    if (depth == "Tourney") applicableMods = leagueMods.concat(tourneyMods)
+    if (depth == "Course")  applicableMods = leagueMods.concat(tourneyMods, courseMods)
+    if (depth == "Hole")    applicableMods = leagueMods.concat(tourneyMods, courseMods, holeMods)
+    if (depth == "Player")  applicableMods = leagueMods.concat(tourneyMods, courseMods, holeMods, playerMods)
+    if (depth == "Ball")    applicableMods = leagueMods.concat(tourneyMods, courseMods, holeMods, playerMods, ballMods)
+    applicableMods.sort((m1,m2) => m1.priority - m2.priority)
+
+    let moddedFunc = func
+    for (let m of applicableMods) {
+        moddedFunc = m.modify(type, moddedFunc)
+    }
+    return moddedFunc
 }

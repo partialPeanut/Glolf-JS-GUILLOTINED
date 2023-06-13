@@ -1,6 +1,6 @@
 class Greedler {
     static eventQueue = [
-        [0, EventCreatePlayers, 16]
+        [0, EventCreatePlayers, { "playerCount": 96 }]
     ]
 
     static doTimeStep(stuck = false) {
@@ -17,7 +17,7 @@ class Greedler {
         if (tlPhase[1] == EventWait) return false
 
         let nextEvent = new tlPhase[1](tlPhase[0])
-        nextEvent.formEvent(Onceler.currentWorldState, tlPhase.slice(2))
+        nextEvent.formEvent(Onceler.currentWorldState, tlPhase[2])
         Onceler.addEvent(nextEvent)
         console.log(`(${tl}) ${nextEvent.report}`)
         return true
@@ -47,6 +47,7 @@ class Greedler {
                 return EventWeatherReport
             case EventWeatherReport:
                 return EventHoleStart
+
             case EventHoleStart:
                 return EventWildlifeReport
             case EventWildlifeReport:
@@ -85,10 +86,14 @@ class Greedler {
             
             case EventTourneyFinish:
                 return EventTourneyReward
+
             case EventTourneyReward:
-                return EventMemoriam
+                const tourney = activeTourney(worldState)
+                if (tourney.kia.length > 0) return EventMemoriam
+                else return EventTourneyConclude
             case EventMemoriam:
                 return EventTourneyConclude
+
             case EventTourneyConclude:
                 return EventVoid
         }

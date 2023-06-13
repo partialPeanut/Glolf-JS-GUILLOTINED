@@ -23,7 +23,7 @@ class ThingFactory {
         }
         let p = {
             "id": id,
-            "mods": [],
+            "mods": [Mod.SemiAquatic],
             "firstName": randomFromArray(p_namesfirst),
             "lastName": randomFromArray(p_nameslast),
             "suffixes": [],
@@ -128,8 +128,9 @@ class ThingFactory {
             "name": randomFromArray(t_titles).replaceAll("[N]", randomFromArray(t_nouns)),
             "sinReward": randomInt(100000, 200000),
             "numCourses": 4,
-            "holesPerCourse": 1,
+            "holesPerCourse": 9,
             "players": randomLivingPlayers(48).map(p => p.id),
+            "kia": [],
             "courses": []
         }
         return t

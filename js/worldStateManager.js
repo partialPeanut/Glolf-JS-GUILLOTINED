@@ -10,6 +10,7 @@ class WorldStateManager {
             "courses": [],
             "tourneys": [],
             "league": {
+                "mods": [],
                 "currentTourney": 0,
                 "divisionNames": [
                     "RED",
@@ -51,6 +52,9 @@ class WorldStateManager {
                 let wsMatch = worldState[type].find(t => t.id == thing.id)
                 if (wsMatch === undefined) {
                     worldState[type].push(thing)
+                }
+                else if (thing.remove == true) {
+                    removeFromArray(worldState[type], wsMatch)
                 }
                 else {
                     const entries = Object.entries(thing)
