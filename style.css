@@ -12,28 +12,21 @@ body {
   font-family: 'pixel_operator_regular', serif;
   margin: 0px;
   background-color: rgba(200, 200, 200, 1);
-  background: url(assets/date-bg.jpg);
-  background-size: cover;
 }
 
-.display-box {
+#feed-displayer1 {
   border: 3px solid #000;
   color: rgb(224, 67, 255);
-  margin: 10px;
-  position: absolute;
   font-size: 48px;
-  bottom: 0px;
-  left: 15%;
-  width: 70%;
-  height: 220px;
-  padding-left: 40px;
-  padding-top: 20px;
-  text-align: left;
-  vertical-align: top;
+  position:absolute;
+	left:30%;
+	padding-left:16px;
+	top:93px;
+	right:10px;
+	min-height: 300px;
+	min-width:100px;
+	overflow:hidden;
   background-color: rgba(50, 50, 50, 1);
-}
-.display-box {
-  display: block;
 }
 
 .header-button {
@@ -57,7 +50,7 @@ body {
 }
 .header-buttons {
   display: grid;
-  grid-template-columns: 300px repeat(5, 70px) 1fr 1fr 1fr 1fr 10px;
+  grid-template-columns: 200px repeat(5, 70px) 1fr 1fr 1fr 1fr 10px;
   background-color: rgba(200, 200, 200, 1);
 }
 .header-divider {
@@ -68,12 +61,4 @@ body {
 .playback {
   font-family: 'pixel_playback', serif;
   font-size: 30px;
-}
-.uwaa {
-  display: block;
-  margin-top: 5%;
-  margin-left: auto;
-  margin-right: auto;
-  width: 25%;
-  height: 25%;
 }
