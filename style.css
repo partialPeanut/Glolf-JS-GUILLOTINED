@@ -14,19 +14,55 @@ body {
   background-color: rgba(200, 200, 200, 1);
 }
 
-#feed-displayer1 {
-  border: 3px solid #000;
-  color: rgb(224, 67, 255);
-  font-size: 48px;
+#feed-displayers {
+  display: grid;
   position:absolute;
-	left:30%;
-	padding-left:16px;
+	left:10px;
 	top:93px;
 	right:10px;
-	min-height: 300px;
-	min-width:100px;
+	height: 300px;
+	overflow:hidden;
+}
+
+#feed-displayer1 {
+  color: rgb(224, 67, 255);
+  border: 3px solid #000;
+  font-size: 48px;
+  padding-top: 10px;
+	padding-left:16px;
 	overflow:hidden;
   background-color: rgba(50, 50, 50, 1);
+  display: block;
+}
+#feed-displayer2 {
+  color: rgb(72, 253, 111);
+  border: 3px solid #000;
+  font-size: 30px;
+  padding-top: 10px;
+	padding-left:16px;
+	overflow:hidden;
+  background-color: rgba(50, 50, 50, 1);
+  display: none;
+}
+#feed-displayer3 {
+  color: rgba(100, 100, 255, 1);
+  border: 3px solid #000;
+  font-size: 30px;
+  padding-top: 10px;
+	padding-left:16px;
+	overflow:hidden;
+  background-color: rgba(50, 50, 50, 1);
+  display: none;
+}
+#feed-displayer4 {
+  color: rgb(197, 199, 60);
+  border: 3px solid #000;
+  font-size: 30px;
+  padding-top: 10px;
+	padding-left:16px;
+	overflow:hidden;
+  background-color: rgba(50, 50, 50, 1);
+  display: none;
 }
 
 .header-button {
@@ -40,6 +76,7 @@ body {
   text-align: center;
   color: #000;
   background-color: rgba(225, 225, 225, 1);
+  overflow:hidden;
 }
 .header-button:hover {
   border-color: rgb(255, 0, 0);
