@@ -57,8 +57,7 @@ body {
 }
 .header-buttons {
   display: grid;
-  grid-template-columns: 300px repeat(5, 70px) 1fr 1fr 1fr 1fr;
-  margin-right: 10px;
+  grid-template-columns: 300px repeat(5, 70px) 1fr 1fr 1fr 1fr 10px;
   background-color: rgba(200, 200, 200, 1);
 }
 .header-divider {
