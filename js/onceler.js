@@ -18,7 +18,8 @@ class Onceler {
     static mostRecentReports() {
         let reports = []
         for (let i = 0; i < this.currentWorldState.timelines.length; i++) {
-            reports.push(this.pastEvents.findLast(e => e.timeline == i).report)
+            const lastEvent = this.pastEvents.findLast(e => e.timeline == i)
+            if (lastEvent !== undefined) reports.push(lastEvent.report)
         }
         return reports
     }
