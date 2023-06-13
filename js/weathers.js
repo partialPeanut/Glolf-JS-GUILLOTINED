@@ -2,19 +2,20 @@ class Weather {
     static Mirage = new Weather("Mirage",  "Irrelevance and Falsehoods.", 0xFFEA6BE6, {
         "strokeOutcome": (func) => {
             return function (worldState, tl, player) {
-                if (Math.random() < 0.05) Greedler.queueEvent([ tl, EventWeatherMirage ])
+                if (unsunkPlayers(worldState, course).length >= 2 && Math.random() < 0.05) Greedler.queueEvent([ tl, EventWeatherMirage ])
 
-                let out = func.apply(this)
+                let out = func.apply(this, arguments)
                 return out
             }
         }})
     static Tempest = new Weather("Tempest", "Progression and Regression.", 0xFF1281C3, {
         "strokeOutcome": (func) => {
             return function (worldState, tl, player) {
-                const course = activeCourseOnTimeline(worldState, this.timeline)
-                if (unsunkPlayers(course).length >= 2 && Math.random() < 0.05) Greedler.queueEvent([ tl, EventWeatherTempest ])
+                let out = func.apply(this, arguments)
 
-                let out = func.apply(this)
+                const course = activeCourseOnTimeline(worldState, tl)
+                if (unsunkPlayers(worldState, course).length >= (out.result == "SINK" ? 3 : 2) && Math.random() < 0.05) Greedler.queueEvent([ tl, EventWeatherTempest ])
+
                 return out
             }
         }})
@@ -37,9 +38,9 @@ class Weather {
 class EventWeatherMirage extends Event {
     calculateEdit(worldState) {
         const course = activeCourseOnTimeline(worldState, this.timeline)
-        const p1 = randomFromArray(unsunkPlayers(course))
+        const p1 = randomFromArray(unsunkPlayers(worldState, course))
         const pidx1 = course.players.indexOf(p1.id)
-        const p2 = randomFromArray(unsunkPlayers(course))
+        const p2 = randomFromArray(unsunkPlayers(worldState, course))
         const pidx2 = course.players.indexOf(p2.id)
 
         const newPlayRay = course.players.slice(0)
@@ -64,7 +65,7 @@ class EventWeatherMirage extends Event {
 class EventWeatherTempest extends Event {
     calculateEdit(worldState) {
         const course = activeCourseOnTimeline(worldState, this.timeline)
-        const [p1, p2] = chooseNumFromArray(unsunkPlayers(course), 2)
+        const [p1, p2] = chooseNumFromArray(unsunkPlayers(worldState, course), 2)
 
         this.worldEdit = {
             "timetravel": {

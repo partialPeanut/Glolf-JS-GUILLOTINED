@@ -144,7 +144,7 @@ function activePlayerOnTimeline(worldState, tl) {
     else return playerOnTimelineAtIndex(worldState, tl, activeHoleOnTimeline(worldState, tl).currentPlayer)
 }
 
-function unsunkPlayers(course) {
+function unsunkPlayers(worldState, course) {
     return course.players.filter(pid => !getWorldItem(worldState, "players", pid).ball.sunk).map(pid => getWorldItem(worldState, "players", pid))
 }
 
@@ -174,8 +174,8 @@ function modifyFunction(type, depth, worldState, tl, func) {
         case "Ball":    applicableMods = applicableMods.concat(ballMods)
         case "Player":  applicableMods = applicableMods.concat(playerMods)
         case "Hole":    applicableMods = applicableMods.concat(holeMods)
-            if (weather  !== undefined)  weather.modify(type, moddedFunc)
-            if (wildlife !== undefined) wildlife.modify(type, moddedFunc)
+            if (weather  !== undefined)  moddedFunc = weather.modify(type, moddedFunc)
+            //if (wildlife !== undefined) moddedFunc = wildlife.modify(type, moddedFunc)
         case "Course":  applicableMods = applicableMods.concat(courseMods)
         case "Tourney": applicableMods = applicableMods.concat(tourneyMods)
         case "League":  applicableMods = applicableMods.concat(leagueMods)

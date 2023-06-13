@@ -7,7 +7,7 @@ class Mod {
 
                     // Get all nearby players (within player's yeetness)
                     const course = activeCourseOnTimeline(worldState, tl)
-                    const nearbyPlayers = unsunkPlayers(course).filter(p => {
+                    const nearbyPlayers = unsunkPlayers(worldState, course).filter(p => {
                         if (player == p) return false
                         if (p.ball.past != (out.distanceFlown > player.ball.distance ? !player.ball.past : player.ball.past)) return false
                         return Math.abs(p.ball.distance - out.distanceToHole) <= player.stats.yeetness

@@ -166,7 +166,7 @@ class EventWeatherReport extends Event {
             }]
         }
 
-        this.report = `This course's weather report predicts: ${chosenWeather.report}!`
+        this.report = `This course's weather report predicts: ${chosenWeather.report}`
     }
 }
 
