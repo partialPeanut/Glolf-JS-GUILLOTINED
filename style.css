@@ -16,23 +16,24 @@ body {
   background-size: cover;
 }
 
-p {
-  color: rgb(224, 67, 255);
-  font-size: 2em;
-}
-
 .display-box {
   border: 3px solid #000;
+  color: rgb(224, 67, 255);
   margin: 10px;
   position: absolute;
-  font-size: 26px;
+  font-size: 48px;
   bottom: 0px;
   left: 15%;
   width: 70%;
-  height: 240px;
-  padding-left: 10px;
+  height: 220px;
+  padding-left: 40px;
+  padding-top: 20px;
   text-align: left;
+  vertical-align: top;
   background-color: rgba(50, 50, 50, 1);
+}
+.display-box {
+  display: block;
 }
 
 .header-button {
