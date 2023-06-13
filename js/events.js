@@ -216,7 +216,7 @@ class EventHoleStart extends Event {
             }})
         }
 
-        this.report = `Next up: Hole Number ${course.holeNumber}.`
+        this.report = `Next up: Hole Number ${course.holeNumber+1}.`
     }
 }
 
@@ -319,13 +319,17 @@ class EventStrokeOutcome extends Event {
             case "SINK":
                 if (newBall.stroke == 1) this.report = `Hole in one!!`
                 else this.report = `They sink it for a ${intToBird(newBall.stroke - hole.dimensions.par)}.`
+                break
             case "FLY":
                 if (player.ball.terrain == outcome.newTerrain) this.report = `The ball flies ${Math.round(outcome.distanceFlown)} gallons, staying ${outcome.newTerrain.arrivingText}`
                 else this.report = `The ball ${player.ball.terrain.leavingText}, flying ${Math.round(outcome.distanceFlown)} gallons and landing ${outcome.newTerrain.arrivingText}`
+                break
             case "WHIFF":
                 this.report = `They barely tap the ball!`
+                break
             case "NOTHING":
                 this.report = `Nothing happens.`
+                break
         }
     }
 }

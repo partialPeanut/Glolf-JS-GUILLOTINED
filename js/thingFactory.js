@@ -23,7 +23,7 @@ class ThingFactory {
         }
         let p = {
             "id": id,
-            "mods": [Mod.SemiAquatic],
+            "mods": [],
             "firstName": randomFromArray(p_namesfirst),
             "lastName": randomFromArray(p_nameslast),
             "suffixes": [],
