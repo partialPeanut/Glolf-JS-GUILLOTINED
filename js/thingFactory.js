@@ -58,6 +58,10 @@ class ThingFactory {
                 "autism": randomGaussian(6,2)
             }
         }
+
+        for (let m of p.mods) p = m.mutate(p)
+        for (let m of p.ball.mods) p.ball = m.mutate(p.ball)
+
         return p
     }
 
@@ -99,9 +103,7 @@ class ThingFactory {
         h.dimensions.greenRadius = randomGaussian(100,10) * h.stats.verdancy,
         h.dimensions.par = parFromLength(h.dimensions.length)
 
-        for (let m of h.mods) {
-            if (m.mutate !== undefined) h = m.mutate(h)
-        }
+        for (let m of h.mods) h = m.mutate(h)
 
         return h
     }
@@ -117,6 +119,9 @@ class ThingFactory {
             "division": division,
             "weather": "TEMPEST"
         }
+
+        for (let m of c.mods) c = m.mutate(c)
+
         return c
     }
 
@@ -137,6 +142,9 @@ class ThingFactory {
             "kia": [],
             "courses": []
         }
+
+        for (let m of t.mods) t = m.mutate(t)
+
         return t
     }
 }

@@ -67,11 +67,11 @@ class Mod {
     static TourneyMods = [ Mod.CharityMatch ]
     static LeagueMods =  []
 
-    constructor(name, priority, eventChanges, mutate) {
+    constructor(name, priority, eventChanges, mutation) {
         this.name = name
         this.priority = priority
         this.eventChanges = eventChanges
-        this.mutate = mutate
+        this.mutation = mutation
     }
 
     modify(type, func) {
@@ -79,5 +79,10 @@ class Mod {
             return this.eventChanges[type](func)
         }
         else return func
+    }
+
+    mutate(x) {
+        if (this.mutation === undefined) return x
+        else return this.mutation(x)
     }
 }
