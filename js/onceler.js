@@ -14,4 +14,12 @@ class Onceler {
         this.pastEvents.push(event)
         WorldStateManager.causeEdit(this.currentWorldState, event.worldEdit)
     }
+
+    static mostRecentReports() {
+        let reports = []
+        for (let i = 0; i < this.currentWorldState.timelines.length; i++) {
+            reports.push(this.pastEvents.findLast(e => e.timeline == i))
+        }
+        return reports
+    }
 }

@@ -30,12 +30,15 @@
 //
 //==================================================================================================
 
+reports = []
+
 function main() {
     
 }
 
 function nextEvent() {
     Greedler.doTimeStep()
+    reports = mostRecentReports()
 }
 
 function logPastEvents() {
