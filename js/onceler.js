@@ -19,7 +19,7 @@ class Onceler {
         let reports = []
         for (let i = 0; i < this.currentWorldState.timelines.length; i++) {
             const lastEvent = this.pastEvents.findLast(e => e.timeline == i)
-            if (lastEvent !== undefined) reports.push(lastEvent.report)
+            if (lastEvent !== undefined) reports.push(lastEvent.report.replaceAll(`\n`, `\r\n`))
         }
         return reports
     }
