@@ -77,6 +77,28 @@
     <script src="js/greedler.js"></script>
 
     <script src="main.js"></script>
+    <script>
+        let playbackSpeed = 0;
+
+        function changePlaybackSpeed() {
+            if (playbackSpeed < 2) {
+                playbackSpeed++;
+                if (playbackSpeed == 1) {
+                    document.getElementById("playback-speed").textContent = "F";
+                    document.getElementById("playback-speed").style.paddingLeft = "4px";
+                }
+                else {
+                    if (playbackSpeed == 2) document.getElementById("playback-speed").textContent = " G";
+                    document.getElementById("playback-speed").style.paddingLeft = "8px";
+                }
+            }
+            else {
+                playbackSpeed = 0;
+                document.getElementById("playback-speed").textContent = "E";
+                document.getElementById("playback-speed").style.paddingLeft = "0px";
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="header-buttons">
@@ -90,15 +112,17 @@
         <button type="button" class="header-button"><div class="playback">A</div></button>
         <button type="button" class="header-button"><div class="playback">D</div></button>
         <button type="button" class="header-button" onclick="nextEvent()"><div class="playback">C</div></button>
-        <button type="button" class="header-button"><div class="playback">G</div></button>
+        <button type="button" class="header-button" onclick="changePlaybackSpeed()"><div class="playback" id="playback-speed">E</div></button>
         <button type="button" class="header-button" onclick="logPastEvents()">Past Events</button>
         <button type="button" class="header-button" onclick="logFutureEvents()">Future Events</button>
         <button type="button" class="header-button" onclick="logWorldState()">World State</button>
         <button type="button" class="header-button">Girl Button</button>
     </div>
     <hr class="header-divider">
+    <div class=""uwaa1">
+    <img src="assets/icons/uwaa.png" class="uwaa"/>
+    </div>
     <div class="display-box">
-        <p>pssssssssst<br>
-        i'm a lovesyou girl</p>
+        <p>UWAAA~!!! S-s-senpai! What are you doing here...?</p>
     </div>
 </body>

@@ -11,7 +11,9 @@
 body {
   font-family: 'pixel_operator_regular', serif;
   margin: 0px;
-  background-color: rgba(200, 200, 200, 1); 
+  background-color: rgba(200, 200, 200, 1);
+  background: url(assets/date-bg.jpg);
+  background-size: cover;
 }
 
 p {
@@ -20,17 +22,22 @@ p {
 }
 
 .display-box {
-  border: 0.3em solid #000;
-  background-color: rgba(50, 50, 50, 1);
-  padding: 4em;
-  padding-inline-start: 1em;
+  border: 3px solid #000;
   margin: 10px;
+  position: absolute;
+  font-size: 26px;
+  bottom: 0px;
+  left: 15%;
+  width: 70%;
+  height: 240px;
+  padding-left: 10px;
   text-align: left;
+  background-color: rgba(50, 50, 50, 1);
 }
 
 .header-button {
   font-family: 'pixel_operator_bold', serif;
-  height: 80px;
+  height: 60px;
   margin: 10px;
   margin-right: 0px;
   border: 3px solid #000;
@@ -49,8 +56,9 @@ p {
 }
 .header-buttons {
   display: grid;
-  grid-template-columns: 300px repeat(5, 90px) 1fr 1fr 1fr 1fr;
+  grid-template-columns: 300px repeat(5, 70px) 1fr 1fr 1fr 1fr;
   margin-right: 10px;
+  background-color: rgba(200, 200, 200, 1);
 }
 .header-divider {
   border-top: 3px solid #000;
@@ -60,4 +68,12 @@ p {
 .playback {
   font-family: 'pixel_playback', serif;
   font-size: 30px;
+}
+.uwaa {
+  display: block;
+  margin-top: 5%;
+  margin-left: auto;
+  margin-right: auto;
+  width: 25%;
+  height: 25%;
 }
