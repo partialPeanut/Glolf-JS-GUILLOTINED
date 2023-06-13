@@ -23,7 +23,7 @@ class ThingFactory {
         }
         let p = {
             "id": id,
-            "mods": [Mod.Aggressive],
+            "mods": [],
             "firstName": randomFromArray(p_namesfirst),
             "lastName": randomFromArray(p_nameslast),
             "suffixes": [],
@@ -117,7 +117,7 @@ class ThingFactory {
             "currentHole": 0,
             "holeNumber": 0,
             "division": division,
-            "weather": "TEMPEST"
+            "weather": Weather.Tempest
         }
 
         for (let m of c.mods) c = m.mutate(c)

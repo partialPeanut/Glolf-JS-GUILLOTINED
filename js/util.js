@@ -144,6 +144,10 @@ function activePlayerOnTimeline(worldState, tl) {
     else return playerOnTimelineAtIndex(worldState, tl, activeHoleOnTimeline(worldState, tl).currentPlayer)
 }
 
+function unsunkPlayers(course) {
+    return course.players.filter(pid => !getWorldItem(worldState, "players", pid).ball.sunk).map(pid => getWorldItem(worldState, "players", pid))
+}
+
 function bestOfPlayers(worldState, pid1, pid2) {
     const p1 = getWorldItem(worldState, "players", pid1)
     const p2 = getWorldItem(worldState, "players", pid2)
@@ -160,18 +164,31 @@ function modifyFunction(type, depth, worldState, tl, func) {
     let playerMods =  activePlayerOnTimeline(worldState, tl) === undefined ? [] : activePlayerOnTimeline(worldState, tl).mods
     let ballMods =    activePlayerOnTimeline(worldState, tl) === undefined ? [] : activePlayerOnTimeline(worldState, tl).ball.mods
 
-    let applicableMods = []
-    if (depth == "League")  applicableMods = leagueMods
-    if (depth == "Tourney") applicableMods = leagueMods.concat(tourneyMods)
-    if (depth == "Course")  applicableMods = leagueMods.concat(tourneyMods, courseMods)
-    if (depth == "Hole")    applicableMods = leagueMods.concat(tourneyMods, courseMods, holeMods)
-    if (depth == "Player")  applicableMods = leagueMods.concat(tourneyMods, courseMods, holeMods, playerMods)
-    if (depth == "Ball")    applicableMods = leagueMods.concat(tourneyMods, courseMods, holeMods, playerMods, ballMods)
-    applicableMods.sort((m1,m2) => m1.priority - m2.priority)
+    let weather =     activeCourseOnTimeline(worldState, tl) === undefined ? undefined : activeCourseOnTimeline(worldState, tl).weather
+    let wildlife =    activeHoleOnTimeline(worldState, tl)   === undefined ? undefined : activeHoleOnTimeline(worldState, tl).wildlife
 
     let moddedFunc = func
+
+    let applicableMods = []
+    switch (depth) {
+        case "Ball":    applicableMods = applicableMods.concat(ballMods)
+        case "Player":  applicableMods = applicableMods.concat(playerMods)
+        case "Hole":    applicableMods = applicableMods.concat(holeMods)
+            if (weather  !== undefined)  weather.modify(type, moddedFunc)
+            if (wildlife !== undefined) wildlife.modify(type, moddedFunc)
+        case "Course":  applicableMods = applicableMods.concat(courseMods)
+        case "Tourney": applicableMods = applicableMods.concat(tourneyMods)
+        case "League":  applicableMods = applicableMods.concat(leagueMods)
+    }
+    applicableMods.sort((m1,m2) => m1.priority - m2.priority)
+
     for (let m of applicableMods) {
         moddedFunc = m.modify(type, moddedFunc)
     }
     return moddedFunc
+}
+
+function triggerEffects(type, depth, worldState, tl) {
+    let modFunc = modifyFunction(type, depth, worldState, tl, () => {})
+    modFunc()
 }

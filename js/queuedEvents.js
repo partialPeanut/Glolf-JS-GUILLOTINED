@@ -17,7 +17,6 @@ class EventCreatePlayers extends Event {
 
 class EventAggression extends Event {
     calculateEdit(worldState, options) {
-        const course = activeCourseOnTimeline(worldState, this.timeline)
         const atkPlayer = options.atkPlayer
         const defPlayer = options.defPlayer
 
@@ -38,5 +37,27 @@ class EventAggression extends Event {
         }
 
         this.report = `${atkPlayer.fullName()}'s ball hits ${defPlayer.fullName()}'s ball away from the hole!`
+    }
+}
+
+class EventTourneyDonate extends Event {
+    calculateEdit(worldState) {
+        const tourney = activeTourney(worldState)
+        const totalSins = tourney.players.reduce((total, pid) => total + getWorldItem(worldState, "players", pid).netWorth, 0)
+        const donation = Math.floor(0.2 * totalSins / tourney.players.length)
+
+        this.worldEdit = {
+            "timetravel": {
+                "timeline": this.timeline
+            },
+            "players": tourney.players.map(pid => {
+                return {
+                    "id": pid,
+                    "netWorth": getWorldItem(worldState, "players", pid).netWorth - donation
+                }
+            })
+        }
+
+        this.report = `Hearts swell! Kindness overflowing! Each player atones for ${donations.toLocaleString()} $ins.`
     }
 }

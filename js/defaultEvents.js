@@ -51,6 +51,8 @@ class EventTourneyStart extends Event {
             }
         }
 
+        triggerEffects("tourneyStarted", "Tourney", worldState, this.timeline)
+
         this.report =
             `Wlecome to ${tourney.name}!` +
             `\n${tourney.players.length} players, ${tourney.numCourses} divisions with ${tourney.holesPerCourse} holes each, and up to ${tourney.sinReward.toLocaleString()} $ins up for grabs!` +
@@ -152,7 +154,7 @@ class EventCourseStart extends Event {
 class EventWeatherReport extends Event {
     calculateEdit(worldState) {
         const course = activeCourseOnTimeline(worldState, this.timeline)
-        let chosenWeather = "TEMPEST"
+        let chosenWeather = Weather.Tempest
         this.worldEdit = {
             "timetravel": {
                 "timeline": this.timeline,
@@ -164,7 +166,7 @@ class EventWeatherReport extends Event {
             }]
         }
 
-        this.report = `This course's weather report predicts: ${chosenWeather}!`
+        this.report = `This course's weather report predicts: ${chosenWeather.report}!`
     }
 }
 
