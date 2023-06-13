@@ -37,23 +37,6 @@ class EventVoid extends Event {
     }
 }
 
-class EventCreatePlayers extends Event {
-    calculateEdit(worldState, options) {
-        this.worldEdit = {
-            "timetravel": {
-                "timeline": this.timeline
-            },
-            "players": []
-        }
-        for (let i = 0; i < options.playerCount; i++) {
-            const player = ThingFactory.generateNewPlayer(worldState)
-            this.worldEdit.players.push(player)
-        }
-
-        this.report = `Contracts signed. ${options.playerCount} players rise from the ground.`
-    }
-}
-
 class EventTourneyStart extends Event {
     calculateEdit(worldState) {
         const tourney = ThingFactory.generateNewTourney(worldState)

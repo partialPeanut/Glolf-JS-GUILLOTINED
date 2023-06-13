@@ -3,6 +3,10 @@ class Greedler {
         [0, EventCreatePlayers, { "playerCount": 96 }]
     ]
 
+    static queueEvent(eventData) {
+        this.eventQueue.push(eventData)
+    }
+
     static doTimeStep(stuck = false) {
         let tls = Onceler.currentWorldState.timelines.length
         let didStep = false
