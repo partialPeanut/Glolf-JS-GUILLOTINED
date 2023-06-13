@@ -49,16 +49,13 @@ class Mod {
         }})
     static Poisoned =     new Mod("PSND", 0, {})
     
-    static Coastal =      new Mod("CSTL", 0, {
-        "createHole": (func) => {
-            let oldFunc = func
-            return function (worldState) {
-                let out = oldFunc.apply(this, arguments)
-                out.stats.quench *= 2
-                out.stats.thirst *= 2
-                return out
-            }
-        }})
+    static Coastal =      new Mod("CSTL", 0, {},
+        function(h) {
+            let newHole = h
+            newHole.stats.quench *= 2
+            newHole.stats.thirst *= 2
+            return newHole
+        })
     static Swampland =    new Mod("SWMP", 0, {})
     
     static CharityMatch = new Mod("CHRT", 0, {})
@@ -66,14 +63,15 @@ class Mod {
     static BallMods =    []
     static PlayerMods =  [ Mod.Aggressive, Mod.SemiAquatic, Mod.Entangled, Mod.Harmonized, Mod.Poisoned ]
     static HoleMods =    [ Mod.Coastal, Mod.Swampland ]
-    static CourseMods =  [ Mod.Coastal, Mod.Swampland ]
+    static CourseMods =  []
     static TourneyMods = [ Mod.CharityMatch ]
     static LeagueMods =  []
 
-    constructor(name, priority, eventChanges) {
+    constructor(name, priority, eventChanges, mutate) {
         this.name = name
         this.priority = priority
         this.eventChanges = eventChanges
+        this.mutate = mutate
     }
 
     modify(type, func) {

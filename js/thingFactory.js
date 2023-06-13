@@ -99,6 +99,10 @@ class ThingFactory {
         h.dimensions.greenRadius = randomGaussian(100,10) * h.stats.verdancy,
         h.dimensions.par = parFromLength(h.dimensions.length)
 
+        for (let m of h.mods) {
+            if (m.mutate !== undefined) h = m.mutate(h)
+        }
+
         return h
     }
 
