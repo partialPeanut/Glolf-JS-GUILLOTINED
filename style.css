@@ -33,6 +33,7 @@ body {
 	overflow:hidden;
   background-color: rgba(50, 50, 50, 1);
   display: block;
+  white-space: pre;
 }
 #feed-displayer2 {
   color: rgb(72, 253, 111);
@@ -43,6 +44,7 @@ body {
 	overflow:hidden;
   background-color: rgba(50, 50, 50, 1);
   display: none;
+  white-space: pre;
 }
 #feed-displayer3 {
   color: rgba(100, 100, 255, 1);
@@ -53,6 +55,7 @@ body {
 	overflow:hidden;
   background-color: rgba(50, 50, 50, 1);
   display: none;
+  white-space: pre;
 }
 #feed-displayer4 {
   color: rgb(197, 199, 60);
@@ -63,6 +66,7 @@ body {
 	overflow:hidden;
   background-color: rgba(50, 50, 50, 1);
   display: none;
+  white-space: pre;
 }
 
 .header-button {
