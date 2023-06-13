@@ -126,18 +126,22 @@ function activeTourney(worldState) {
     return getWorldItem(worldState, "tourneys", worldState.league.currentTourney)
 }
 function activeCourseOnTimeline(worldState, tl) {
+    if (activeTourney(worldState) === undefined) return undefined
     return getWorldItem(worldState, "courses", activeTourney(worldState).courses[tl])
 }
 function activeHoleOnTimeline(worldState, tl) {
+    if (activeCourseOnTimeline(worldState, tl) === undefined) return undefined
     return getWorldItem(worldState, "holes", activeCourseOnTimeline(worldState, tl).currentHole)
 }
 function playerOnTimelineAtIndex(worldState, tl, idx) {
+    if (activeCourseOnTimeline(worldState, tl) === undefined) return undefined
     const playerID = activeCourseOnTimeline(worldState, tl).players.at(idx)
     const player = getWorldItem(worldState, "players", playerID)
     return player
 }
 function activePlayerOnTimeline(worldState, tl) {
-    return playerOnTimelineAtIndex(worldState, tl, activeHoleOnTimeline(worldState, tl).currentPlayer)
+    if (activeHoleOnTimeline(worldState, tl) === undefined) return undefined
+    else return playerOnTimelineAtIndex(worldState, tl, activeHoleOnTimeline(worldState, tl).currentPlayer)
 }
 
 function bestOfPlayers(worldState, pid1, pid2) {
