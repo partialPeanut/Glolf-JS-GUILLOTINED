@@ -40,6 +40,71 @@ class EventAggression extends Event {
     }
 }
 
+class EventMosquitoBite extends Event {
+    calculateEdit(worldState, options) {
+        const player = options.player
+        const randomStat = randomFromArray(Object.keys(player.stats))
+        let modifiedStats = JSON.parse(JSON.stringify(player.stats))
+        modifiedStats[randomStat] -= options.damage
+
+        this.worldEdit = {
+            "timetravel": {
+                "timeline": this.timeline
+            },
+            "players": [{
+                "id": player.id,
+                "stats": modifiedStats
+            }]
+        }
+
+        this.report = `${player.fullName()} is bitten by mosquitoes and loses ${options.damage} ${randomStat}.`
+    }
+}
+
+class EventWormBattle extends Event {
+    calculateEdit(worldState, options) {
+        const hole = activeHoleOnTimeline(worldState, tl)
+        const player = options.player
+        const wonBattle = Math.random() < curveLoggy(0, 1, player.stats.scrappiness)
+
+        if (wonBattle) {
+            this.worldEdit = {
+                "timetravel": {
+                    "timeline": this.timeline
+                },
+                "players": [{
+                    "id": player.id,
+                    "ball": {
+                        "sunk": true,
+                        "distance": 0,
+                        "terrain": Terrain.Hole
+                    }
+                }]
+            }
+
+            this.report = `${player.fullName()} knocks the worm unconscious! The ball rolls into the wormhole for a ` +
+                          `${(player.ball.stroke == 1 ? "hole in one!" : intToBird(player.ball.stroke - hole.dimensions.par))}!`
+        }
+        else {
+            this.worldEdit = {
+                "timetravel": {
+                    "timeline": this.timeline
+                },
+                "players": [{
+                    "id": player.id,
+                    "ball": {
+                        "sunk": false,
+                        "distance": hole.dimensions.length,
+                        "terrain": Terrain.Tee
+                    }
+                }]
+            }
+
+            this.report = `${player.fullName()}'s ball is eaten by the worm! They'll have to start at the beginning.`
+        }
+    }
+}
+
 class EventTourneyDonate extends Event {
     calculateEdit(worldState) {
         const tourney = activeTourney(worldState)

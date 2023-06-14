@@ -154,7 +154,7 @@ class EventCourseStart extends Event {
 class EventWeatherReport extends Event {
     calculateEdit(worldState) {
         const course = activeCourseOnTimeline(worldState, this.timeline)
-        let chosenWeather = Weather.Tempest
+        let chosenWeather = randomFromArray(Weather.Weathers)
         this.worldEdit = {
             "timetravel": {
                 "timeline": this.timeline,
@@ -208,14 +208,19 @@ class EventHoleStart extends Event {
 class EventWildlifeReport extends Event {
     calculateEdit(worldState) {
         const hole = activeHoleOnTimeline(worldState, this.timeline)
+        let chosenWildlife = randomFromArray(Wildlife.Wildlives)
         this.worldEdit = {
             "timetravel": {
                 "timeline": this.timeline,
                 "phase": EventWildlifeReport
-            }
+            },
+            "holes": [{
+                "id": hole.id,
+                "wildlife": chosenWildlife
+            }]
         }
 
-        this.report = `Wildlife Report: ${hole.wildlife}!`
+        this.report = `Wildlife Report: ${chosenWildlife.report}`
     }
 }
 
@@ -360,42 +365,38 @@ class EventCourseFinish extends Event {
 }
 
 class EventCourseReward extends Event {
-    calculateEdit(worldState) {
+    calculateEdit(worldState, options) {
         let winners = []
-        function bestOfUnchosenPlayers(pid1, pid2) {
-            if (winners.includes(pid1)) return pid2
-            else if (winners.includes(pid2)) return pid1
-            else return bestOfPlayers(worldState, pid1, pid2)
-        }
-
-        const course = activeCourseOnTimeline(worldState, this.timeline)
-        for (let i = 0; i < 3; i++) {
-            let wid = course.players.reduce(bestOfUnchosenPlayers, course.players[0])
-            winners.push(wid)
-        }
-        this.winners = winners
+        let scores = []
 
         const tourney = activeTourney(worldState)
+        const course = activeCourseOnTimeline(worldState, this.timeline)
+        let sortedPlayers = course.players.map(pid => getWorldItem(worldState, "players", pid)).sort((p1,p2) => p1.score - p2.score)
+
+        for (let i = 0; i < tourney.placesRewarded; i++) {
+            let placeScore = sortedPlayers.find(p => !scores.includes(p.score)).score
+            let placePlayers = sortedPlayers.filter(p => p.score == placeScore)
+            scores.push(placeScore)
+            winners.push(placePlayers)
+        }
+
+        this.place = options.place
+        const placeWinners = winners[this.place]
+        const placeReward = Math.floor(Math.pow(2, -1-this.place) * tourney.sinReward)
         this.worldEdit = {
             "timetravel": {
                 "timeline": this.timeline,
                 "phase": EventCourseReward
             },
-            "players": this.winners.map((wid, i) => {
-                const player = getWorldItem(worldState, "players", wid)
+            "players": placeWinners.map(w => {
                 return {
-                    "id": wid,
-                    "netWorth": player.netWorth + Math.floor(Math.pow(2, -1-i) * tourney.sinReward)
+                    "id": w.id,
+                    "netWorth": w.netWorth + placeReward
                 }
             })
         }
 
-        this.report = ``
-        for (let [i,w] of this.winners.entries()) {
-            const player = getWorldItem(worldState, "players", w)
-            if (i != 0) this.report += `\n`
-            this.report += `For coming ${nth(i+1)} place, ${player.fullName()} receives ${(this.worldEdit.players[i].netWorth - player.netWorth).toLocaleString()} $ins!`
-        }
+        this.report = `The ${nth(this.place+1)} place leader${placeWinners.length > 1 ? `s` : ``} recieve ${placeReward} $ins each: ${joinGrammatically(placeWinners.map(p => p.fullName()))}`
     }
 }
 

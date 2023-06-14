@@ -1,5 +1,5 @@
 class Mod {
-    static Aggressive = new Mod("AGRO", 0, {
+    static Aggressive = new Mod("AGRO", 0.1, 0, {
             "strokeOutcome": (func) => {
                 return function (worldState, tl, player) {
                     // Do stroke as normal
@@ -21,7 +21,7 @@ class Mod {
                     return out
                 }
             }})
-    static SemiAquatic = new Mod("AQUA", 1, {
+    static SemiAquatic = new Mod("AQUA", 0.1, 1, {
             "strokeOutcome": (func) => {
                 return function (worldState, tl, player) {
                     let out = func.apply(this, arguments)
@@ -30,8 +30,8 @@ class Mod {
                 }
             }})
     
-    static Entangled = new Mod("ENTG", 0, {})
-    static Harmonized = new Mod("HRMZ", 2, {
+    static Entangled = new Mod("ENTG", 0, 0, {})
+    static Harmonized = new Mod("HRMZ", 0, 2, {
             "strokeOutcome": (func) => {
                 return function (worldState, tl, player) {
                     let out = func.apply(this, arguments)
@@ -44,18 +44,18 @@ class Mod {
                     return out
                 }
             }})
-    static Poisoned = new Mod("PSND", 0, {})
+    static Poisoned = new Mod("PSND", 0, 0, {})
     
-    static Coastal = new Mod("CSTL", 0, {},
+    static Coastal = new Mod("CSTL", 0.1, 0, {},
             function(h) {
                 let newHole = h
                 newHole.stats.quench *= 2
                 newHole.stats.thirst *= 2
                 return newHole
             })
-    static Swampland = new Mod("SWMP", 0, {})
+    static Swampland = new Mod("SWMP", 0.1, 0, {})
     
-    static CharityMatch = new Mod("CHRT", 0, {
+    static CharityMatch = new Mod("CHRT", 0.1, 0, {
             "tourneyStarted": (func) => {
                 return function () {
                     Greedler.queueEvent([ 0, EventTourneyDonate ])
@@ -76,8 +76,9 @@ class Mod {
     static TourneyMods = [ Mod.CharityMatch ]
     static LeagueMods =  []
 
-    constructor(name, priority, eventChanges, mutation) {
+    constructor(name, naturalChance, priority, eventChanges, mutation) {
         this.name = name
+        this.naturalChance = naturalChance
         this.priority = priority
         this.eventChanges = eventChanges
         this.mutation = mutation

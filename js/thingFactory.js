@@ -23,7 +23,7 @@ class ThingFactory {
         }
         let p = {
             "id": id,
-            "mods": [],
+            "mods": Mod.PlayerMods.filter(m => Math.random() < m.naturalChance),
             "firstName": randomFromArray(p_namesfirst),
             "lastName": randomFromArray(p_nameslast),
             "suffixes": [],
@@ -36,7 +36,7 @@ class ThingFactory {
             "mortality": "ALIVE",
             "score": 0,
             "ball": {
-                "mods": [],
+                "mods": Mod.BallMods.filter(m => Math.random() < m.naturalChance),
                 "color": 0xFFFFFF,
                 "nextStrokeType": StrokeType.Nothing,
                 "stroke": 0,
@@ -82,8 +82,8 @@ class ThingFactory {
 
         let h = {
             "id": id,
-            "mods": [],
-            "wildlife": "WORMS",
+            "mods": Mod.HoleMods.filter(m => Math.random() < m.naturalChance),
+            "wildlife": Wildlife.None,
             "currentPlayer": -1,
             "succblow": 0,
             "stats": {
@@ -112,7 +112,7 @@ class ThingFactory {
         let id = this.generateNewID()
         let c = {
             "id": id,
-            "mods": [],
+            "mods": Mod.CourseMods.filter(m => Math.random() < m.naturalChance),
             "players": players,
             "currentHole": 0,
             "holeNumber": 0,
@@ -133,9 +133,10 @@ class ThingFactory {
         }
         let t = {
             "id": id,
-            "mods": [],
+            "mods": Mod.TourneyMods.filter(m => Math.random() < m.naturalChance),
             "name": randomFromArray(t_titles).replaceAll("[N]", randomFromArray(t_nouns)),
             "sinReward": randomInt(100000, 200000),
+            "placesRewarded": 3,
             "numCourses": 4,
             "holesPerCourse": 1,
             "players": randomLivingPlayers(48).map(p => p.id),

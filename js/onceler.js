@@ -15,10 +15,15 @@ class Onceler {
         WorldStateManager.causeEdit(this.currentWorldState, event.worldEdit)
     }
 
+    static lastEventInTimeline(tl) {
+        const lastEvent = this.pastEvents.findLast(e => e.timeline == tl)
+        return lastEvent
+    }
+
     static mostRecentReports() {
         let reports = []
         for (let i = 0; i < this.currentWorldState.timelines.length; i++) {
-            const lastEvent = this.pastEvents.findLast(e => e.timeline == i)
+            const lastEvent = this.lastEventInTimeline(i)
             if (lastEvent !== undefined) reports.push(lastEvent.report.replaceAll(`\n`, `\r\n`))
         }
         return reports

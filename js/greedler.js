@@ -32,42 +32,42 @@ class Greedler {
             removeFromArray(this.eventQueue, queuePhase)
             return queuePhase
         }
-        else return [tl, this.nextDefaultPhaseInTimeline(Onceler.currentWorldState, tl, stuck)]
+        else return this.nextDefaultPhaseInTimeline(Onceler.currentWorldState, tl, stuck)
     }
     static nextDefaultPhaseInTimeline(worldState, tl, stuck = false) {
         let tls = worldState.timelines.length
         switch(worldState.timelines[tl]) {
             case EventVoid:
-                return EventTourneyStart
+                return [tl, EventTourneyStart]
             case EventTourneyStart:
-                return EventDivison
+                return [tl, EventDivison]
 
             case EventDivison:
-                return EventCourseStart
+                return [tl, EventCourseStart]
             case EventMultiplication:
-                return EventCourseStart
+                return [tl, EventCourseStart]
 
             case EventCourseStart:
-                return EventWeatherReport
+                return [tl, EventWeatherReport]
             case EventWeatherReport:
-                return EventHoleStart
+                return [tl, EventHoleStart]
 
             case EventHoleStart:
-                return EventWildlifeReport
+                return [tl, EventWildlifeReport]
             case EventWildlifeReport:
-                return EventUpTop
+                return [tl, EventUpTop]
 
             case EventUpTop:
-                return EventStrokeType
+                return [tl, EventStrokeType]
             case EventStrokeType:
-                return EventStrokeOutcome
+                return [tl, EventStrokeOutcome]
             case EventStrokeOutcome:
                 const course = activeCourseOnTimeline(worldState, tl)
                 const hole = activeHoleOnTimeline(worldState, tl)
                 const oldCP = hole.currentPlayer
-                if (course.players.some((p, i) => i > oldCP && !getWorldItem(worldState, "players", p).ball.sunk)) return EventStrokeType
-                else if (course.players.every(p => getWorldItem(worldState, "players", p).ball.sunk)) return EventHoleFinish
-                else return EventUpTop
+                if (course.players.some((p, i) => i > oldCP && !getWorldItem(worldState, "players", p).ball.sunk)) return [tl, EventStrokeType]
+                else if (course.players.every(p => getWorldItem(worldState, "players", p).ball.sunk)) return [tl, EventHoleFinish]
+                else return [tl, EventUpTop]
 
             case EventHoleFinish:
                 let waiting = true
@@ -75,31 +75,33 @@ class Greedler {
                 for (let i = 0; i < tls; i++) {
                     if (activeCourseOnTimeline(worldState, i).holeNumber > thisHoleNumber) waiting = false
                 }
-                if (waiting && !stuck) return EventWait
+                if (waiting && !stuck) return [tl, EventWait]
                 else if (thisHoleNumber == activeTourney(worldState).holesPerCourse) {
-                    if (activeTourney(worldState).courses.length > 1) return EventCourseFinish
-                    else return EventTourneyFinish
+                    if (activeTourney(worldState).courses.length > 1) return [tl, EventCourseFinish]
+                    else return [tl, EventTourneyFinish]
                 }
-                else return EventHoleStart
+                else return [tl, EventHoleStart]
 
             case EventCourseFinish:
-                if (!stuck) return EventWait
-                else return EventCourseReward
+                if (!stuck) return [tl, EventWait]
+                else return [tl, EventCourseReward, { "place": 0 }]
             case EventCourseReward:
-                return EventMultiplication
+                const nextPlace = Onceler.lastEventInTimeline(tl).place + 1
+                if (nextPlace >= activeTourney(worldState).placesRewarded) return [tl, EventMultiplication]
+                else return [tl, EventCourseReward, { "place": nextPlace }]
             
             case EventTourneyFinish:
-                return EventTourneyReward
+                return [tl, EventTourneyReward]
 
             case EventTourneyReward:
                 const tourney = activeTourney(worldState)
-                if (tourney.kia.length > 0) return EventMemoriam
-                else return EventTourneyConclude
+                if (tourney.kia.length > 0) return [tl, EventMemoriam]
+                else return [tl, EventTourneyConclude]
             case EventMemoriam:
-                return EventTourneyConclude
+                return [tl, EventTourneyConclude]
 
             case EventTourneyConclude:
-                return EventVoid
+                return [tl, EventVoid]
         }
     }
 }

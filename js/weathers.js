@@ -3,7 +3,7 @@ class Weather {
         "strokeOutcome": (func) => {
             return function (worldState, tl, player) {
                 const course = activeCourseOnTimeline(worldState, tl)
-                if (unsunkPlayers(worldState, course).length >= 2 && Math.random() < 0.05) Greedler.queueEvent([ tl, EventWeatherMirage ])
+                if (unsunkPlayers(worldState, course).length >= 2 && Math.random() < 0.1) Greedler.queueEvent([ tl, EventWeatherMirage ])
 
                 let out = func.apply(this, arguments)
                 return out
@@ -15,11 +15,13 @@ class Weather {
                 let out = func.apply(this, arguments)
 
                 const course = activeCourseOnTimeline(worldState, tl)
-                if (unsunkPlayers(worldState, course).length >= (out.result == "SINK" ? 3 : 2) && Math.random() < 0.05) Greedler.queueEvent([ tl, EventWeatherTempest ])
+                if (unsunkPlayers(worldState, course).length >= (out.result == "SINK" ? 3 : 2) && Math.random() < 0.1) Greedler.queueEvent([ tl, EventWeatherTempest ])
 
                 return out
             }
         }})
+
+    static Weathers = [ Weather.Mirage, Weather.Tempest ]
 
     constructor(name, report, color, eventChanges) {
         this.name = name
