@@ -1,48 +1,65 @@
 class Event {
+    type = "event"
+    depth = "League"
+
     constructor(tl) {
         this.timeline = tl
     }
 
     formEvent(worldState, options) {
-        this.calculateEdit(worldState, options)
+        let moddedEvent = this.calculateEdit
+        moddedEvent = modifyFunction(this.type, this.depth, worldState, this.timeline, this.calculateEdit)
+        const wr = moddedEvent(worldState, this.timeline, options)
+        this.worldEdit = wr[0]
+        this.report = wr[1]
     }
 
-    calculateEdit(worldState, options) {
-        this.worldEdit = {
+    calculateEdit(worldState, tl, options) {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": Event
             }
         }
-        this.report = `---`
+        const report = `---`
+        return [worldEdit, report]
     }
 }
 
 class EventWait extends Event {
-    calculateEdit(worldState) {
-        this.worldEdit = {}
-        this.report = `---`
+    type = "wait"
+    depth = "League"
+
+    calculateEdit(worldState, tl) {
+        return [{}, `---`]
     }
 }
 
 class EventVoid extends Event {
-    calculateEdit(worldState) {
-        this.worldEdit = {
+    type = "void"
+    depth = "League"
+
+    calculateEdit(worldState, tl) {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventVoid
             }
         }
-        this.report = `---`
+        const report = `---`
+        return [worldEdit, report]
     }
 }
 
 class EventTourneyStart extends Event {
-    calculateEdit(worldState) {
+    type = "tourneyStart"
+    depth = "League"
+
+    calculateEdit(worldState, tl) {
         const tourney = ThingFactory.generateNewTourney(worldState)
-        this.worldEdit = {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventTourneyStart
             },
             "tourneys": [ tourney ],
@@ -51,17 +68,19 @@ class EventTourneyStart extends Event {
             }
         }
 
-        triggerEffects("tourneyStarted", "Tourney", worldState, this.timeline)
-
-        this.report =
+        const report =
             `Wlecome to ${tourney.name}!` +
             `\n${tourney.players.length} players, ${tourney.numCourses} divisions with ${tourney.holesPerCourse} holes each, and up to ${tourney.sinReward.toLocaleString()} $ins up for grabs!` +
             `\nGLOLF!! BY ANY MEANS NECESSARY.`
+        return [worldEdit, report]
     }
 }
 
 class EventDivison extends Event {
-    calculateEdit(worldState) {
+    type = "division"
+    depth = "Tourney"
+
+    calculateEdit(worldState, tl) {
         const tourney = activeTourney(worldState)
         let playersLeft = tourney.players.slice(0)
         let playersPerCourse = Math.floor(tourney.players.length/tourney.numCourses)
@@ -72,9 +91,9 @@ class EventDivison extends Event {
         }
         newCourses.push(ThingFactory.generateNewCourse(worldState, worldState.league.divisionNames[tourney.numCourses-1], playersLeft))
 
-        this.worldEdit = {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline
+                "timeline": tl
             },
             "timelines": newCourses.map(c => EventDivison),
             "courses": newCourses,
@@ -84,12 +103,16 @@ class EventDivison extends Event {
             }]
         }
 
-        this.report = `The players are divided.`
+        const report = `The players are divided.`
+        return [worldEdit, report]
     }
 }
 
 class EventMultiplication extends Event {
-    calculateEdit(worldState) {
+    type = "multiplication"
+    depth = "Tourney"
+
+    calculateEdit(worldState, tl) {
         const tourney = activeTourney(worldState)
 
         let finalists = []
@@ -117,7 +140,7 @@ class EventMultiplication extends Event {
 
         const finalCourse = ThingFactory.generateNewCourse(worldState, "FINALS", finalists)
 
-        this.worldEdit = {
+        const worldEdit = {
             "timetravel": {
                 "timeline": 0
             },
@@ -129,16 +152,20 @@ class EventMultiplication extends Event {
             }]
         }
 
-        this.report = `The champions converge. ${finalCourse.players.length} players advance.`
+        const report = `The champions converge. ${finalCourse.players.length} players advance.`
+        return [worldEdit, report]
     }
 }
 
 class EventCourseStart extends Event {
-    calculateEdit(worldState) {
-        const course = activeCourseOnTimeline(worldState, this.timeline)
-        this.worldEdit = {
+    type = "courseStart"
+    depth = "Course"
+
+    calculateEdit(worldState, tl) {
+        const course = activeCourseOnTimeline(worldState, tl)
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventCourseStart
             },
             "players": course.players.map(pid => { return {
@@ -147,17 +174,21 @@ class EventCourseStart extends Event {
             }})
         }
 
-        this.report = `Division ${course.division} begins its course!`
+        const report = `Division ${course.division} begins its course!`
+        return [worldEdit, report]
     }
 }
 
 class EventWeatherReport extends Event {
-    calculateEdit(worldState) {
-        const course = activeCourseOnTimeline(worldState, this.timeline)
-        let chosenWeather = randomFromArray(Weather.Weathers)
-        this.worldEdit = {
+    type = "weatherReport"
+    depth = "Course"
+
+    calculateEdit(worldState, tl) {
+        const course = activeCourseOnTimeline(worldState, tl)
+        const chosenWeather = randomFromArray(Weather.Weathers)
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventWeatherReport
             },
             "courses": [{
@@ -166,22 +197,21 @@ class EventWeatherReport extends Event {
             }]
         }
 
-        this.report = `This course's weather report predicts: ${chosenWeather.report}`
+        const report = `This course's weather report predicts: ${chosenWeather.report}`
+        return [worldEdit, report]
     }
 }
 
 class EventHoleStart extends Event {
-    calculateEdit(worldState) {
-        const course = activeCourseOnTimeline(worldState, this.timeline)
+    type = "holeStart"
+    depth = "Course"
 
-        let createHole = modifyFunction("createHole", "Course", worldState, this.timeline,
-            function(ws) { return ThingFactory.generateNewHole(ws) })
-        
-        const hole = createHole(worldState)
-
-        this.worldEdit = {
+    calculateEdit(worldState, tl) {
+        const course = activeCourseOnTimeline(worldState, tl)
+        const hole = ThingFactory.generateNewHole(worldState)
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventHoleStart
             },
             "holes": [ hole ],
@@ -201,17 +231,21 @@ class EventHoleStart extends Event {
             }})
         }
 
-        this.report = `Next up: Hole Number ${course.holeNumber+1}.`
+        const report = `Next up: Hole Number ${course.holeNumber+1}.`
+        return [worldEdit, report]
     }
 }
 
 class EventWildlifeReport extends Event {
-    calculateEdit(worldState) {
-        const hole = activeHoleOnTimeline(worldState, this.timeline)
-        let chosenWildlife = randomFromArray(Wildlife.Wildlives)
-        this.worldEdit = {
+    type = "wildlifeReport"
+    depth = "Course"
+
+    calculateEdit(worldState, tl) {
+        const hole = activeHoleOnTimeline(worldState, tl)
+        const chosenWildlife = randomFromArray(Wildlife.Wildlives)
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventWildlifeReport
             },
             "holes": [{
@@ -220,16 +254,20 @@ class EventWildlifeReport extends Event {
             }]
         }
 
-        this.report = `Wildlife Report: ${chosenWildlife.report}`
+        const report = `Wildlife Report: ${chosenWildlife.report}`
+        return [worldEdit, report]
     }
 }
 
 class EventUpTop extends Event {
-    calculateEdit(worldState) {
-        const hole = activeHoleOnTimeline(worldState, this.timeline)
-        this.worldEdit = {
+    type = "upTop"
+    depth = "Hole"
+
+    calculateEdit(worldState, tl) {
+        const hole = activeHoleOnTimeline(worldState, tl)
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventUpTop
             },
             "holes": [{
@@ -238,26 +276,26 @@ class EventUpTop extends Event {
             }]
         }
 
-        this.report = `The cycle begins anew.`
+        const report = `The cycle begins anew.`
+        return [worldEdit, report]
     }
 }
 
 class EventStrokeType extends Event {
-    calculateEdit(worldState) {
-        const course = activeCourseOnTimeline(worldState, this.timeline)
-        const hole = activeHoleOnTimeline(worldState, this.timeline)
+    type = "strokeType"
+    depth = "Ball"
+
+    calculateEdit(worldState, tl) {
+        const course = activeCourseOnTimeline(worldState, tl)
+        const hole = activeHoleOnTimeline(worldState, tl)
         const oldCP = hole.currentPlayer
-        let newCP = course.players.findIndex((p, i) => i > oldCP && !getWorldItem(worldState, "players", p).ball.sunk)
-        const player = playerOnTimelineAtIndex(worldState, this.timeline, newCP)
+        const newCP = course.players.findIndex((p, i) => i > oldCP && !getWorldItem(worldState, "players", p).ball.sunk)
+        const player = playerOnTimelineAtIndex(worldState, tl, newCP)
 
-        let strokeType = modifyFunction("strokeType", "Player", worldState, this.timeline,
-            function(ws, tl, p) { return calculateStrokeType(ws, tl, p) })
-    
-        let type = strokeType(worldState, this.timeline, player)
-
-        this.worldEdit = {
+        const type = calculateStrokeType(worldState, tl, player)
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventStrokeType
             },
             "holes": [{
@@ -272,31 +310,32 @@ class EventStrokeType extends Event {
             }]
         }
 
-        this.report = `${player.fullName()} ${type.message}`
+        const report = `${player.fullName()} ${type.message}`
+        return [worldEdit, report]
     }
 }
 
 class EventStrokeOutcome extends Event {
-    calculateEdit(worldState) {
-        const hole = activeHoleOnTimeline(worldState, this.timeline)
-        const player = activePlayerOnTimeline(worldState, this.timeline)
+    type = "strokeOutcome"
+    depth = "Ball"
 
-        let strokeOutcome = modifyFunction("strokeOutcome", "Ball", worldState, this.timeline,
-            function(ws, tl, p) { return calculateStrokeOutcome(ws, tl, p) })
+    calculateEdit(worldState, tl) {
+        const hole = activeHoleOnTimeline(worldState, tl)
+        const player = activePlayerOnTimeline(worldState, tl)
         
-        const outcome = strokeOutcome(worldState, this.timeline, player)
-
+        const outcome = calculateStrokeOutcome(worldState, tl, player)
         const newBall = {
             "sunk": outcome.result == "SINK",
             "stroke": outcome.result == "NOTHING" ? player.ball.stroke : player.ball.stroke+1,
             "past": outcome.distanceFlown > player.ball.distance && !outcome.newTerrain.oob ? !player.ball.past : player.ball.past,
             "distance": outcome.newTerrain.oob ? player.ball.distance : outcome.distanceToHole,
             "distanceJustFlown": outcome.distanceFlown,
-            "terrain": outcome.newTerrain.oob ? player.ball.terrain : outcome.newTerrain
+            "terrain": outcome.newTerrain.oob ? player.ball.terrain : outcome.newTerrain,
+            "terrainJustLanded": outcome.newTerrain
         }
-        this.worldEdit = {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventStrokeOutcome
             },
             "players": [{
@@ -305,31 +344,33 @@ class EventStrokeOutcome extends Event {
             }]
         }
 
+        let report = `Nothing happens.`
         switch(outcome.result) {
             case "SINK":
-                if (newBall.stroke == 1) this.report = `Hole in one!!`
-                else this.report = `They sink it for a ${intToBird(newBall.stroke - hole.dimensions.par)}.`
+                if (newBall.stroke == 1) report = `Hole in one!!`
+                else report = `They sink it for a ${intToBird(newBall.stroke - hole.dimensions.par)}.`
                 break
             case "FLY":
-                if (player.ball.terrain == outcome.newTerrain) this.report = `The ball flies ${Math.round(outcome.distanceFlown)} gallons, staying ${outcome.newTerrain.arrivingText}`
-                else this.report = `The ball ${player.ball.terrain.leavingText}, flying ${Math.round(outcome.distanceFlown)} gallons and landing ${outcome.newTerrain.arrivingText}`
+                if (player.ball.terrain == outcome.newTerrain) report = `The ball flies ${Math.round(outcome.distanceFlown)} gallons, staying ${outcome.newTerrain.arrivingText}`
+                else report = `The ball ${player.ball.terrain.leavingText}, flying ${Math.round(outcome.distanceFlown)} gallons and landing ${outcome.newTerrain.arrivingText}`
                 break
             case "WHIFF":
-                this.report = `They barely tap the ball!`
-                break
-            case "NOTHING":
-                this.report = `Nothing happens.`
+                report = `They barely tap the ball!`
                 break
         }
+        return [worldEdit, report]
     }
 }
 
 class EventHoleFinish extends Event {
-    calculateEdit(worldState) {
-        const course = activeCourseOnTimeline(worldState, this.timeline)
-        this.worldEdit = {
+    type = "holeFinish"
+    depth = "Hole"
+
+    calculateEdit(worldState, tl) {
+        const course = activeCourseOnTimeline(worldState, tl)
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventHoleFinish
             },
             "courses": [{
@@ -345,32 +386,40 @@ class EventHoleFinish extends Event {
             })
         }
 
-        this.report = `That was Hole Number ${course.holeNumber}.`
+        const report = `That was Hole Number ${course.holeNumber}.`
+        return [worldEdit, report]
     }
 }
 
 class EventCourseFinish extends Event {
-    calculateEdit(worldState) {
-        const course = activeCourseOnTimeline(worldState, this.timeline)
-        this.worldEdit = {
+    type = "courseFinish"
+    depth = "Course"
+
+    calculateEdit(worldState, tl) {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventCourseFinish
             }
         }
 
+        const course = activeCourseOnTimeline(worldState, tl)
         const topPlayer = getWorldItem(worldState, "players", course.players.reduce((pid1,pid2) => bestOfPlayers(worldState,pid1,pid2), course.players[0]))
-        this.report = `Division ${course.division} has concluded its course. Congratulations to the divison leader: ${topPlayer.fullName()}!!`
+        const report = `Division ${course.division} has concluded its course. Congratulations to the divison leader: ${topPlayer.fullName()}!!`
+        return [worldEdit, report]
     }
 }
 
 class EventCourseReward extends Event {
-    calculateEdit(worldState, options) {
+    type = "courseReward"
+    depth = "Course"
+
+    calculateEdit(worldState, tl, options) {
         let winners = []
         let scores = []
 
         const tourney = activeTourney(worldState)
-        const course = activeCourseOnTimeline(worldState, this.timeline)
+        const course = activeCourseOnTimeline(worldState, tl)
         let sortedPlayers = course.players.map(pid => getWorldItem(worldState, "players", pid)).sort((p1,p2) => p1.score - p2.score)
 
         for (let i = 0; i < tourney.placesRewarded; i++) {
@@ -383,9 +432,9 @@ class EventCourseReward extends Event {
         this.place = options.place
         const placeWinners = winners[this.place]
         const placeReward = Math.floor(Math.pow(2, -1-this.place) * tourney.sinReward)
-        this.worldEdit = {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventCourseReward
             },
             "players": placeWinners.map(w => {
@@ -396,27 +445,35 @@ class EventCourseReward extends Event {
             })
         }
 
-        this.report = `The ${nth(this.place+1)} place leader${placeWinners.length > 1 ? `s` : ``} recieve ${placeReward} $ins each: ${joinGrammatically(placeWinners.map(p => p.fullName()))}`
+        const report = `The ${nth(this.place+1)} place leader${placeWinners.length > 1 ? `s` : ``} recieve ${placeReward} $ins each: ${joinGrammatically(placeWinners.map(p => p.fullName()))}`
+        return [worldEdit, report]
     }
 }
 
 class EventTourneyFinish extends Event {
-    calculateEdit(worldState) {
-        const course = activeCourseOnTimeline(worldState, this.timeline)
-        this.worldEdit = {
+    type = "tourneyFinish"
+    depth = "Tourney"
+
+    calculateEdit(worldState, tl) {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventTourneyFinish
             }
         }
 
+        const course = activeCourseOnTimeline(worldState, tl)
         const topPlayer = getWorldItem(worldState, "players", course.players.reduce((pid1,pid2) => bestOfPlayers(worldState, pid1, pid2), course.players[0]))
-        this.report = `The tournament is over!! Congratulations to the winner: ${topPlayer.fullName()}!!`
+        const report = `The tournament is over!! Congratulations to the winner: ${topPlayer.fullName()}!!`
+        return [worldEdit, report]
     }
 }
 
 class EventTourneyReward extends Event {
-    calculateEdit(worldState) {
+    type = "tourneyReward"
+    depth = "Tourney"
+
+    calculateEdit(worldState, tl) {
         let winners = []
         function bestOfUnchosenPlayers(pid1, pid2) {
             if (winners.includes(pid1)) return pid2
@@ -424,7 +481,7 @@ class EventTourneyReward extends Event {
             else return bestOfPlayers(worldState, pid1, pid2)
         }
         
-        const course = activeCourseOnTimeline(worldState, this.timeline)
+        const course = activeCourseOnTimeline(worldState, tl)
         for (let i = 0; i < 3; i++) {
             let wid = course.players.reduce(bestOfUnchosenPlayers, course.players[0])
             winners.push(wid)
@@ -433,9 +490,9 @@ class EventTourneyReward extends Event {
         this.winners = winners
 
         const tourney = activeTourney(worldState)
-        this.worldEdit = {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventTourneyReward
             },
             "players": this.winners.map((wid, i) => {
@@ -447,36 +504,43 @@ class EventTourneyReward extends Event {
             })
         }
 
-        this.report = ``
+        let report = ``
         for (let [i,w] of this.winners.entries()) {
             const player = getWorldItem(worldState, "players", w)
             if (i != 0) this.report += `\n`
-            this.report += `For coming ${i+1}th place, ${player.fullName()} receives ${(this.worldEdit.players[i].netWorth - player.netWorth).toLocaleString()} $ins!`
+            report += `For coming ${i+1}th place, ${player.fullName()} receives ${(worldEdit.players[i].netWorth - player.netWorth).toLocaleString()} $ins!`
         }
+        return [worldEdit, report]
     }
 }
 
 class EventMemoriam extends Event {
-    calculateEdit(worldState) {
-        const tourney = activeTourney(worldState)
-        this.worldEdit = {
+    type = "memoriam"
+    depth = "Tourney"
+
+    calculateEdit(worldState, tl) {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventMemoriam
             }
         }
 
-        this.report = `We dedicated this tournament to those lost to Death's clutches: ${joinGrammatically(tourney.kia.map(pid => getWorldItem(worldState, "players", pid).fullName()))}.` + 
+        const tourney = activeTourney(worldState)
+        const report = `We dedicated this tournament to those lost to Death's clutches: ${joinGrammatically(tourney.kia.map(pid => getWorldItem(worldState, "players", pid).fullName()))}.` + 
             `May they ace forever in the All Holes Halls.`
+        return [worldEdit, report]
     }
 }
 
 class EventTourneyConclude extends Event {
-    calculateEdit(worldState) {
-        const tourney = activeTourney(worldState)
-        this.worldEdit = {
+    type = "tourneyConclude"
+    depth = "Tourney"
+
+    calculateEdit(worldState, tl) {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline,
+                "timeline": tl,
                 "phase": EventTourneyConclude
             },
             "league": {
@@ -484,6 +548,8 @@ class EventTourneyConclude extends Event {
             }
         }
 
-        this.report = `${tourney.name} has concluded.`
+        const tourney = activeTourney(worldState)
+        const report = `${tourney.name} has concluded.`
+        return [worldEdit, report]
     }
 }

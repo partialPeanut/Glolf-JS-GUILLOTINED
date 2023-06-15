@@ -65,6 +65,7 @@ class WorldStateManager {
                                 wsMatch.ball[bkey] = bval;
                             }
                         }
+                        else if (val === undefined) delete(wsMatch[key])
                         else wsMatch[key] = val;
                     }
                 }

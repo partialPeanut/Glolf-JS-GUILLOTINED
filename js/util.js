@@ -157,15 +157,15 @@ function bestOfPlayers(worldState, pid1, pid2) {
 }
 
 function modifyFunction(type, depth, worldState, tl, func) {
-    let leagueMods =  worldState.league.mods
-    let tourneyMods = activeTourney(worldState)              === undefined ? [] : activeTourney(worldState).mods
-    let courseMods =  activeCourseOnTimeline(worldState, tl) === undefined ? [] : activeCourseOnTimeline(worldState, tl).mods
-    let holeMods =    activeHoleOnTimeline(worldState, tl)   === undefined ? [] : activeHoleOnTimeline(worldState, tl).mods
-    let playerMods =  activePlayerOnTimeline(worldState, tl) === undefined ? [] : activePlayerOnTimeline(worldState, tl).mods
-    let ballMods =    activePlayerOnTimeline(worldState, tl) === undefined ? [] : activePlayerOnTimeline(worldState, tl).ball.mods
+    const leagueMods =  worldState.league.mods
+    const tourneyMods = activeTourney(worldState)              === undefined ? [] : activeTourney(worldState).mods
+    const courseMods =  activeCourseOnTimeline(worldState, tl) === undefined ? [] : activeCourseOnTimeline(worldState, tl).mods
+    const holeMods =    activeHoleOnTimeline(worldState, tl)   === undefined ? [] : activeHoleOnTimeline(worldState, tl).mods
+    const playerMods =  activePlayerOnTimeline(worldState, tl) === undefined ? [] : activePlayerOnTimeline(worldState, tl).mods
+    const ballMods =    activePlayerOnTimeline(worldState, tl) === undefined ? [] : activePlayerOnTimeline(worldState, tl).ball.mods
 
-    let weather =     activeCourseOnTimeline(worldState, tl) === undefined ? undefined : activeCourseOnTimeline(worldState, tl).weather
-    let wildlife =    activeHoleOnTimeline(worldState, tl)   === undefined ? undefined : activeHoleOnTimeline(worldState, tl).wildlife
+    const weather =     activeCourseOnTimeline(worldState, tl) === undefined ? undefined : activeCourseOnTimeline(worldState, tl).weather
+    const wildlife =    activeHoleOnTimeline(worldState, tl)   === undefined ? undefined : activeHoleOnTimeline(worldState, tl).wildlife
 
     let moddedFunc = func
 
@@ -183,12 +183,8 @@ function modifyFunction(type, depth, worldState, tl, func) {
     applicableMods.sort((m1,m2) => m1.priority - m2.priority)
 
     for (let m of applicableMods) {
-        moddedFunc = m.modify(type, moddedFunc)
+        moddedFunc = m.modify(type, tl, moddedFunc)
     }
-    return moddedFunc
-}
 
-function triggerEffects(type, depth, worldState, tl) {
-    let modFunc = modifyFunction(type, depth, worldState, tl, () => {})
-    modFunc()
+    return moddedFunc
 }

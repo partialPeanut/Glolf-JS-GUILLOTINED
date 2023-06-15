@@ -1,7 +1,7 @@
 class Weather {
     static Mirage = new Weather("Mirage",  "Irrelevance and Falsehoods.", 0xFFEA6BE6, {
-        "strokeOutcome": (func) => {
-            return function (worldState, tl, player) {
+        "strokeOutcome": (tl, func) => {
+            return function (worldState, options) {
                 const course = activeCourseOnTimeline(worldState, tl)
                 if (unsunkPlayers(worldState, course).length >= 2 && Math.random() < 0.1) Greedler.queueEvent([ tl, EventWeatherMirage ])
 
@@ -10,13 +10,12 @@ class Weather {
             }
         }})
     static Tempest = new Weather("Tempest", "Progression and Regression.", 0xFF1281C3, {
-        "strokeOutcome": (func) => {
-            return function (worldState, tl, player) {
-                let out = func.apply(this, arguments)
-
+        "strokeOutcome": (tl, func) => {
+            return function (worldState, options) {
                 const course = activeCourseOnTimeline(worldState, tl)
-                if (unsunkPlayers(worldState, course).length >= (out.result == "SINK" ? 3 : 2) && Math.random() < 0.1) Greedler.queueEvent([ tl, EventWeatherTempest ])
+                if (unsunkPlayers(worldState, course).length >= 3 && Math.random() < 0.1) Greedler.queueEvent([ tl, EventWeatherTempest ])
 
+                let out = func.apply(this, arguments)
                 return out
             }
         }})
@@ -30,17 +29,17 @@ class Weather {
         this.eventChanges = eventChanges
     }
 
-    modify(type, func) {
+    modify(type, tl, func) {
         if (this.eventChanges[type] !== undefined) {
-            return this.eventChanges[type](func)
+            return this.eventChanges[type](tl, func)
         }
         else return func
     }
 }
 
 class EventWeatherMirage extends Event {
-    calculateEdit(worldState) {
-        const course = activeCourseOnTimeline(worldState, this.timeline)
+    calculateEdit(worldState, tl) {
+        const course = activeCourseOnTimeline(worldState, tl)
         const p1 = randomFromArray(unsunkPlayers(worldState, course))
         const pidx1 = course.players.indexOf(p1.id)
         const p2 = randomFromArray(unsunkPlayers(worldState, course))
@@ -50,9 +49,9 @@ class EventWeatherMirage extends Event {
         newPlayRay[pidx1] = p2.id
         newPlayRay[pidx2] = p1.id
 
-        this.worldEdit = {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline
+                "timeline": tl
             },
             "courses": [{
                 "id": course.id,
@@ -60,19 +59,21 @@ class EventWeatherMirage extends Event {
             }]
         }
 
-        if (p1 == p2) this.report = `Illusions dance. ${p1.fullName()} gets confused.`
-        else this.report = `Illusions dance. ${p1.fullName()} and ${p2.fullName()} confuse their turns.`
+        let report
+        if (p1 == p2) report = `Illusions dance. ${p1.fullName()} gets confused.`
+        else report = `Illusions dance. ${p1.fullName()} and ${p2.fullName()} confuse their turns.`
+        return [worldEdit, report]
     }
 }
 
 class EventWeatherTempest extends Event {
-    calculateEdit(worldState) {
-        const course = activeCourseOnTimeline(worldState, this.timeline)
+    calculateEdit(worldState, tl) {
+        const course = activeCourseOnTimeline(worldState, tl)
         const [p1, p2] = chooseNumFromArray(unsunkPlayers(worldState, course), 2)
 
-        this.worldEdit = {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline
+                "timeline": tl
             },
             "players": [{
                 "id": p1.id,
@@ -84,6 +85,7 @@ class EventWeatherTempest extends Event {
             }]
         }
 
-        this.report = `Chaotic winds blow. ${p1.fullName()} and ${p2.fullName()}'s balls defect to each other's owners.`
+        const report = `Chaotic winds blow. ${p1.fullName()} and ${p2.fullName()}'s balls defect to each other's owners.`
+        return [worldEdit, report]
     }
 }

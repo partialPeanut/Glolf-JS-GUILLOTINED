@@ -1,31 +1,38 @@
 class EventCreatePlayers extends Event {
-    calculateEdit(worldState, options) {
-        this.worldEdit = {
+    type = "createPlayers"
+    depth = "League"
+
+    calculateEdit(worldState, tl, options) {
+        let worldEdit = {
             "timetravel": {
-                "timeline": this.timeline
+                "timeline": tl
             },
             "players": []
         }
         for (let i = 0; i < options.playerCount; i++) {
             const player = ThingFactory.generateNewPlayer(worldState)
-            this.worldEdit.players.push(player)
+            worldEdit.players.push(player)
         }
 
-        this.report = `Contracts signed. ${options.playerCount} players rise from the ground.`
+        const report = `Contracts signed. ${options.playerCount} players rise from the ground.`
+        return [worldEdit, report]
     }
 }
 
 class EventAggression extends Event {
-    calculateEdit(worldState, options) {
+    type = "aggression"
+    depth = "Player"
+
+    calculateEdit(worldState, tl, options) {
         const atkPlayer = options.atkPlayer
         const defPlayer = options.defPlayer
 
         const newDist = defPlayer.ball.distance + randomReal(1,5) * atkPlayer.stats.yeetness
-        const newTerrain = calculatePostRollTerrain(worldState, this.timeline, defPlayer, newDist)
+        const newTerrain = calculatePostRollTerrain(worldState, tl, defPlayer, newDist)
 
-        this.worldEdit = {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline
+                "timeline": tl
             },
             "players": [{
                 "id": defPlayer.id,
@@ -36,20 +43,24 @@ class EventAggression extends Event {
             }]
         }
 
-        this.report = `${atkPlayer.fullName()}'s ball hits ${defPlayer.fullName()}'s ball away from the hole!`
+        const report = `${atkPlayer.fullName()}'s ball hits ${defPlayer.fullName()}'s ball away from the hole!`
+        return [worldEdit, report]
     }
 }
 
 class EventMosquitoBite extends Event {
-    calculateEdit(worldState, options) {
+    type = "mosquitoBite"
+    depth = "Player"
+
+    calculateEdit(worldState, tl, options) {
         const player = options.player
         const randomStat = randomFromArray(Object.keys(player.stats))
         let modifiedStats = JSON.parse(JSON.stringify(player.stats))
         modifiedStats[randomStat] -= options.damage
 
-        this.worldEdit = {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline
+                "timeline": tl
             },
             "players": [{
                 "id": player.id,
@@ -57,20 +68,25 @@ class EventMosquitoBite extends Event {
             }]
         }
 
-        this.report = `${player.fullName()} is bitten by mosquitoes and loses ${options.damage} ${randomStat}.`
+        const report = `${player.fullName()} is bitten by mosquitoes and loses ${options.damage} ${randomStat}.`
+        return [worldEdit, report]
     }
 }
 
 class EventWormBattle extends Event {
-    calculateEdit(worldState, options) {
+    type = "wormBattle"
+    depth = "Player"
+
+    calculateEdit(worldState, tl, options) {
         const hole = activeHoleOnTimeline(worldState, tl)
         const player = options.player
         const wonBattle = Math.random() < curveLoggy(0, 1, player.stats.scrappiness)
 
+        let worldEdit, report
         if (wonBattle) {
-            this.worldEdit = {
+            worldEdit = {
                 "timetravel": {
-                    "timeline": this.timeline
+                    "timeline": tl
                 },
                 "players": [{
                     "id": player.id,
@@ -82,13 +98,13 @@ class EventWormBattle extends Event {
                 }]
             }
 
-            this.report = `${player.fullName()} knocks the worm unconscious! The ball rolls into the wormhole for a ` +
-                          `${(player.ball.stroke == 1 ? "hole in one!" : intToBird(player.ball.stroke - hole.dimensions.par))}!`
+            report = `${player.fullName()} knocks the worm unconscious! The ball rolls into the wormhole for a ` +
+                     `${player.ball.stroke == 1 ? "hole in one!" : intToBird(player.ball.stroke - hole.dimensions.par)}!`
         }
         else {
-            this.worldEdit = {
+            worldEdit = {
                 "timetravel": {
-                    "timeline": this.timeline
+                    "timeline": tl
                 },
                 "players": [{
                     "id": player.id,
@@ -100,20 +116,25 @@ class EventWormBattle extends Event {
                 }]
             }
 
-            this.report = `${player.fullName()}'s ball is eaten by the worm! They'll have to start at the beginning.`
+            report = `${player.fullName()}'s ball is eaten by the worm! They'll have to start at the beginning.`
         }
+
+        return [worldEdit, report]
     }
 }
 
 class EventTourneyDonate extends Event {
-    calculateEdit(worldState) {
+    type = "tourneyDonate"
+    depth = "Tourney"
+
+    calculateEdit(worldState, tl) {
         const tourney = activeTourney(worldState)
         const totalSins = tourney.players.reduce((total, pid) => total + getWorldItem(worldState, "players", pid).netWorth, 0)
         const donation = Math.floor(0.2 * totalSins / tourney.players.length)
 
-        this.worldEdit = {
+        const worldEdit = {
             "timetravel": {
-                "timeline": this.timeline
+                "timeline": tl
             },
             "players": tourney.players.map(pid => {
                 return {
@@ -123,6 +144,7 @@ class EventTourneyDonate extends Event {
             })
         }
 
-        this.report = `Hearts swell! Kindness overflowing! Each player atones for ${donations.toLocaleString()} $ins.`
+        const report = `Hearts swell! Kindness overflowing! Each player atones for ${donation.toLocaleString()} $ins.`
+        return [worldEdit, report]
     }
 }

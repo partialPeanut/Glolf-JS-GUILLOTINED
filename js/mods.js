@@ -1,16 +1,18 @@
 class Mod {
     static Aggressive = new Mod("AGRO", 0.1, 0, {
-            "strokeOutcome": (func) => {
-                return function (worldState, tl, player) {
+            "strokeOutcome": (tl, func) => {
+                return function (worldState, options) {
                     // Do stroke as normal
-                    let out = func.apply(this, arguments)
+                    let [outEdit, outReport] = func.apply(this, arguments)
+                    const player = activePlayerOnTimeline(worldState, tl)
+                    let editPlayer = outEdit.players.find(p => p.id == player.id)
 
                     // Get all nearby players (within player's yeetness)
                     const course = activeCourseOnTimeline(worldState, tl)
                     const nearbyPlayers = unsunkPlayers(worldState, course).filter(p => {
                         if (player == p) return false
-                        if (p.ball.past != (out.distanceFlown > player.ball.distance ? !player.ball.past : player.ball.past)) return false
-                        return Math.abs(p.ball.distance - out.distanceToHole) <= player.stats.yeetness
+                        if (p.ball.past != editPlayer.ball.past) return false
+                        return Math.abs(p.ball.distance - editPlayer.ball.distance) <= player.stats.yeetness
                     })
 
                     // If there are nearby players, 20% chance to hit a random one
@@ -18,30 +20,45 @@ class Mod {
                         Greedler.queueEvent([tl, EventAggression, { "atkPlayer": player, "defPlayer": randomFromArray(nearbyPlayers) }])
                     }
 
-                    return out
+                    return [outEdit, outReport]
                 }
             }})
     static SemiAquatic = new Mod("AQUA", 0.1, 1, {
-            "strokeOutcome": (func) => {
-                return function (worldState, tl, player) {
-                    let out = func.apply(this, arguments)
-                    if (out.newTerrain == Terrain.WaterHazard) out.newTerrain = Terrain.WaterFloat
-                    return out
+            "strokeOutcome": (tl, func) => {
+                return function (worldState, options) {
+                    let [outEdit, outReport] = func.apply(this, arguments)
+
+                    const player = activePlayerOnTimeline(worldState, tl)
+                    let editPlayer = outEdit.players.find(p => p.id == player.id)
+                    if (editPlayer.ball.terrainJustLanded == Terrain.WaterHazard) {
+                        editPlayer.ball.terrain = Terrain.WaterFloat
+                        editPlayer.ball.terrainJustLanded = Terrain.WaterFloat
+                    }
+
+                    return [outEdit, outReport]
                 }
             }})
     
     static Entangled = new Mod("ENTG", 0, 0, {})
     static Harmonized = new Mod("HRMZ", 0, 2, {
-            "strokeOutcome": (func) => {
-                return function (worldState, tl, player) {
-                    let out = func.apply(this, arguments)
+            "strokeOutcome": (tl, func) => {
+                return function (worldState, options) {
+                    let [outEdit, outReport] = func.apply(this, arguments)
+
+                    const player = activePlayerOnTimeline(worldState, tl)
                     if (player.ball.stroke == 0) {
-                        let out2 = func.apply(this, arguments)
-                        if (out.newTerrain.oob) return out2
-                        else if (out2.newTerrain.oob) return out
-                        else return out.distanceToHole < out2.distanceToHole ? out : out2
+                        let [outEdit2, outReport2] = func.apply(this, arguments)
+                        const player = activePlayerOnTimeline(worldState, tl)
+                        let editBall1 = outEdit.players.find(p => p.id == player.id).ball
+                        let editBall2 = outEdit2.players.find(p => p.id == player.id).ball
+
+                        if (editBall1.distance > editBall2.distance) {
+                            [outEdit, outReport] = [outEdit2, outReport2]
+                        }
+                        outReport = `Worlds harmonize. The best of two outcomes is chosen. ` + outReport
                     }
-                    return out
+
+                    return [outEdit, outReport]
                 }
             }})
     static Poisoned = new Mod("PSND", 0, 0, {})
@@ -56,10 +73,10 @@ class Mod {
     static Swampland = new Mod("SWMP", 0.1, 0, {})
     
     static CharityMatch = new Mod("CHRT", 0.1, 0, {
-            "tourneyStarted": (func) => {
-                return function () {
-                    Greedler.queueEvent([ 0, EventTourneyDonate ])
-                    let out = func.apply(this)
+            "tourneyStarted": (tl, func) => {
+                return function (worldState, options) {
+                    Greedler.queueEvent([ tl, EventTourneyDonate ])
+                    let out = func.apply(this, arguments)
                     return out
                 }
             }},
@@ -84,9 +101,9 @@ class Mod {
         this.mutation = mutation
     }
 
-    modify(type, func) {
+    modify(type, tl, func) {
         if (this.eventChanges[type] !== undefined) {
-            return this.eventChanges[type](func)
+            return this.eventChanges[type](tl, func)
         }
         else return func
     }
