@@ -108,24 +108,41 @@
 </head>
 <body>
     <div class="header-buttons">
-        <button type="button" class="header-button">GLOLF</button>
-        <!-- <button type="button" class="header-button">&#x23F8;</button>
-        <button type="button" class="header-button">&#x23F5;</button>
-        <button type="button" class="header-button">&#x23EE;</button>
-        <button type="button" class="header-button" onclick="nextEvent()">&#x23ED;</button>
-        <button type="button" class="header-button">&#x23E9;&#xFE0E;</button> -->
-        <button type="button" class="header-button"><div class="playback">B</div></button>
-        <button type="button" class="header-button"><div class="playback">A</div></button>
-        <button type="button" class="header-button"><div class="playback">D</div></button>
-        <button type="button" class="header-button" onclick="nextEvent()"><div class="playback">C</div></button>
-        <button type="button" class="header-button" onclick="changePlaybackSpeed()"><div class="playback" id="playback-speed">E</div></button>
-        <button type="button" class="header-button" onclick="logPastEvents()">Past Events</button>
-        <button type="button" class="header-button" onclick="logFutureEvents()">Future Events</button>
-        <button type="button" class="header-button" onclick="logWorldState()">World State</button>
-        <button type="button" class="header-button">Girl Button</button>
+        <div class="header-border"><button type="button" class="header-button">GLOLF</button></div>
+        <div class="header-border"><button type="button" class="header-button"><div class="playback">B</div></button></div>
+        <div class="header-border"><button type="button" class="header-button"><div class="playback">A</div></button></div>
+        <div class="header-border"><button type="button" class="header-button"><div class="playback">D</div></button></div>
+        <div class="header-border"><button type="button" class="header-button" onclick="nextEvent()"><div class="playback">C</div></button></div>
+        <div class="header-border"><button type="button" class="header-button" onclick="changePlaybackSpeed()"><div class="playback" id="playback-speed">E</div></button></div>
+        <div class="header-border"><button type="button" class="header-button" onclick="logPastEvents()">Past Events</button></div>
+        <div class="header-border"><button type="button" class="header-button" onclick="logFutureEvents()">Future Events</button></div>
+        <div class="header-border"><button type="button" class="header-button" onclick="logWorldState()">World State</button></div>
+        <div class="header-border"><button type="button" class="header-button">Girl Button</button></div>
     </div>
     <hr class="header-divider">
-    <div id ="feed-displayers">
+    <div class="hwrap"><div class="hmove">
+        <div class="hitem">A NEWS CYCLE BEGINS</div>
+        <div class="hitem">Don't forget your bugspray.</div>
+        <div class="hitem">RIV Blaseball</div>
+        <div class="hitem">Is that a moon?</div>
+        <div class="hitem">BEES!! BEES!! BEES!!</div>
+      </div></div>    
+    <div id="variable-displayer">
+        <div id="player-display">
+
+        </div>
+        <div id="course-display">
+
+        </div>
+        <div id="tourney-display">
+
+        </div>
+        <div id="standings-display">
+
+        </div>
+    </div>
+    <div id="feed-displayers">
+        <div id="feed-displayer0">...</div>
         <div id="feed-displayer1">...</div>
         <div id="feed-displayer2">...</div>
         <div id="feed-displayer3">...</div>

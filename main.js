@@ -43,31 +43,31 @@ function nextEvent() {
     reports = Onceler.mostRecentReports()
     if (reports.length != pastReports) {
         if (reports.length == 1) {
+            document.getElementById("feed-displayers").style.gridTemplateColumns = "1fr"
+            document.getElementById("feed-displayers").style.gridTemplateRows = "1fr"
 
+            document.getElementById("feed-displayer0").style.display = "block"
+            document.getElementById("feed-displayer1").style.display = "none"
+            document.getElementById("feed-displayer2").style.display = "none"
+            document.getElementById("feed-displayer3").style.display = "none"
+            document.getElementById("feed-displayer4").style.display = "none"
         }
         else if (reports.length > 1) {
             document.getElementById("feed-displayers").style.gridTemplateColumns = "1fr 1fr"
             document.getElementById("feed-displayers").style.gridTemplateRows = "1fr 1fr"
 
+            document.getElementById("feed-displayer0").style.display = "none"
+            document.getElementById("feed-displayer1").style.display = "block"
             document.getElementById("feed-displayer2").style.display = "block"
             document.getElementById("feed-displayer3").style.display = "block"
             document.getElementById("feed-displayer4").style.display = "block"
-
-            document.getElementById("feed-displayer1").style.fontSize = "30px"
-            document.getElementById("feed-displayer1").style.color = "rgb(230, 80, 69)"
-
-            document.getElementById("feed-displayer1").style.marginBottom = "5px"
-            document.getElementById("feed-displayer1").style.marginRight = "5px"
-            document.getElementById("feed-displayer2").style.marginBottom = "5px"
-            document.getElementById("feed-displayer2").style.marginLeft = "5px"
-            document.getElementById("feed-displayer3").style.marginTop = "5px"
-            document.getElementById("feed-displayer3").style.marginRight = "5px"
-            document.getElementById("feed-displayer4").style.marginTop = "5px"
-            document.getElementById("feed-displayer4").style.marginLeft = "5px"
         }
     }
-    document.getElementById("feed-displayer1").textContent = reports[0]
-    if (reports.length > 1) {       
+    if (reports.length == 1) {
+        document.getElementById("feed-displayer0").textContent = reports[0]
+    }
+    else {       
+        document.getElementById("feed-displayer1").textContent = reports[0]
         document.getElementById("feed-displayer2").textContent = reports[1]
         document.getElementById("feed-displayer3").textContent = reports[2]
         document.getElementById("feed-displayer4").textContent = reports[3]

@@ -11,29 +11,90 @@
 body {
   font-family: 'pixel_operator_regular', serif;
   margin: 0px;
-  background-color: rgba(200, 200, 200, 1);
+  background-color: rgb(0, 0, 0);
+}
+
+
+@keyframes rainbow {
+  from {background-position: -100vh 0}
+  to {background-position: 100vh 0}
+}
+
+.hwrap {
+  overflow: hidden; 
+  background-color: #272727;
+  width: 96%;
+  left: 2%;
+  right: 2%;
+  position: absolute;
+  align-content: center;
+  border-radius: 15px;
+}
+.hmove { 
+  display: flex; 
+}
+.hitem {
+  flex-shrink: 0;
+  width: 80%;
+  box-sizing: border-box;
+  padding: 10px;
+  font-size: 20px;
+  font-family: 'pixel_operator_hb', serif;
+  text-align: center;
+  color: white;
+}
+
+@keyframes tickerh {
+  0% { transform: translate3d(100%, 0, 0); }
+  100% { transform: translate3d(-400%, 0, 0); }
+}
+.hmove { animation: tickerh linear 50s infinite; }
+.hmove:hover { animation-play-state: paused; }
+
+#variable-displayer {
+  display: block;
+  position: absolute;
+  left:10px;
+  top:130px;
+  height: 300px;
+  right: 90%;
 }
 
 #feed-displayers {
   display: grid;
   position:absolute;
-	left:10px;
-	top:93px;
+	left:560px;
+	top:140px;
 	right:10px;
 	height: 300px;
 	overflow:hidden;
 }
-
-#feed-displayer1 {
-  color: rgb(224, 67, 255);
+#feed-displayer0 {
+  color: rgb(255, 255, 255);
   border: 3px solid #000;
-  font-size: 48px;
+  font-size: 40px;
   padding-top: 10px;
 	padding-left:16px;
 	overflow:hidden;
-  background-color: rgba(50, 50, 50, 1);
+  background-color: rgb(32, 27, 27);
   display: block;
   white-space: pre-line;
+}
+#feed-displayer1 {
+  color: rgb(230, 80, 69);
+  border: 3px solid #000;
+  font-size: 30px;
+  padding-top: 10px;
+	padding-left:16px;
+  margin-bottom: 5px;
+  margin-right: 5px;
+	overflow:hidden;
+  background-color: rgba(50, 50, 50, 1);
+  display: none;
+  white-space: pre-line;
+  background-image: url(assets/images/ui/feed/feed-banner1.gif);
+  background-repeat: repeat-x;
+  background-position: bottom;
 }
 #feed-displayer2 {
   color: rgb(72, 253, 111);
@@ -41,10 +102,15 @@ body {
   font-size: 30px;
   padding-top: 10px;
 	padding-left:16px;
+  margin-bottom: 5px;
+  margin-left: 5px;
 	overflow:hidden;
   background-color: rgba(50, 50, 50, 1);
   display: none;
   white-space: pre-line;
+  background-image: url(assets/images/ui/feed/feed-banner2.gif);
+  background-repeat: repeat-x;
+  background-position: bottom;
 }
 #feed-displayer3 {
   color: rgba(100, 100, 255, 1);
@@ -52,10 +118,15 @@ body {
   font-size: 30px;
   padding-top: 10px;
 	padding-left:16px;
+  margin-top: 5px;
+  margin-right: 5px;
 	overflow:hidden;
   background-color: rgba(50, 50, 50, 1);
   display: none;
   white-space: pre-line;
+  background-image: url(assets/images/ui/feed/feed-banner3.gif);
+  background-repeat: repeat-x;
+  background-position: bottom;
 }
 #feed-displayer4 {
   color: rgb(197, 199, 60);
@@ -63,39 +134,86 @@ body {
   font-size: 30px;
   padding-top: 10px;
 	padding-left:16px;
+  margin-top: 5px;
+  margin-left: 5px;
 	overflow:hidden;
   background-color: rgba(50, 50, 50, 1);
   display: none;
   white-space: pre-line;
+  background-image: url(assets/images/ui/feed/feed-banner4.gif);
+  background-repeat: repeat-x;
+  background-position: bottom;
 }
 
 .header-button {
   font-family: 'pixel_operator_bold', serif;
   height: 60px;
-  margin: 10px;
-  margin-right: 0px;
-  border: 3px solid #000;
-  border-radius: 0px;
+  
   font-size: 36px;
   text-align: center;
-  color: #000;
-  background-color: rgba(225, 225, 225, 1);
+  color: #ffffff;
+  background-color: rgb(46, 46, 46);
   overflow:hidden;
 }
 .header-button:hover {
-  border-color: rgb(255, 0, 0);
-}
-.header-button:active {
-  border-color: rgb(248, 127, 40);
-  background-color: rgba(150, 150, 150, 1);
+  border: double 2px transparent;
+  -webkit-text-fill-color: transparent;
+  background:
+    repeating-linear-gradient(
+      to right, 
+      rgba(255, 0, 0, 1) 0%,
+      rgba(255, 154, 0, 1) 10%,
+      rgba(208, 222, 33, 1) 20%,
+      rgba(79, 220, 74, 1) 30%,
+      rgba(63, 218, 216, 1) 40%,
+      rgba(47, 201, 226, 1) 50%,
+      rgba(28, 127, 238, 1) 60%,
+      rgba(95, 21, 242, 1) 70%,
+      rgba(186, 12, 248, 1) 80%,
+      rgba(251, 7, 217, 1) 90%,
+      rgba(255, 0, 0, 1) 100%);
+  background-origin: border-box;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: rainbow linear 30s infinite;
 }
 .header-buttons {
   display: grid;
   grid-template-columns: 200px repeat(5, 70px) 1fr 1fr 1fr 1fr 10px;
-  background-color: rgba(200, 200, 200, 1);
+  background-color: rgba(24, 24, 24, 1);
+}
+.header-border {
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+  margin-right: 0px;
+  border: 3px solid transparent;
+}
+.header-border:hover {
+  border: double 2px transparent;
+  -webkit-text-fill-color: transparent;
+  background:
+    linear-gradient(to right, rgb(46, 46, 46), rgb(46, 46, 46)),
+    repeating-linear-gradient(
+      to right, 
+      rgba(255, 0, 0, 1) 0%,
+      rgba(255, 154, 0, 1) 10%,
+      rgba(208, 222, 33, 1) 20%,
+      rgba(79, 220, 74, 1) 30%,
+      rgba(63, 218, 216, 1) 40%,
+      rgba(47, 201, 226, 1) 50%,
+      rgba(28, 127, 238, 1) 60%,
+      rgba(95, 21, 242, 1) 70%,
+      rgba(186, 12, 248, 1) 80%,
+      rgba(251, 7, 217, 1) 90%,
+      rgba(255, 0, 0, 1) 100%);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  -webkit-background-clip: padding-box, border-box;
+  animation: rainbow linear 30s infinite;
 }
 .header-divider {
-  border-top: 3px solid #000;
+  border-top: 3px solid rgba(24, 24, 24, 1);
   margin-top: 0px;
 }
 
