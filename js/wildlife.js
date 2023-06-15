@@ -1,38 +1,26 @@
 class Wildlife {
     static None = new Wildlife("None", "No critters on this hole.", 0x000000, {})
-    static Mosquito = new Wildlife("Mosquitoes", "Mosquitoes in the skies! Players, hope you brought bug spray.", 0x000000,
-        { "strokeType": this.mosqBiteFunc, "strokeOutcome": this.mosqBiteFunc })
         static mosqBiteFunc = (tl, func) => {
-            return function (worldState, options) {
+            return function (worldState, tl, options) {
                 const randomPlayer = randomFromArray(unsunkPlayers(worldState, activeCourseOnTimeline(worldState, tl)))
-                if (randomPlayer !== undefined && Math.random() < 0.05) Greedler.queueEvent([ tl, EventMosquitoBite, { "player": randomPlayer, "damage": 0.01 }])
-    
+                if (randomPlayer !== undefined && Math.random() < 0.05 * activeHoleOnTimeline(worldState, tl).stats.quench)
+                    Greedler.queueEvent([ tl, EventMosquitoBite, { "player": randomPlayer, "damage": 0.01 }])
+
                 let out = func.apply(this, arguments)
                 return out
             }
         }
+    static Mosquito = new Wildlife("Mosquitoes", "Mosquitoes in the skies! Players, hope you brought bug spray.", 0x000000,
+        { "strokeType": this.mosqBiteFunc, "strokeOutcome": this.mosqBiteFunc })
     static Komodo = new Wildlife("Komodo Dragons", "Komodo dragons in the shadows. Players, keep your antibiotics handy!", 0x000000, {
         "strokeOutcome": (tl, func) => {
-            return function (worldState, options) {
+            return function (worldState, tl, options) {
                 let [outEdit, outReport] = func.apply(this, arguments)
-                const player = activePlayerOnTimeline(worldState, tl)
-                let editPlayer = outEdit.players.find(p => p.id == player.id)
 
-                if (player.poisonCounters === undefined) {
+                const player = activePlayerOnTimeline(worldState, tl)
+                const editPlayer = outEdit.players.find(p => p.id == player.id)
+                if (Math.random() < 0.2 && !player.mods.includes(Mod.Poisoned) && !editPlayer.ball.sunk) {
                     Greedler.queueEvent([ tl, EventKomodoAttack, { "player": player }])
-                }
-                else if (editPlayer.ball.sunk) {
-                    outReport += ` The prey escapes, and is cured of poison.`
-                    editPlayer.poisonCounters = undefined
-                }
-                else if (player.poisonCounters > 0) {
-                    outReport += ` ${player.poisonCounters} strokes until the predators strike.`
-                    editPlayer.poisonCounters = player.poisonCounters-1
-                }
-                else {
-                    outReport += ` Lizards hiss.`
-                    editPlayer.poisonCounters = undefined
-                    Greedler.queueEvent([ tl, EventKomodoKill, { "player": player }])
                 }
 
                 return [outEdit, outReport]
@@ -40,7 +28,7 @@ class Wildlife {
         }})
     static Worm = new Wildlife("Sand Worms", "Worms in the sand! Players, be wary of those bunkers.", 0x000000, {
         "strokeOutcome": (tl, func) => {
-            return function (worldState, options) {
+            return function (worldState, tl, options) {
                 let [outEdit, outReport] = func.apply(this, arguments)
                 const player = activePlayerOnTimeline(worldState, tl)
                 let editPlayer = outEdit.players.find(p => p.id == player.id)
@@ -58,6 +46,7 @@ class Wildlife {
         this.name = name
         this.report = report
         this.color = color
+        this.priority = 2
         this.eventChanges = eventChanges
     }
 

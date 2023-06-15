@@ -1,7 +1,7 @@
 class Weather {
     static Mirage = new Weather("Mirage",  "Irrelevance and Falsehoods.", 0xFFEA6BE6, {
         "strokeOutcome": (tl, func) => {
-            return function (worldState, options) {
+            return function (worldState, tl, options) {
                 const course = activeCourseOnTimeline(worldState, tl)
                 if (unsunkPlayers(worldState, course).length >= 2 && Math.random() < 0.1) Greedler.queueEvent([ tl, EventWeatherMirage ])
 
@@ -11,7 +11,7 @@ class Weather {
         }})
     static Tempest = new Weather("Tempest", "Progression and Regression.", 0xFF1281C3, {
         "strokeOutcome": (tl, func) => {
-            return function (worldState, options) {
+            return function (worldState, tl, options) {
                 const course = activeCourseOnTimeline(worldState, tl)
                 if (unsunkPlayers(worldState, course).length >= 3 && Math.random() < 0.1) Greedler.queueEvent([ tl, EventWeatherTempest ])
 
@@ -26,6 +26,7 @@ class Weather {
         this.name = name
         this.report = report
         this.color = color
+        this.priority = 1
         this.eventChanges = eventChanges
     }
 

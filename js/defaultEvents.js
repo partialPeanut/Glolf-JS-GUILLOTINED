@@ -238,7 +238,7 @@ class EventHoleStart extends Event {
 
 class EventWildlifeReport extends Event {
     type = "wildlifeReport"
-    depth = "Course"
+    depth = "Hole"
 
     calculateEdit(worldState, tl) {
         const hole = activeHoleOnTimeline(worldState, tl)

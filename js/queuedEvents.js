@@ -48,6 +48,45 @@ class EventAggression extends Event {
     }
 }
 
+class EventKomodoAttack extends Event {
+    type = "komodoAttack"
+    depth = "Player"
+
+    calculateEdit(worldState, tl, options) {
+        const player = options.player
+        const hole = activeHoleOnTimeline(worldState, tl)
+
+        const counters = hole.dimensions.par + Math.floor(curveLoggy(0, 4, player.stats.scrappiness))
+        const poisonedPlayer = {
+            "id": player.id,
+            "mods": player.mods,
+            "stats": player.stats
+        }
+        Mod.Poisoned.apply(poisonedPlayer, counters)
+
+        const worldEdit = {
+            "timetravel": {
+                "timeline": tl
+            },
+            "players": [ poisonedPlayer ]
+        }
+
+        const report = `${player.fullName()} is attacked my komodo dragons and is poisoned!`
+        return [worldEdit, report]
+    }
+}
+
+class EventKomodoKill extends Event {
+    type = "komodoKill"
+    depth = "Player"
+
+    calculateEdit(worldState, tl, options) {
+        const worldEdit = editOfKillPlayerInTourney(worldState, tl, options.player)
+        const report = `Too slow. The komodos feast on ${player.fullName()}.`
+        return [worldEdit, report]
+    }
+}
+
 class EventMosquitoBite extends Event {
     type = "mosquitoBite"
     depth = "Player"

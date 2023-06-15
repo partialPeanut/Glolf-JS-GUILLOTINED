@@ -1,7 +1,7 @@
 class Mod {
     static Aggressive = new Mod("AGRO", 0.1, 0, {
             "strokeOutcome": (tl, func) => {
-                return function (worldState, options) {
+                return function (worldState, tl, options) {
                     // Do stroke as normal
                     let [outEdit, outReport] = func.apply(this, arguments)
                     const player = activePlayerOnTimeline(worldState, tl)
@@ -25,7 +25,7 @@ class Mod {
             }})
     static SemiAquatic = new Mod("AQUA", 0.1, 1, {
             "strokeOutcome": (tl, func) => {
-                return function (worldState, options) {
+                return function (worldState, tl, options) {
                     let [outEdit, outReport] = func.apply(this, arguments)
 
                     const player = activePlayerOnTimeline(worldState, tl)
@@ -42,7 +42,7 @@ class Mod {
     static Entangled = new Mod("ENTG", 0, 0, {})
     static Harmonized = new Mod("HRMZ", 0, 2, {
             "strokeOutcome": (tl, func) => {
-                return function (worldState, options) {
+                return function (worldState, tl, options) {
                     let [outEdit, outReport] = func.apply(this, arguments)
 
                     const player = activePlayerOnTimeline(worldState, tl)
@@ -61,30 +61,90 @@ class Mod {
                     return [outEdit, outReport]
                 }
             }})
-    static Poisoned = new Mod("PSND", 0, 0, {})
+    static Poisoned = new Mod("PSND", 0, 0, {
+        "strokeOutcome": (tl, func) => {
+            return function (worldState, tl, options) {
+                let [outEdit, outReport] = func.apply(this, arguments)
+                const player = activePlayerOnTimeline(worldState, tl)
+                let editPlayer = outEdit.players.find(p => p.id == player.id)
+
+                if (editPlayer.ball.sunk) {
+                    outReport += `\nThe prey escapes, and is cured of poison.`
+                    editPlayer.mods = editPlayer.mods === undefined ? player.mods : editPlayer.mods
+                    editPlayer.stats = editPlayer.stats === undefined ? player.stats : editPlayer.stats
+                    Mod.Poisoned.remove(editPlayer)
+                }
+                else if (player.poisonCounters > 0) {
+                    outReport += `\n${player.poisonCounters} strokes until the predators strike.`
+                    editPlayer.poisonCounters = player.poisonCounters-1
+                }
+                else {
+                    outReport += `\nLizards hiss.`
+                    Greedler.queueEvent([ tl, EventKomodoKill, { "player": player }])
+                }
+
+                return [outEdit, outReport]
+            }
+        }},
+        (player, counters) => {
+            player.mods.push(Mod.Poisoned)
+            player.poisonCounters = counters
+            player.stats.competence -= 4
+            player.stats.yeetness -= 2
+            player.stats.trigonometry -= 2
+        },
+        player => {
+            removeFromArray(player.mods, Mod.Poisoned)
+            player.poisonCounters = undefined
+            player.stats.competence += 4
+            player.stats.yeetness += 2
+            player.stats.trigonometry += 2
+        })
     
     static Coastal = new Mod("CSTL", 0.1, 0, {},
-            function(h) {
-                let newHole = h
-                newHole.stats.quench *= 2
-                newHole.stats.thirst *= 2
-                return newHole
-            })
-    static Swampland = new Mod("SWMP", 0.1, 0, {})
+        h => {
+            h.mods.push(Mod.Coastal)
+            h.stats.quench *= 3
+            h.stats.thirst *= 3
+        })
+    static Swampland = new Mod("SWMP", 0.1, 0, {
+        "wildlifeReport": (tl, func) => {
+            return function (worldState, tl, options) {
+                let [outEdit, outReport] = func.apply(this, arguments)
+
+                const hole = activeHoleOnTimeline(worldState, tl)
+                let editHole = outEdit.holes.find(h => h.id == hole.id)
+                if (Math.random() < 0.75) {
+                    editHole.wildlife = Wildlife.Mosquito
+                    outReport = `Wildlife Report: Vicious mosquitoes swarm the swamplands!`
+                }
+
+                return [outEdit, outReport]
+            }
+        },
+        "mosquitoBite": (tl, func) => {
+            return function (worldState, tl, options) {
+                options.damage *= 5
+                let out = func.apply(this, arguments)
+                return out
+            }
+        }},
+        h => {
+            h.mods.push(Mod.Swampland)
+            h.stats.quench *= 1.5
+        })
     
     static CharityMatch = new Mod("CHRT", 0.1, 0, {
-            "tourneyStarted": (tl, func) => {
-                return function (worldState, options) {
-                    Greedler.queueEvent([ tl, EventTourneyDonate ])
-                    let out = func.apply(this, arguments)
-                    return out
-                }
-            }},
-            function(t) {
-                let newTourney = t
-                newTourney.sinReward *= -1
-                return newTourney
-            })
+        "tourneyStart": (tl, func) => {
+            return function (worldState, options) {
+                let out = func.apply(this, arguments)
+                return out
+            }
+        }},
+        t => {
+            t.mods.push(Mod.CharityMatch)
+            t.sinReward *= -1
+        })
     
     static BallMods =    []
     static PlayerMods =  [ Mod.Aggressive, Mod.SemiAquatic, Mod.Entangled, Mod.Harmonized, Mod.Poisoned ]
@@ -93,12 +153,13 @@ class Mod {
     static TourneyMods = [ Mod.CharityMatch ]
     static LeagueMods =  []
 
-    constructor(name, naturalChance, priority, eventChanges, mutation) {
+    constructor(name, naturalChance, priority, eventChanges, apply, remove) {
         this.name = name
         this.naturalChance = naturalChance
         this.priority = priority
         this.eventChanges = eventChanges
-        this.mutation = mutation
+        this.apply = apply === undefined ? (x) => { x.mods.push(this) } : apply
+        this.remove = remove === undefined ? (x) => { removeFromArray(x.mods, this) } : remove
     }
 
     modify(type, tl, func) {
@@ -106,10 +167,5 @@ class Mod {
             return this.eventChanges[type](tl, func)
         }
         else return func
-    }
-
-    mutate(x) {
-        if (this.mutation === undefined) return x
-        else return this.mutation(x)
     }
 }

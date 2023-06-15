@@ -23,7 +23,7 @@ class ThingFactory {
         }
         let p = {
             "id": id,
-            "mods": Mod.PlayerMods.filter(m => Math.random() < m.naturalChance),
+            "mods": [],
             "firstName": randomFromArray(p_namesfirst),
             "lastName": randomFromArray(p_nameslast),
             "suffixes": [],
@@ -36,7 +36,7 @@ class ThingFactory {
             "mortality": "ALIVE",
             "score": 0,
             "ball": {
-                "mods": Mod.BallMods.filter(m => Math.random() < m.naturalChance),
+                "mods": [],
                 "color": 0xFFFFFF,
                 "nextStrokeType": StrokeType.Nothing,
                 "stroke": 0,
@@ -59,8 +59,8 @@ class ThingFactory {
             }
         }
 
-        for (let m of p.mods) p = m.mutate(p)
-        for (let m of p.ball.mods) p.ball = m.mutate(p.ball)
+        Mod.PlayerMods.filter(m => Math.random() < m.naturalChance).forEach(m => m.apply(p))
+        Mod.BallMods.filter(m => Math.random() < m.naturalChance).forEach(m => m.apply(p.ball))
 
         return p
     }
@@ -82,7 +82,7 @@ class ThingFactory {
 
         let h = {
             "id": id,
-            "mods": Mod.HoleMods.filter(m => Math.random() < m.naturalChance),
+            "mods": [],
             "wildlife": Wildlife.None,
             "currentPlayer": -1,
             "succblow": 0,
@@ -103,7 +103,7 @@ class ThingFactory {
         h.dimensions.greenRadius = randomGaussian(100,10) * h.stats.verdancy,
         h.dimensions.par = parFromLength(h.dimensions.length)
 
-        for (let m of h.mods) h = m.mutate(h)
+        Mod.HoleMods.filter(m => Math.random() < m.naturalChance).forEach(m => m.apply(h))
 
         return h
     }
@@ -112,7 +112,7 @@ class ThingFactory {
         let id = this.generateNewID()
         let c = {
             "id": id,
-            "mods": Mod.CourseMods.filter(m => Math.random() < m.naturalChance),
+            "mods": [],
             "players": players,
             "currentHole": 0,
             "holeNumber": 0,
@@ -120,7 +120,7 @@ class ThingFactory {
             "weather": Weather.Tempest
         }
 
-        for (let m of c.mods) c = m.mutate(c)
+        Mod.CourseMods.filter(m => Math.random() < m.naturalChance).forEach(m => m.apply(c))
 
         return c
     }
@@ -133,7 +133,7 @@ class ThingFactory {
         }
         let t = {
             "id": id,
-            "mods": Mod.TourneyMods.filter(m => Math.random() < m.naturalChance),
+            "mods": [],
             "name": randomFromArray(t_titles).replaceAll("[N]", randomFromArray(t_nouns)),
             "sinReward": randomInt(100000, 200000),
             "placesRewarded": 3,
@@ -144,7 +144,7 @@ class ThingFactory {
             "courses": []
         }
 
-        for (let m of t.mods) t = m.mutate(t)
+        Mod.TourneyMods.filter(m => Math.random() < m.naturalChance).forEach(m => m.apply(t))
 
         return t
     }

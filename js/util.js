@@ -144,6 +144,30 @@ function activePlayerOnTimeline(worldState, tl) {
     else return playerOnTimelineAtIndex(worldState, tl, activeHoleOnTimeline(worldState, tl).currentPlayer)
 }
 
+function editOfKillPlayerInTourney(worldState, tl, player) {
+    const tourney = activeTourney(worldState)
+    const course = activeCourseOnTimeline(worldState, tl)
+    
+    return {
+        "timetravel": {
+            "timeline": tl
+        },
+        "tourneys": [{
+            "id": tourney.id,
+            "players": removeFromArray(tourney.players.slice(0), player.id),
+            "kia": tourney.kia.concat([player.id])
+        }],
+        "courses": [{
+            "id": course.id,
+            "players": removeFromArray(course.players.slice(0), player.id)
+        }],
+        "players": [{
+            "id": player.id,
+            "mortality": "DEAD"
+        }]
+    }
+}
+
 function unsunkPlayers(worldState, course) {
     return course.players.filter(pid => !getWorldItem(worldState, "players", pid).ball.sunk).map(pid => getWorldItem(worldState, "players", pid))
 }
