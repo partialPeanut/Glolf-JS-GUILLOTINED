@@ -59,8 +59,8 @@ class ThingFactory {
             }
         }
 
-        Mod.PlayerMods.filter(m => Math.random() < m.naturalChance).forEach(m => m.apply(p))
-        Mod.BallMods.filter(m => Math.random() < m.naturalChance).forEach(m => m.apply(p.ball))
+        Mod.PlayerMods.filter(m => Math.random() < m.naturalChance).sort((m1,m2) => m1.priority - m2.priority).forEach(m => m.apply(p))
+        Mod.BallMods.filter(m => Math.random() < m.naturalChance).sort((m1,m2) => m1.priority - m2.priority).forEach(m => m.apply(p.ball))
 
         return p
     }
@@ -103,7 +103,7 @@ class ThingFactory {
         h.dimensions.greenRadius = randomGaussian(100,10) * h.stats.verdancy,
         h.dimensions.par = parFromLength(h.dimensions.length)
 
-        Mod.HoleMods.filter(m => Math.random() < m.naturalChance).forEach(m => m.apply(h))
+        Mod.HoleMods.filter(m => Math.random() < m.naturalChance).sort((m1,m2) => m1.priority - m2.priority).forEach(m => m.apply(h))
 
         return h
     }
@@ -120,7 +120,7 @@ class ThingFactory {
             "weather": Weather.Tempest
         }
 
-        Mod.CourseMods.filter(m => Math.random() < m.naturalChance).forEach(m => m.apply(c))
+        Mod.CourseMods.filter(m => Math.random() < m.naturalChance).sort((m1,m2) => m1.priority - m2.priority).forEach(m => m.apply(c))
 
         return c
     }
@@ -144,7 +144,7 @@ class ThingFactory {
             "courses": []
         }
 
-        Mod.TourneyMods.filter(m => Math.random() < m.naturalChance).forEach(m => m.apply(t))
+        Mod.TourneyMods.filter(m => Math.random() < m.naturalChance).sort((m1,m2) => m1.priority - m2.priority).forEach(m => m.apply(t))
 
         return t
     }
