@@ -82,7 +82,7 @@ class EventKomodoKill extends Event {
 
     calculateEdit(worldState, tl, options) {
         const worldEdit = editOfKillPlayerInTourney(worldState, tl, options.player)
-        const report = `Too slow. The komodos feast on ${player.fullName()}.`
+        const report = `Too slow. The komodos feast on ${options.player.fullName()}.`
         return [worldEdit, report]
     }
 }

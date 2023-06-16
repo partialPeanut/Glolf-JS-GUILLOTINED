@@ -429,14 +429,17 @@ class EventCourseReward extends Event {
             winners.push(placePlayers)
         }
 
-        this.place = options.place
-        const placeWinners = winners[this.place]
-        const placeReward = Math.floor(Math.pow(2, -1-this.place) * tourney.sinReward)
+        const placeWinners = winners[options.place]
+        const placeReward = Math.floor(Math.pow(2, -1-options.place) * tourney.sinReward / placeWinners.length)
         const worldEdit = {
             "timetravel": {
                 "timeline": tl,
                 "phase": EventCourseReward
             },
+            "courses": [{
+                "id": course.id,
+                "currentRewardPlace": options.place
+            }],
             "players": placeWinners.map(w => {
                 return {
                     "id": w.id,
@@ -445,7 +448,9 @@ class EventCourseReward extends Event {
             })
         }
 
-        const report = `The ${nth(this.place+1)} place leader${placeWinners.length > 1 ? `s` : ``} recieve ${placeReward} $ins each: ${joinGrammatically(placeWinners.map(p => p.fullName()))}`
+        let report
+        if (placeWinners.length > 1) report = `The ${nth(options.place+1)} place leaders recieve ${placeReward.toLocaleString()} $ins each: ${joinGrammatically(placeWinners.map(p => p.fullName()))}!`
+        else report = `The ${nth(options.place+1)} place leader recieves ${placeReward.toLocaleString()} $ins: ${placeWinners[0].fullName()}!`
         return [worldEdit, report]
     }
 }

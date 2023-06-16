@@ -35,6 +35,8 @@ class Greedler {
         else return this.nextDefaultPhaseInTimeline(Onceler.currentWorldState, tl, stuck)
     }
     static nextDefaultPhaseInTimeline(worldState, tl, stuck = false) {
+        const tourney = activeTourney(worldState)
+        const course = activeCourseOnTimeline(worldState, tl)
         let tls = worldState.timelines.length
         switch(worldState.timelines[tl]) {
             case EventVoid:
@@ -62,7 +64,6 @@ class Greedler {
             case EventStrokeType:
                 return [tl, EventStrokeOutcome]
             case EventStrokeOutcome:
-                const course = activeCourseOnTimeline(worldState, tl)
                 const hole = activeHoleOnTimeline(worldState, tl)
                 const oldCP = hole.currentPlayer
                 if (course.players.some((p, i) => i > oldCP && !getWorldItem(worldState, "players", p).ball.sunk)) return [tl, EventStrokeType]
@@ -71,13 +72,13 @@ class Greedler {
 
             case EventHoleFinish:
                 let waiting = true
-                let thisHoleNumber = activeCourseOnTimeline(worldState, tl).holeNumber
+                let thisHoleNumber = course.holeNumber
                 for (let i = 0; i < tls; i++) {
-                    if (activeCourseOnTimeline(worldState, i).holeNumber > thisHoleNumber) waiting = false
+                    if (course.holeNumber > thisHoleNumber) waiting = false
                 }
                 if (waiting && !stuck) return [tl, EventWait]
-                else if (thisHoleNumber == activeTourney(worldState).holesPerCourse) {
-                    if (activeTourney(worldState).courses.length > 1) return [tl, EventCourseFinish]
+                else if (thisHoleNumber == tourney.holesPerCourse) {
+                    if (tourney.courses.length > 1) return [tl, EventCourseFinish]
                     else return [tl, EventTourneyFinish]
                 }
                 else return [tl, EventHoleStart]
@@ -86,7 +87,7 @@ class Greedler {
                 if (!stuck) return [tl, EventWait]
                 else return [tl, EventCourseReward, { "place": 0 }]
             case EventCourseReward:
-                const nextPlace = Onceler.lastEventInTimeline(tl).place + 1
+                const nextPlace = course.currentRewardPlace + 1
                 if (nextPlace >= activeTourney(worldState).placesRewarded) return [tl, EventMultiplication]
                 else return [tl, EventCourseReward, { "place": nextPlace }]
             
@@ -94,7 +95,6 @@ class Greedler {
                 return [tl, EventTourneyReward]
 
             case EventTourneyReward:
-                const tourney = activeTourney(worldState)
                 if (tourney.kia.length > 0) return [tl, EventMemoriam]
                 else return [tl, EventTourneyConclude]
             case EventMemoriam:

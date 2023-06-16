@@ -116,6 +116,7 @@ class ThingFactory {
             "players": players,
             "currentHole": 0,
             "holeNumber": 0,
+            "currentRewardPlace": 0,
             "division": division,
             "weather": Weather.Tempest
         }
