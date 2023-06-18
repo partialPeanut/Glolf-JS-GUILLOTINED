@@ -10,14 +10,18 @@ class Greedler {
     static doTimeStep(stuck = false) {
         let tls = Onceler.currentWorldState.timelines.length
         let didStep = false
+        
+        let unstick = EventVoid
+        if (stuck) unstick = [EventHoleFinish, EventCourseFinish].find(e => Onceler.currentWorldState.timelines.includes(e))
+
         for (let i = 0; i < tls; i++) {
             if (i >= Onceler.currentWorldState.timelines.length) break
-            didStep = this.doNextEventInTimeline(i, stuck) || didStep
+            didStep = this.doNextEventInTimeline(i, unstick) || didStep
         }
         if (!didStep) this.doTimeStep(true)
     }
-    static doNextEventInTimeline(tl, stuck) {
-        let tlPhase = this.nextPhaseInTimeline(tl, stuck)
+    static doNextEventInTimeline(tl, unstick) {
+        let tlPhase = this.nextPhaseInTimeline(tl, unstick)
         if (tlPhase[1] == EventWait) return false
 
         let nextEvent = new tlPhase[1](tlPhase[0])
@@ -26,17 +30,19 @@ class Greedler {
         console.log(`(${tl}) ${nextEvent.report}`)
         return true
     }
-    static nextPhaseInTimeline(tl, stuck) {
+    static nextPhaseInTimeline(tl, unstick) {
         let queuePhase = this.eventQueue.find(q => q[0] == tl)
         if (queuePhase !== undefined) {
             removeFromArray(this.eventQueue, queuePhase)
             return queuePhase
         }
-        else return this.nextDefaultPhaseInTimeline(Onceler.currentWorldState, tl, stuck)
+        else return this.nextDefaultPhaseInTimeline(Onceler.currentWorldState, tl, unstick)
     }
-    static nextDefaultPhaseInTimeline(worldState, tl, stuck = false) {
+    static nextDefaultPhaseInTimeline(worldState, tl, unstick) {
         const tourney = activeTourney(worldState)
         const course = activeCourseOnTimeline(worldState, tl)
+        const hole = activeHoleOnTimeline(worldState, tl)
+
         let tls = worldState.timelines.length
         switch(worldState.timelines[tl]) {
             case EventVoid:
@@ -64,27 +70,30 @@ class Greedler {
             case EventStrokeType:
                 return [tl, EventStrokeOutcome]
             case EventStrokeOutcome:
-                const hole = activeHoleOnTimeline(worldState, tl)
                 const oldCP = hole.currentPlayer
-                if (course.players.some((p, i) => i > oldCP && !getWorldItem(worldState, "players", p).ball.sunk)) return [tl, EventStrokeType]
-                else if (course.players.every(p => getWorldItem(worldState, "players", p).ball.sunk)) return [tl, EventHoleFinish]
+                const playingPlayers = hole.suddenDeath ? course.winners[0] : course.players
+                if (playingPlayers.some((pid, i) => i > oldCP && !getWorldItem(worldState, "players", pid).ball.sunk)) return [tl, EventStrokeType]
+                else if (playingPlayers.every(pid => getWorldItem(worldState, "players", pid).ball.sunk)) return [tl, EventHoleFinish]
                 else return [tl, EventUpTop]
 
             case EventHoleFinish:
-                let waiting = true
                 let thisHoleNumber = course.holeNumber
-                for (let i = 0; i < tls; i++) {
-                    if (course.holeNumber > thisHoleNumber) waiting = false
+
+                if (unstick != EventHoleFinish) return [tl, EventWait]
+                else if (hole.suddenDeath && course.winners[0].length > 1) {
+                    return [tl, EventHoleStart, { "suddenDeath": true }]
                 }
-                if (waiting && !stuck) return [tl, EventWait]
-                else if (thisHoleNumber == tourney.holesPerCourse) {
-                    if (tourney.courses.length > 1) return [tl, EventCourseFinish]
+                else if (thisHoleNumber >= tourney.holesPerCourse) {
+                    if (course.suddenDeath && course.winners[0].length > 1) {
+                        return [tl, EventHoleStart, { "suddenDeath": true }]
+                    }
+                    else if (course.type != "Finals") return [tl, EventCourseFinish]
                     else return [tl, EventTourneyFinish]
                 }
                 else return [tl, EventHoleStart]
 
             case EventCourseFinish:
-                if (!stuck) return [tl, EventWait]
+                if (unstick != EventCourseFinish) return [tl, EventWait]
                 else return [tl, EventCourseReward, { "place": 0 }]
             case EventCourseReward:
                 const nextPlace = course.currentRewardPlace + 1

@@ -65,7 +65,7 @@ class ThingFactory {
         return p
     }
 
-    static generateNewHole(worldState) {
+    static generateNewHole(worldState, suddenDeath = false) {
         let id = this.generateNewID()
 
         function parFromLength(len) {
@@ -84,6 +84,7 @@ class ThingFactory {
             "id": id,
             "mods": [],
             "wildlife": Wildlife.None,
+            "suddenDeath": suddenDeath,
             "currentPlayer": -1,
             "succblow": 0,
             "stats": {
@@ -108,7 +109,7 @@ class ThingFactory {
         return h
     }
 
-    static generateNewCourse(worldState, division, players) {
+    static generateNewCourse(worldState, players, type = "Division", suddenDeath = false, division = "ALL") {
         let id = this.generateNewID()
         let c = {
             "id": id,
@@ -116,8 +117,11 @@ class ThingFactory {
             "players": players,
             "currentHole": 0,
             "holeNumber": 0,
+            "winners": [],
             "currentRewardPlace": 0,
+            "type": type,
             "division": division,
+            "suddenDeath": suddenDeath,
             "weather": Weather.Tempest
         }
 

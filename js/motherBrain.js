@@ -54,7 +54,7 @@ function calculateStrokeResult(worldState, tl, player, dist) {
     // Calculate chance of sinking
     const hole = activeHoleOnTimeline(worldState, tl)
     let sinkChance = 0
-    if (dist >= player.ball.distance) sinkChance = curveExpy(player.ball.distance, 0.3, 0.8) * hole.stats.obedience * strokeType.sinkFactor * curveLoggy(0.75, 1.25, player.stats.charisma)
+    if (dist >= player.ball.distance && player.ball.terrain != Terrain.Hole) sinkChance = curveExpy(player.ball.distance, 0.3, 0.8) * hole.stats.obedience * strokeType.sinkFactor * curveLoggy(0.75, 1.25, player.stats.charisma)
 
     // Whiff, Sink, Fly
     const weights = [
