@@ -147,9 +147,7 @@ function activeHoleOnTimeline(worldState, tl) {
 function playerOnTimelineAtIndex(worldState, tl, idx) {
     const hole = activeHoleOnTimeline(worldState, tl)
     if (hole === undefined) return undefined
-
-    const player = getWorldItem(worldState, "players", hole.players.at(idx))
-    return player
+    return getWorldItem(worldState, "players", hole.players.at(idx))
 }
 function activePlayerOnTimeline(worldState, tl) {
     if (activeHoleOnTimeline(worldState, tl) === undefined) return undefined
@@ -159,7 +157,7 @@ function activePlayerOnTimeline(worldState, tl) {
 function editOfKillPlayerInTourney(worldState, tl, player) {
     const tourney = activeTourney(worldState)
     const course = activeCourseOnTimeline(worldState, tl)
-    const hole = activeCourseOnTimeline(worldState, tl)
+    const hole = activeHoleOnTimeline(worldState, tl)
     
     let newTourneyPlayers = tourney.players.slice(0)
     let newCoursePlayers = course.players.slice(0)
@@ -199,15 +197,18 @@ function editOfKillPlayerInTourney(worldState, tl, player) {
 function editOfKillPlayersInTourney(worldState, tl, players) {
     const tourney = activeTourney(worldState)
     const course = activeCourseOnTimeline(worldState, tl)
+    const hole = activeHoleOnTimeline(worldState, tl)
     
     let newTourneyPlayers = tourney.players.slice(0)
     let newCoursePlayers = course.players.slice(0)
     let newCourseWinners = course.winners.map(w => w.slice(0))
+    let newHolePlayers = hole.players.slice(0)
     removeManyFromArray(newTourneyPlayers, players.map(p => p.id))
     removeManyFromArray(newCoursePlayers, players.map(p => p.id))
     for (let ncw of newCourseWinners) {
         removeManyFromArray(ncw, players.map(p => p.id))
     }
+    removeManyFromArray(newHolePlayers, players.map(p => p.id))
     return {
         "timetravel": {
             "timeline": tl
@@ -221,6 +222,10 @@ function editOfKillPlayersInTourney(worldState, tl, players) {
             "id": course.id,
             "players": newCoursePlayers,
             "winners": newCourseWinners
+        }],
+        "holes": [{
+            "id": hole.id,
+            "players": newHolePlayers
         }],
         "players": players.map(p => {
             return {
