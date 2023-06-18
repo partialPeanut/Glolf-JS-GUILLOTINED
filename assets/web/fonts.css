@@ -1,0 +1,113 @@
+/* Pixel Operator Fonts */
+@font-face {
+    font-family: 'pixel_operator_regular';
+    src: url('../fonts/PixelOperator/PixelOperator-Default-Reg.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelOperator-Default-Reg.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'pixel_operator_hb';
+    src: url('../fonts/PixelOperator/PixelOperator-Default-HB.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelOperator-Default-HB.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'pixel_operator_bold';
+    src: url('../fonts/PixelOperator/PixelOperator-Default-Bold.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelOperator-Default-Bold.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'pixel_operator_8bit_regular';
+    src: url('../fonts/PixelOperator/PixelOperator-8bit-Reg.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelOperator-8bit-Reg.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'pixel_operator_8bit_hb';
+    src: url('../fonts/PixelOperator/PixelOperator-8bit-HB.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelOperator-8bit-HB.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'pixel_operator_8bit_bold';
+    src: url('../fonts/PixelOperator/PixelOperator-8bit-Bold.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelOperator-8bit-Bold.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'pixel_operator_mono_regular';
+    src: url('../fonts/PixelOperator/PixelOperator-Mono-Reg.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelOperator-Mono-Reg.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'pixel_operator_mono_hb';
+    src: url('../fonts/PixelOperator/PixelOperator-Mono-HB.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelOperator-Mono-HB.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'pixel_operator_mono_bold';
+    src: url('../fonts/PixelOperator/PixelOperator-Mono-Bold.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelOperator-Mono-Bold.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'pixel_operator_smallcaps_regular';
+    src: url('../fonts/PixelOperator/PixelOperator-SC-Reg.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelOperator-SC-Reg.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'pixel_operator_smallcaps_hb';
+    src: url('../fonts/PixelOperator/PixelOperator-SC-HB.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelOperator-SC-HB.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'pixel_operator_smallcaps_bold';
+    src: url('../fonts/PixelOperator/PixelOperator-SC-Bold.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelOperator-SC-Bold.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'pixel_operator_mono_8bit_regular';
+    src: url('../fonts/PixelOperator/PixelOperator-Mono-8bit-Reg.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelOperator-Mono-8bit-Reg.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'pixel_operator_mono_8bit_hb';
+    src: url('../fonts/PixelOperator/PixelOperator-Mono-8bit-HB.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelOperator-Mono-8bit-HB.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'pixel_operator_mono_8bit_bold';
+    src: url('../fonts/PixelOperator/PixelOperator-Mono-8bit-Bold.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelOperator-Mono-8bit-Bold.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'pixel_playback';
+    src: url('../fonts/PixelOperator/PixelPlayback.woff2') format('woff2'),
+         url('../fonts/PixelOperator/PixelPlayback.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
