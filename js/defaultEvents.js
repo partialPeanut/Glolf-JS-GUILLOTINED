@@ -442,7 +442,7 @@ class EventHoleFinish extends Event {
         if (hole.suddenDeath) {
             if (winners[0].length == 0) report += ` There were no survivors.`
             else if (winners[0].length == 1) report += ` One player came out on top.`
-            else report += ` Sudden death continues.`
+            else report += ` There can only be one winner. Sudden death continues.`
         }
         return [worldEdit, report]
     }
@@ -563,7 +563,7 @@ class EventTourneyReward extends Event {
         for (let [i,w] of winners.entries()) {
             const player = getWorldItem(worldState, "players", w)
             if (i != 0) report += `\n`
-            report += `For coming ${i+1}th place, ${player.fullName()} receives ${(worldEdit.players[i].netWorth - player.netWorth).toLocaleString()} $ins!`
+            report += `For coming ${nth(i+1)}th place, ${player.fullName()} receives ${(worldEdit.players[i].netWorth - player.netWorth).toLocaleString()} $ins!`
         }
         return [worldEdit, report]
     }
