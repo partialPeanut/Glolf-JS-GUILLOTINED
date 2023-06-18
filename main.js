@@ -3,8 +3,6 @@
 // > Debug Menu
 // > Feed (involvesPlayer function)
 // > Different gamemodes
-// > Simultaneous Games:
-// > Top scoring players in each section + top scoring players overall go on to final match
 
 // -----------------------------------Potential future mechanics------------------------------------
 // > High Score (Double Double Double Double Double Bogey)

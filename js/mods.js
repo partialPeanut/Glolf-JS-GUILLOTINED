@@ -105,7 +105,86 @@ class Mod {
             player.stats.yeetness += 2
             player.stats.trigonometry += 2
         })
-    
+        static Poisoned = new Mod("PSND", 0, 0, "HOLE", {
+        "strokeOutcome": (tl, func) => {
+            return function (worldState, tl, options) {
+                let [outEdit, outReport] = func.apply(this, arguments)
+                const player = activePlayerOnTimeline(worldState, tl)
+                let editPlayer = outEdit.players.find(p => p.id == player.id)
+
+                if (editPlayer.ball.sunk) {
+                    outReport += `\nThe prey escapes, and is cured of poison.`
+                    editPlayer.mods = editPlayer.mods === undefined ? player.mods : editPlayer.mods
+                    editPlayer.stats = editPlayer.stats === undefined ? player.stats : editPlayer.stats
+                    Mod.Poisoned.remove(editPlayer)
+                }
+                else if (player.poisonCounters > 0) {
+                    outReport += `\n${player.poisonCounters} strokes until the predators strike.`
+                    editPlayer.poisonCounters = player.poisonCounters-1
+                }
+                else {
+                    outReport += `\nLizards hiss.`
+
+                    const hole = activeHoleOnTimeline(worldState, tl)
+                    editPlayer.poisonCounters = hole.dimensions.par + Math.floor(curveLoggy(0, 4, player.stats.scrappiness))
+
+                    Greedler.queueEvent([ tl, EventKomodoKill, { "player": player }])
+                }
+
+                return [outEdit, outReport]
+            }
+        }},
+        (player, counters) => {
+            player.mods.push(Mod.Poisoned)
+            player.poisonCounters = counters
+            player.stats.competence -= 4
+            player.stats.yeetness -= 2
+            player.stats.trigonometry -= 2
+        },
+        player => {
+            removeFromArray(player.mods, Mod.Poisoned)
+            player.poisonCounters = undefined
+            player.stats.competence += 4
+            player.stats.yeetness += 2
+            player.stats.trigonometry += 2
+        })
+    static SuddenlyDying = new Mod("DYIN", 0, 2, "HOLE", {
+        "strokeOutcome": (tl, func) => {
+            return function (worldState, tl, options) {
+                let [outEdit, outReport] = func.apply(this, arguments)
+
+                const player = activePlayerOnTimeline(worldState, tl)
+                let editPlayer = outEdit.players.find(p => p.id == player.id)
+
+                if (editPlayer.ball.sunk) {
+                    outReport += `\nThey escape death.`
+                    editPlayer.mods = editPlayer.mods === undefined ? player.mods : editPlayer.mods
+                    Mod.SuddenlyDying.remove(editPlayer)
+                }
+                else if (player.suddenCounters > 0) {
+                    outReport += `\nDeath creeps closer. ${player.suddenCounters} strokes remain.`
+                    editPlayer.suddenCounters = player.suddenCounters-1
+                }
+                else {
+                    outReport += `\nIt is Time.`
+                    editPlayer.suddenCounters = 5
+
+                    Greedler.queueEvent([ tl, EventReaperKill, { "player": player }])
+                }
+
+                return [outEdit, outReport]
+            }
+        }},
+        (player, counters) => {
+            player.mods.push(Mod.SuddenlyDying)
+            player.suddenCounters = counters
+        },
+        player => {
+            removeFromArray(player.mods, Mod.SuddenlyDying)
+            player.suddenCounters = undefined
+        })
+
+
     static Coastal = new Mod("CSTL", 0.1, 0, "LEAGUE", {},
         h => {
             h.mods.push(Mod.Coastal)
@@ -137,6 +216,44 @@ class Mod {
         h => {
             h.mods.push(Mod.Swampland)
             h.stats.quench *= 1.5
+        })
+    static SuddenDeath = new Mod("SUDN", 0, 0, "LEAGUE", {
+        "strokeOutcome": (tl, func) => {
+            return function (worldState, tl, options) {
+                let [outEdit, outReport] = func.apply(this, arguments)
+
+                const course = activeCourseOnTimeline(worldState, tl)
+                const player = activePlayerOnTimeline(worldState, tl)
+                let editPlayer = outEdit.players.find(p => p.id == player.id)
+
+                const otherUnsunkPlayers = course.winners[0].map(pid => getWorldItem(worldState, "players", pid)).filter(p => !p.ball.sunk && p.id != player.id)
+
+                if (editPlayer.ball.sunk && !player.mods.includes(Mod.SuddenlyDying)) {
+                    const reaperTimer = 2
+                    for (let op of otherUnsunkPlayers) {
+                        if (outEdit.players.includes(p => p.id == op.id)) {
+                            let editP = outEdit.players.find(p => p.id == op.id)
+                            editP.mods = editP.mods === undefined ? op.mods : editP.mods
+                            Mod.SuddenlyDying.apply(editP, reaperTimer)
+                        }
+                        else {
+                            let editP = {
+                                "id": op.id,
+                                "mods": op.mods
+                            }
+                            Mod.SuddenlyDying.apply(editP, reaperTimer)
+                            outEdit.players.push(editP)
+                        }
+                    }
+                    outReport += `\nDeath approaches.`
+                }
+
+                return [outEdit, outReport]
+            }
+        }},
+        h => {
+            h.mods.push(Mod.SuddenDeath)
+            h.suddenDeath = true
         })
     
     static CharityMatch = new Mod("CHRT", 0.1, 0, "LEAGUE", {

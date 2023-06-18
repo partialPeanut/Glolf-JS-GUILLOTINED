@@ -19,6 +19,17 @@ class EventCreatePlayers extends Event {
     }
 }
 
+class EventReaperKill extends Event {
+    type = "reaperKill"
+    depth = "Player"
+
+    calculateEdit(worldState, tl, options) {
+        const worldEdit = editOfKillPlayerInTourney(worldState, tl, options.player)
+        const report = `Death takes ${options.player.fullName()}.`
+        return [worldEdit, report]
+    }
+}
+
 class EventTourneyDonate extends Event {
     type = "tourneyDonate"
     depth = "Tourney"

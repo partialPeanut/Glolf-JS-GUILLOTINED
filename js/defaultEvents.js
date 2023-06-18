@@ -207,8 +207,11 @@ class EventHoleStart extends Event {
 
     calculateEdit(worldState, tl, options) {
         const course = activeCourseOnTimeline(worldState, tl)
+
+        const hole = ThingFactory.generateNewHole(worldState)
         const suddenDeath = options === undefined || options.suddenDeath === undefined ? false : options.suddenDeath
-        const hole = ThingFactory.generateNewHole(worldState, suddenDeath)
+        if (suddenDeath) Mod.SuddenDeath.apply(hole)
+
         const worldEdit = {
             "timetravel": {
                 "timeline": tl,
@@ -427,8 +430,9 @@ class EventHoleFinish extends Event {
             for (let i = 1; i < winners.length; i++) {
                 survivors = survivors.concat(winners[i])
             }
-            let newWinners = [ winners[0], survivors ]
-            for (let i = 1; i < tourney.placesRewarded-1; i++) {
+            let newWinners = [ winners[0] ]
+            if (survivors.length > 0) newWinners.push(survivors)
+            for (let i = 1; newWinners.length <= tourney.placesRewarded; i++) {
                 newWinners.push(course.winners[i])
             }
             holeEndEffect.courses = [{
