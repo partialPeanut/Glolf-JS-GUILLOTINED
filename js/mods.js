@@ -8,8 +8,8 @@ class Mod {
                     let editPlayer = outEdit.players.find(p => p.id == player.id)
 
                     // Get all nearby players (within player's yeetness)
-                    const course = activeCourseOnTimeline(worldState, tl)
-                    const nearbyPlayers = unsunkPlayers(worldState, course).filter(p => {
+                    const hole = activeHoleOnTimeline(worldState, tl)
+                    const nearbyPlayers = unsunkPlayers(worldState, hole).filter(p => {
                         if (player == p) return false
                         if (p.ball.past != editPlayer.ball.past) return false
                         return Math.abs(p.ball.distance - editPlayer.ball.distance) <= player.stats.yeetness
@@ -223,10 +223,11 @@ class Mod {
                 let [outEdit, outReport] = func.apply(this, arguments)
 
                 const course = activeCourseOnTimeline(worldState, tl)
+                const hole = activeHoleOnTimeline(worldState, tl)
                 const player = activePlayerOnTimeline(worldState, tl)
                 let editPlayer = outEdit.players.find(p => p.id == player.id)
 
-                const otherUnsunkPlayers = course.winners[0].map(pid => getWorldItem(worldState, "players", pid)).filter(p => !p.ball.sunk && p.id != player.id)
+                const otherUnsunkPlayers = unsunkPlayers(worldState, hole).filter(p => p.id != player.id)
 
                 if (editPlayer.ball.sunk && !player.mods.includes(Mod.SuddenlyDying)) {
                     const reaperTimer = 2

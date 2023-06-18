@@ -145,12 +145,10 @@ function activeHoleOnTimeline(worldState, tl) {
     return getWorldItem(worldState, "holes", activeCourseOnTimeline(worldState, tl).currentHole)
 }
 function playerOnTimelineAtIndex(worldState, tl, idx) {
-    const course = activeCourseOnTimeline(worldState, tl)
     const hole = activeHoleOnTimeline(worldState, tl)
     if (hole === undefined) return undefined
 
-    const playingPlayers = hole.suddenDeath ? course.winners[0] : course.players
-    const player = getWorldItem(worldState, "players", playingPlayers.at(idx))
+    const player = getWorldItem(worldState, "players", hole.players.at(idx))
     return player
 }
 function activePlayerOnTimeline(worldState, tl) {
@@ -161,12 +159,15 @@ function activePlayerOnTimeline(worldState, tl) {
 function editOfKillPlayerInTourney(worldState, tl, player) {
     const tourney = activeTourney(worldState)
     const course = activeCourseOnTimeline(worldState, tl)
+    const hole = activeCourseOnTimeline(worldState, tl)
     
     let newTourneyPlayers = tourney.players.slice(0)
     let newCoursePlayers = course.players.slice(0)
     let newCourseWinners = course.winners.map(w => w.slice(0))
+    let newHolePlayers = hole.players.slice(0)
     removeFromArray(newTourneyPlayers, player.id)
     removeFromArray(newCoursePlayers, player.id)
+    removeFromArray(newHolePlayers, player.id)
     for (let ncw of newCourseWinners) {
         removeFromArray(ncw, player.id)
     }
@@ -183,6 +184,10 @@ function editOfKillPlayerInTourney(worldState, tl, player) {
             "id": course.id,
             "players": newCoursePlayers,
             "winners": newCourseWinners
+        }],
+        "holes": [{
+            "id": hole.id,
+            "players": newHolePlayers
         }],
         "players": [{
             "id": player.id,
@@ -223,6 +228,31 @@ function editOfKillPlayersInTourney(worldState, tl, players) {
                 "mortality": "DEAD"
             }
         })
+    }
+}
+
+function editOfReplacePlayerInTourney(worldState, tl, playerA, playerB) {
+    const tourney = activeTourney(worldState)
+    const course = activeCourseOnTimeline(worldState, tl)
+    const hole = activeHoleOnTimeline(worldState, tl)
+    
+    return {
+        "timetravel": {
+            "timeline": tl
+        },
+        "tourneys": [{
+            "id": tourney.id,
+            "players": tourney.players.map(pid => pid == playerA.id ? playerB.id : pid)
+        }],
+        "courses": [{
+            "id": course.id,
+            "players": course.players.map(pid => pid == playerA.id ? playerB.id : pid),
+            "winners": course.winners.map(w => w.map(pid => pid == playerA.id ? playerB.id : pid))
+        }],
+        "holes": [{
+            "id": hole.id,
+            "players": hole.players.map(pid => pid == playerA.id ? playerB.id : pid)
+        }]
     }
 }
 
@@ -267,7 +297,7 @@ function editOfEndDurations(worldState, tl, duration) {
             tourneys = filterAndMap([tourney])
             break
         case "HOLE":
-            players =  filterAndMap(course.players.map(pid => getWorldItem(worldState, "players", pid)))
+            players =  filterAndMap(hole.players.map(pid => getWorldItem(worldState, "players", pid)))
             holes =    filterAndMap([hole])
             courses =  filterAndMap([course])
             tourneys = filterAndMap([tourney])
@@ -289,8 +319,8 @@ function editOfEndDurations(worldState, tl, duration) {
     return edit
 }
 
-function unsunkPlayers(worldState, course) {
-    return course.players.filter(pid => !getWorldItem(worldState, "players", pid).ball.sunk).map(pid => getWorldItem(worldState, "players", pid))
+function unsunkPlayers(worldState, hole) {
+    return hole.players.map(pid => getWorldItem(worldState, "players", pid)).filter(p => !p.ball.sunk)
 }
 
 function bestOfPlayers(worldState, pid1, pid2) {

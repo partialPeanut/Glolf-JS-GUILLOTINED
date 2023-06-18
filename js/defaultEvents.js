@@ -208,8 +208,9 @@ class EventHoleStart extends Event {
     calculateEdit(worldState, tl, options) {
         const course = activeCourseOnTimeline(worldState, tl)
 
-        const hole = ThingFactory.generateNewHole(worldState)
         const suddenDeath = options === undefined || options.suddenDeath === undefined ? false : options.suddenDeath
+        const playingPlayers = suddenDeath ? course.winners[0] : course.players
+        const hole = ThingFactory.generateNewHole(worldState, playingPlayers)
         if (suddenDeath) Mod.SuddenDeath.apply(hole)
 
         const worldEdit = {
@@ -290,14 +291,9 @@ class EventStrokeType extends Event {
     depth = "Ball"
 
     calculateEdit(worldState, tl) {
-        const course = activeCourseOnTimeline(worldState, tl)
         const hole = activeHoleOnTimeline(worldState, tl)
         const oldCP = hole.currentPlayer
-        const playingPlayers = hole.suddenDeath ? course.winners[0] : course.players
-        const newCP = playingPlayers.findIndex((pid, i) => {
-            const p = getWorldItem(worldState, "players", pid)
-            return i > oldCP && !p.ball.sunk
-        })
+        const newCP = hole.players.findIndex((pid, i) => i > oldCP && !getWorldItem(worldState, "players", pid).ball.sunk)
         const player = playerOnTimelineAtIndex(worldState, tl, newCP)
 
         const type = calculateStrokeType(worldState, tl, player)
@@ -382,8 +378,7 @@ class EventHoleFinish extends Event {
         const course = activeCourseOnTimeline(worldState, tl)
         const hole = activeHoleOnTimeline(worldState, tl)
 
-        const playingPlayers = hole.suddenDeath ? course.winners[0] : course.players
-        const editPlayers = playingPlayers.map(pid => {
+        const editPlayers = hole.players.map(pid => {
             const player = getWorldItem(worldState, "players", pid)
             return {
                 "id": pid,
