@@ -57,7 +57,8 @@
     <title>GLOLF!!</title>
 
     <link href="style.css" rel="stylesheet">
-    <link href="assets/fonts/fonts.css" rel="stylesheet">
+    <link href="assets/web/fonts.css" rel="stylesheet">
+    <script src="assets/web/shiny.js"></script>
 
     <script src="data/lists/p_namesfirst.js"></script>
     <script src="data/lists/p_nameslast.js"></script>
@@ -108,16 +109,26 @@
 </head>
 <body>
     <div class="header-buttons">
-        <div class="header-border"><button type="button" class="header-button">GLOLF</button></div>
-        <div class="header-border"><button type="button" class="header-button"><div class="playback">B</div></button></div>
-        <div class="header-border"><button type="button" class="header-button"><div class="playback">A</div></button></div>
-        <div class="header-border"><button type="button" class="header-button"><div class="playback">D</div></button></div>
-        <div class="header-border"><button type="button" class="header-button" onclick="nextEvent()"><div class="playback">C</div></button></div>
-        <div class="header-border"><button type="button" class="header-button" onclick="changePlaybackSpeed()"><div class="playback" id="playback-speed">E</div></button></div>
-        <div class="header-border"><button type="button" class="header-button" onclick="logPastEvents()">Past Events</button></div>
-        <div class="header-border"><button type="button" class="header-button" onclick="logFutureEvents()">Future Events</button></div>
-        <div class="header-border"><button type="button" class="header-button" onclick="logWorldState()">World State</button></div>
-        <div class="header-border"><button type="button" class="header-button">Girl Button</button></div>
+        <div class="header-border"><button type="button" class="header-button">
+            GLOLF</button></div>
+        <div class="header-border"><button type="button" class="header-button">
+            <div class="playback">B</div></button></div>
+        <div class="header-border"><button type="button" class="header-button">
+            <div class="playback">A</div></button></div>
+        <div class="header-border"><button type="button" class="header-button">
+            <div class="playback">D</div></button></div>
+        <div class="header-border"><button type="button" class="header-button" onclick="nextEvent()">
+            <div class="playback">C</div></button></div>
+        <div class="header-border"><button type="button" class="header-button" onclick="changePlaybackSpeed()">
+            <div class="playback" id="playback-speed">E</div></button></div>
+        <div class="header-border"><button type="button" class="header-button" onclick="logPastEvents()">
+            Past Events</button></div>
+        <div class="header-border"><button type="button" class="header-button" onclick="logFutureEvents()">
+            Future Events</button></div>
+        <div class="header-border"><button type="button" class="header-button" onclick="logWorldState()">
+            World State</button></div>
+        <div class="header-border"><button type="button" class="header-button">
+            Girl Button</button></div>
     </div>
     <hr class="header-divider">
     <div class="hwrap"><div class="hmove">
