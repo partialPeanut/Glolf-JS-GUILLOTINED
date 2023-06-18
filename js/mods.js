@@ -1,5 +1,5 @@
 class Mod {
-    static Aggressive = new Mod("AGRO", 0.1, 0, {
+    static Aggressive = new Mod("AGRO", 0.1, 0, "LEAGUE", {
             "strokeOutcome": (tl, func) => {
                 return function (worldState, tl, options) {
                     // Do stroke as normal
@@ -23,7 +23,7 @@ class Mod {
                     return [outEdit, outReport]
                 }
             }})
-    static SemiAquatic = new Mod("AQUA", 0.1, 1, {
+    static SemiAquatic = new Mod("AQUA", 0.1, 1, "LEAGUE", {
             "strokeOutcome": (tl, func) => {
                 return function (worldState, tl, options) {
                     let [outEdit, outReport] = func.apply(this, arguments)
@@ -39,8 +39,8 @@ class Mod {
                 }
             }})
     
-    static Entangled = new Mod("ENTG", 0, 0, {})
-    static Harmonized = new Mod("HRMZ", 0, 2, {
+    static Entangled = new Mod("ENTG", 0, 0, "LEAGUE", {})
+    static Harmonized = new Mod("HRMZ", 0, 2, "LEAGUE", {
             "strokeOutcome": (tl, func) => {
                 return function (worldState, tl, options) {
                     let [outEdit, outReport] = func.apply(this, arguments)
@@ -61,7 +61,8 @@ class Mod {
                     return [outEdit, outReport]
                 }
             }})
-    static Poisoned = new Mod("PSND", 0, 0, {
+    static Overseen = new Mod("OVSN", 0, 0, "TOURNEY", {})
+    static Poisoned = new Mod("PSND", 0, 0, "HOLE", {
         "strokeOutcome": (tl, func) => {
             return function (worldState, tl, options) {
                 let [outEdit, outReport] = func.apply(this, arguments)
@@ -80,6 +81,10 @@ class Mod {
                 }
                 else {
                     outReport += `\nLizards hiss.`
+
+                    const hole = activeHoleOnTimeline(worldState, tl)
+                    editPlayer.poisonCounters = hole.dimensions.par + Math.floor(curveLoggy(0, 4, player.stats.scrappiness))
+
                     Greedler.queueEvent([ tl, EventKomodoKill, { "player": player }])
                 }
 
@@ -101,13 +106,13 @@ class Mod {
             player.stats.trigonometry += 2
         })
     
-    static Coastal = new Mod("CSTL", 0.1, 0, {},
+    static Coastal = new Mod("CSTL", 0.1, 0, "LEAGUE", {},
         h => {
             h.mods.push(Mod.Coastal)
             h.stats.quench *= 3
             h.stats.thirst *= 3
         })
-    static Swampland = new Mod("SWMP", 0.1, 0, {
+    static Swampland = new Mod("SWMP", 0.1, 0, "LEAGUE", {
         "wildlifeReport": (tl, func) => {
             return function (worldState, tl, options) {
                 let [outEdit, outReport] = func.apply(this, arguments)
@@ -134,7 +139,7 @@ class Mod {
             h.stats.quench *= 1.5
         })
     
-    static CharityMatch = new Mod("CHRT", 0.1, 0, {
+    static CharityMatch = new Mod("CHRT", 0.1, 0, "LEAGUE", {
         "tourneyStart": (tl, func) => {
             return function (worldState, options) {
                 let out = func.apply(this, arguments)
@@ -147,16 +152,17 @@ class Mod {
         })
     
     static BallMods =    []
-    static PlayerMods =  [ Mod.Aggressive, Mod.SemiAquatic, Mod.Entangled, Mod.Harmonized, Mod.Poisoned ]
+    static PlayerMods =  [ Mod.Aggressive, Mod.SemiAquatic, Mod.Entangled, Mod.Harmonized, Mod.Overseen, Mod.Poisoned ]
     static HoleMods =    [ Mod.Coastal, Mod.Swampland ]
     static CourseMods =  []
     static TourneyMods = [ Mod.CharityMatch ]
     static LeagueMods =  []
 
-    constructor(name, naturalChance, priority, eventChanges, apply, remove) {
+    constructor(name, naturalChance, priority, duration, eventChanges, apply, remove) {
         this.name = name
         this.naturalChance = naturalChance
         this.priority = priority
+        this.duration = duration
         this.eventChanges = eventChanges
         this.apply = apply === undefined ? (x) => { x.mods.push(this) } : apply
         this.remove = remove === undefined ? (x) => { removeFromArray(x.mods, this) } : remove
@@ -167,5 +173,34 @@ class Mod {
             return this.eventChanges[type](tl, func)
         }
         else return func
+    }
+}
+
+class EventAggression extends Event {
+    type = "aggression"
+    depth = "Player"
+
+    calculateEdit(worldState, tl, options) {
+        const atkPlayer = options.atkPlayer
+        const defPlayer = options.defPlayer
+
+        const newDist = defPlayer.ball.distance + randomReal(1,5) * atkPlayer.stats.yeetness
+        const newTerrain = calculatePostRollTerrain(worldState, tl, defPlayer, newDist)
+
+        const worldEdit = {
+            "timetravel": {
+                "timeline": tl
+            },
+            "players": [{
+                "id": defPlayer.id,
+                "ball": {
+                    "distance": newDist,
+                    "terrain": newTerrain
+                }
+            }]
+        }
+
+        const report = `${atkPlayer.fullName()}'s ball hits ${defPlayer.fullName()}'s ball away from the hole!`
+        return [worldEdit, report]
     }
 }

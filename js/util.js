@@ -28,7 +28,18 @@ function randomGaussian(mean=0, stdev=1) {
 
 function randomFromArray(array) { return array.at(randomInt(array.length-1)) }
 
-function removeFromArray(array, val) { if (array.includes(val)) array.splice(array.indexOf(val), 1) }
+function removeFromArray(array, val) {
+    if (array.includes(val)) array.splice(array.indexOf(val), 1)
+}
+
+function removeManyFromArray(array, vals) {
+    for (let val of vals) removeFromArray(array, val)
+}
+
+function averageArray(array) {
+    const total = array.reduce((total, x) => total += x)
+    return total/array.length
+}
 
 function chooseFromWeights(array) {
     const totalWeight = array.reduce((total, w) => total += w)
@@ -134,9 +145,12 @@ function activeHoleOnTimeline(worldState, tl) {
     return getWorldItem(worldState, "holes", activeCourseOnTimeline(worldState, tl).currentHole)
 }
 function playerOnTimelineAtIndex(worldState, tl, idx) {
-    if (activeCourseOnTimeline(worldState, tl) === undefined) return undefined
-    const playerID = activeCourseOnTimeline(worldState, tl).players.at(idx)
-    const player = getWorldItem(worldState, "players", playerID)
+    const course = activeCourseOnTimeline(worldState, tl)
+    const hole = activeHoleOnTimeline(worldState, tl)
+    if (hole === undefined) return undefined
+
+    const playingPlayers = hole.suddenDeath ? course.winners[0] : course.players
+    const player = getWorldItem(worldState, "players", playingPlayers.at(idx))
     return player
 }
 function activePlayerOnTimeline(worldState, tl) {
@@ -148,24 +162,131 @@ function editOfKillPlayerInTourney(worldState, tl, player) {
     const tourney = activeTourney(worldState)
     const course = activeCourseOnTimeline(worldState, tl)
     
+    let newTourneyPlayers = tourney.players.slice(0)
+    let newCoursePlayers = course.players.slice(0)
+    let newCourseWinners = course.winners.map(w => w.slice(0))
+    removeFromArray(newTourneyPlayers, player.id)
+    removeFromArray(newCoursePlayers, player.id)
+    for (let ncw of newCourseWinners) {
+        removeFromArray(ncw, player.id)
+    }
     return {
         "timetravel": {
             "timeline": tl
         },
         "tourneys": [{
             "id": tourney.id,
-            "players": removeFromArray(tourney.players.slice(0), player.id),
+            "players": newTourneyPlayers,
             "kia": tourney.kia.concat([player.id])
         }],
         "courses": [{
             "id": course.id,
-            "players": removeFromArray(course.players.slice(0), player.id)
+            "players": newCoursePlayers,
+            "winners": newCourseWinners
         }],
         "players": [{
             "id": player.id,
             "mortality": "DEAD"
         }]
     }
+}
+
+function editOfKillPlayersInTourney(worldState, tl, players) {
+    const tourney = activeTourney(worldState)
+    const course = activeCourseOnTimeline(worldState, tl)
+    
+    let newTourneyPlayers = tourney.players.slice(0)
+    let newCoursePlayers = course.players.slice(0)
+    let newCourseWinners = course.winners.map(w => w.slice(0))
+    removeManyFromArray(newTourneyPlayers, players.map(p => p.id))
+    removeManyFromArray(newCoursePlayers, players.map(p => p.id))
+    for (let ncw of newCourseWinners) {
+        removeManyFromArray(ncw, players.map(p => p.id))
+    }
+    return {
+        "timetravel": {
+            "timeline": tl
+        },
+        "tourneys": [{
+            "id": tourney.id,
+            "players": newTourneyPlayers,
+            "kia": tourney.kia.concat(players.map(p => p.id))
+        }],
+        "courses": [{
+            "id": course.id,
+            "players": newCoursePlayers,
+            "winners": newCourseWinners
+        }],
+        "players": players.map(p => {
+            return {
+                "id": p.id,
+                "mortality": "DEAD"
+            }
+        })
+    }
+}
+
+function editOfEndDurations(worldState, tl, duration) {
+    let players = []
+    let holes = []
+    let courses = []
+    let tourneys = []
+    let leagueMods = []
+
+    function filterAndMap(array) {
+        return array.filter(x => x.mods.includes(m => m.duration == duration)).map(x => {
+            return {
+                "id": x.id,
+                "mods": x.mods.filter(m => m.duration != duration)
+            }
+        })
+    }
+
+    const tourney = activeTourney(worldState)
+    const course =  activeCourseOnTimeline(worldState, tl)
+    const hole =    activeHoleOnTimeline(worldState, tl)
+    const player =  activePlayerOnTimeline(worldState, tl)
+    switch(duration) {
+        case "LEAGUE":
+            players =  filterAndMap(worldState.players)
+            holes =    filterAndMap(worldState.holes)
+            courses =  filterAndMap(worldState.courses)
+            tourneys = filterAndMap(worldState.tourneys)
+            if (worldState.league.mods.includes(m => m.duration == duration)) {
+                leagueMods = worldState.league.mods.filter(m => m.duration != duration)
+            }
+            break
+        case "TOURNEY":
+            players = filterAndMap(tourney.players.map(pid => getWorldItem(worldState, "players", pid)))
+            courses = filterAndMap(tourney.courses.map(cid => getWorldItem(worldState, "courses", cid)))
+            tourneys = filterAndMap([tourney])
+            break
+        case "COURSE":
+            players =  filterAndMap(course.players.map(pid => getWorldItem(worldState, "players", pid)))
+            courses =  filterAndMap([course])
+            tourneys = filterAndMap([tourney])
+            break
+        case "HOLE":
+            players =  filterAndMap(course.players.map(pid => getWorldItem(worldState, "players", pid)))
+            holes =    filterAndMap([hole])
+            courses =  filterAndMap([course])
+            tourneys = filterAndMap([tourney])
+            break
+        case "STROKE":
+            players =  filterAndMap([player])
+            holes =    filterAndMap([hole])
+            courses =  filterAndMap([course])
+            tourneys = filterAndMap([tourney])
+            break
+    }
+
+    let edit = { "timetravel": { "timeline": tl } }
+    if (players.length > 0)    edit.players = players
+    if (holes.length > 0)      edit.holes = holes
+    if (courses.length > 0)    edit.courses = courses
+    if (tourneys.length > 0)   edit.tourneys = tourneys
+    if (leagueMods.length > 0) edit.league = { "mods": leagueMods }
+    return edit
 }
 
 function unsunkPlayers(worldState, course) {

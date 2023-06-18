@@ -50,12 +50,61 @@ class WorldStateManager {
 
             for (const thing of worldEdit[type]) {
                 let wsMatch = worldState[type].find(t => t.id == thing.id)
-                if (wsMatch === undefined) {
+                if (wsMatch === undefined)
                     worldState[type].push(thing)
-                }
-                else if (thing.remove == true) {
+                else if (thing.remove == true)
                     removeFromArray(worldState[type], wsMatch)
+                else {
+                    const entries = Object.entries(thing)
+                    for (let [key,val] of entries)  {
+                        if (key == "ball") {
+                            const ballstuff = Object.entries(thing.ball)
+                            for (let [bkey,bval] of ballstuff)  {
+                                wsMatch.ball[bkey] = bval;
+                            }
+                        }
+                        else if (val === undefined) delete(wsMatch[key])
+                        else wsMatch[key] = val;
+                    }
                 }
+            }
+        }
+    }
+
+    static combineEdits(oldEdit, worldEdit) {
+        for (const type of Object.keys(worldEdit)) {
+            if (type == "timetravel") {
+                const entries = Object.entries(worldEdit.timetravel)
+                for (let [key,val] of entries)  {
+                    oldEdit.timetravel[key] = val;
+                }
+                continue
+            }
+
+            if (type == "timelines") {
+                oldEdit.timelines = worldEdit.timelines
+                continue
+            }
+
+            if (type == "league") {
+                const entries = Object.entries(worldEdit.league)
+                for (let [key,val] of entries)  {
+                    oldEdit.league[key] = val;
+                }
+                continue
+            }
+
+            for (const thing of worldEdit[type]) {
+                if (oldEdit[type] === undefined) {
+                    oldEdit[type] = worldEdit[type]
+                    continue
+                }
+
+                let wsMatch = oldEdit[type].find(t => t.id == thing.id)
+                if (wsMatch === undefined)
+                    oldEdit[type].push(thing)
+                else if (thing.remove == true)
+                    removeFromArray(oldEdit[type], wsMatch)
                 else {
                     const entries = Object.entries(thing)
                     for (let [key,val] of entries)  {

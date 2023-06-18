@@ -3,9 +3,7 @@
 // > Debug Menu
 // > Feed (involvesPlayer function)
 // > Different gamemodes
-// > Simultaneous Games: 
-// > 4 courses > 1 tourney
-// > 4 different rankings
+// > Simultaneous Games:
 // > Top scoring players in each section + top scoring players overall go on to final match
 
 // -----------------------------------Potential future mechanics------------------------------------
@@ -25,8 +23,7 @@
 // > Strikes
 
 // ----------------------------------------------Bugs-----------------------------------------------
-// Fix rewinding
-// Hole scale sometimes breaks? No clue why lmao
+// There are zero bugs. Glolf is perfect. Glolf is eternal.
 //
 //==================================================================================================
 

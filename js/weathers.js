@@ -1,9 +1,19 @@
 class Weather {
-    static Mirage = new Weather("Mirage",  "Irrelevance and Falsehoods.", 0xFFEA6BE6, {
+    static Mirage = new Weather("Mirage", "Irrelevance and Falsehoods.", 0xFFEA6BE6, {
         "strokeOutcome": (tl, func) => {
             return function (worldState, tl, options) {
                 const course = activeCourseOnTimeline(worldState, tl)
-                if (unsunkPlayers(worldState, course).length >= 2 && Math.random() < 0.1) Greedler.queueEvent([ tl, EventWeatherMirage ])
+                if (unsunkPlayers(worldState, course).length >= 2 && Math.random() < 0.05) Greedler.queueEvent([ tl, EventWeatherMirage ])
+
+                let out = func.apply(this, arguments)
+                return out
+            }
+        }})
+    static Oversight = new Weather("Oversight", "Everything Is Fine.", 0xFFFF0000, {
+        "strokeOutcome": (tl, func) => {
+            return function (worldState, tl, options) {
+                const course = activeCourseOnTimeline(worldState, tl)
+                if (unsunkPlayers(worldState, course).length >= 2 && Math.random() < 0.005) Greedler.queueEvent([ tl, EventWeatherOversight ])
 
                 let out = func.apply(this, arguments)
                 return out
@@ -13,14 +23,14 @@ class Weather {
         "strokeOutcome": (tl, func) => {
             return function (worldState, tl, options) {
                 const course = activeCourseOnTimeline(worldState, tl)
-                if (unsunkPlayers(worldState, course).length >= 3 && Math.random() < 0.1) Greedler.queueEvent([ tl, EventWeatherTempest ])
+                if (unsunkPlayers(worldState, course).length >= 3 && Math.random() < 0.05) Greedler.queueEvent([ tl, EventWeatherTempest ])
 
                 let out = func.apply(this, arguments)
                 return out
             }
         }})
 
-    static Weathers = [ Weather.Mirage, Weather.Tempest ]
+    static Weathers = [ Weather.Mirage, Weather.Oversight, Weather.Tempest ]
 
     constructor(name, report, color, eventChanges) {
         this.name = name
@@ -39,6 +49,9 @@ class Weather {
 }
 
 class EventWeatherMirage extends Event {
+    type = "weatherMirage"
+    depth = "Hole"
+
     calculateEdit(worldState, tl) {
         const course = activeCourseOnTimeline(worldState, tl)
         const p1 = randomFromArray(unsunkPlayers(worldState, course))
@@ -67,7 +80,67 @@ class EventWeatherMirage extends Event {
     }
 }
 
+class EventWeatherOversight extends Event {
+    type = "weatherOversight"
+    depth = "Hole"
+
+    calculateEdit(worldState, tl) {
+        const course = activeCourseOnTimeline(worldState, tl)
+        const player = randomFromArray(unsunkPlayers(worldState, course))
+
+        let worldEdit, report
+        if (player.mods.includes(Mod.Overseen)) {
+            const tourney = activeTourney(worldState)
+            const course = activeCourseOnTimeline(worldState, tl)
+            
+            let newPlayer = ThingFactory.generateNewPlayer(worldState)
+            newPlayer.ball = player.ball
+            worldEdit = {
+                "timetravel": {
+                    "timeline": tl
+                },
+                "tourneys": [{
+                    "id": tourney.id,
+                    "players": tourney.players.map(pid => pid == player.id ? newPlayer.id : pid),
+                    "kia": tourney.kia.concat([player.id])
+                }],
+                "courses": [{
+                    "id": course.id,
+                    "players": course.players.map(pid => pid == player.id ? newPlayer.id : pid)
+                }],
+                "players": [{
+                    "id": player.id,
+                    "mortality": "DEAD"
+                }, newPlayer ]
+            }
+    
+            report = `A Loophole is found. Contract Terminated. ${player.fullName()} rots. ${newPlayer.fullName()} emerges from the ground to take their place.`
+        }
+        else {
+            let overseenPlayer = {
+                "id": player.id,
+                "mods": player.mods
+            }
+            Mod.Overseen.apply(overseenPlayer)
+    
+            worldEdit = {
+                "timetravel": {
+                    "timeline": tl
+                },
+                "players": [ overseenPlayer ]
+            }
+    
+            report = `A Loophole is suspected. ${player.fullName()} is being Overseen.`
+        }
+
+        return [worldEdit, report]
+    }
+}
+
 class EventWeatherTempest extends Event {
+    type = "weatherTempest"
+    depth = "Hole"
+
     calculateEdit(worldState, tl) {
         const course = activeCourseOnTimeline(worldState, tl)
         const [p1, p2] = chooseNumFromArray(unsunkPlayers(worldState, course), 2)
