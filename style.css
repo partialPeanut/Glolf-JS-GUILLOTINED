@@ -26,6 +26,7 @@ body {
   width: 96%;
   left: 2%;
   right: 2%;
+  height: 40px;
   position: absolute;
   align-content: center;
   border-radius: 15px;
@@ -62,10 +63,10 @@ body {
 #feed-displayers {
   display: grid;
   position:absolute;
-	left:560px;
-	top:140px;
-	right:10px;
-	height: 300px;
+	left:20px;
+	top:150px;
+	right:20px;
+	height: 480px;
 	overflow:hidden;
 }
 #feed-displayer0 {
@@ -176,6 +177,9 @@ body {
   -webkit-background-clip: text;
   animation: rainbow linear 30s infinite;
 }
+.header-button:disabled {
+  background-color: #000;
+}
 .header-buttons {
   display: grid;
   grid-template-columns: 200px repeat(5, 70px) 1fr 1fr 1fr 1fr 10px;
@@ -213,7 +217,8 @@ body {
 }
 .header-divider {
   border-top: 3px double #000;
-  margin-top: 10px;
+  margin-top: 0px;
+  margin-bottom: 10px;
   background:
     repeating-linear-gradient(
       to right, 
@@ -234,7 +239,7 @@ body {
   animation: rainbow linear 30s infinite;
 }
 
-.playback {
+.playback-buttons {
   font-family: 'pixel_playback', serif;
   font-size: 30px;
 }

@@ -51,14 +51,13 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head id="hook">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GLOLF!!</title>
 
     <link href="style.css" rel="stylesheet">
     <link href="assets/web/fonts.css" rel="stylesheet">
-    <script src="assets/web/shiny.js"></script>
 
     <script src="data/lists/p_namesfirst.js"></script>
     <script src="data/lists/p_nameslast.js"></script>
@@ -84,50 +83,37 @@
     <script src="js/greedler.js"></script>
 
     <script src="main.js"></script>
-    <script>
-        let playbackSpeed = 0;
-
-        function changePlaybackSpeed() {
-            if (playbackSpeed < 2) {
-                playbackSpeed++;
-                if (playbackSpeed == 1) {
-                    document.getElementById("playback-speed").textContent = "F";
-                    document.getElementById("playback-speed").style.paddingLeft = "4px";
-                }
-                else {
-                    if (playbackSpeed == 2) document.getElementById("playback-speed").textContent = " G";
-                    document.getElementById("playback-speed").style.paddingLeft = "8px";
-                }
-            }
-            else {
-                playbackSpeed = 0;
-                document.getElementById("playback-speed").textContent = "E";
-                document.getElementById("playback-speed").style.paddingLeft = "0px";
-            }
-        }
-    </script>
 </head>
 <body>
     <div class="header-buttons">
         <div class="header-border"><button type="button" class="header-button">
             GLOLF</button></div>
-        <div class="header-border"><button type="button" class="header-button">
-            <div class="playback">B</div></button></div>
-        <div class="header-border"><button type="button" class="header-button">
-            <div class="playback">A</div></button></div>
-        <div class="header-border"><button type="button" class="header-button">
-            <div class="playback">D</div></button></div>
-        <div class="header-border"><button type="button" class="header-button" onclick="nextEvent()">
-            <div class="playback">C</div></button></div>
-        <div class="header-border"><button type="button" class="header-button" onclick="changePlaybackSpeed()">
-            <div class="playback" id="playback-speed">E</div></button></div>
-        <div class="header-border"><button type="button" class="header-button" onclick="logPastEvents()">
+        <div class="header-border">
+            <button type="button" class="header-button" id="playback1" onclick="playbackPressed(0)">
+            <div class="playback-buttons">B</div></button></div>
+        <div class="header-border">
+            <button type="button" class="header-button" id="playback2" onclick="playbackPressed(1)">
+            <div class="playback-buttons">A</div></button></div>
+        <div class="header-border">
+            <button type="button" class="header-button" id="playback3" onclick="playbackPressed(2)">
+            <div class="playback-buttons">D</div></button></div>
+        <div class="header-border">
+            <button type="button" class="header-button" id="playback4" onclick="playbackPressed(3)">
+            <div class="playback-buttons">C</div></button></div>
+        <div class="header-border">
+            <button type="button" class="header-button" id="playback5" onclick="playbackPressed(4)">
+            <div class="playback-buttons">E</div></button></div>
+        <div class="header-border">
+            <button type="button" class="header-button" onclick="logPastEvents()">
             Past Events</button></div>
-        <div class="header-border"><button type="button" class="header-button" onclick="logFutureEvents()">
+        <div class="header-border">
+            <button type="button" class="header-button" onclick="logFutureEvents()">
             Future Events</button></div>
-        <div class="header-border"><button type="button" class="header-button" onclick="logWorldState()">
+        <div class="header-border">
+            <button type="button" class="header-button" onclick="logWorldState()">
             World State</button></div>
-        <div class="header-border"><button type="button" class="header-button">
+        <div class="header-border">
+            <button type="button" class="header-button">
             Girl Button</button></div>
     </div>
     <hr class="header-divider">
@@ -159,4 +145,5 @@
         <div id="feed-displayer3">...</div>
         <div id="feed-displayer4">...</div>
     </div>
+    <script src="assets/web/shiny.js"></script>
 </body>
