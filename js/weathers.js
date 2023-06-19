@@ -1,29 +1,29 @@
 class Weather {
-    static Mirage = new Weather("Mirage", "Irrelevance and Falsehoods.", 0xFFEA6BE6, {
-        "strokeOutcome": (tl, func) => {
+    static Mirage = new Weather("Mirage", "Irrelevance and Falsehoods.", 0xFFEA6BE6, 1, {
+        "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
                 const hole = activeHoleOnTimeline(worldState, tl)
-                if (unsunkPlayers(worldState, hole).length >= 2 && Math.random() < 0.05) Greedler.queueEvent([ tl, EventWeatherMirage ])
+                if (unsunkPlayers(worldState, hole).length >= 2 && Math.random() < 0.02) Greedler.queueEvent([ tl, EventWeatherMirage ])
 
                 let out = func.apply(this, arguments)
                 return out
             }
         }})
-    static Oversight = new Weather("Oversight", "Everything Is Fine.", 0xFFFF0000, {
-        "strokeOutcome": (tl, func) => {
+    static Oversight = new Weather("Oversight", "Everything Is Fine.", 0xFFFF0000, 1, {
+        "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
                 const hole = activeHoleOnTimeline(worldState, tl)
-                if (unsunkPlayers(worldState, hole).length >= 2 && Math.random() < 0.005) Greedler.queueEvent([ tl, EventWeatherOversight ])
+                if (unsunkPlayers(worldState, hole).length >= 2 && Math.random() < 0.003) Greedler.queueEvent([ tl, EventWeatherOversight ])
 
                 let out = func.apply(this, arguments)
                 return out
             }
         }})
-    static Tempest = new Weather("Tempest", "Progression and Regression.", 0xFF1281C3, {
-        "strokeOutcome": (tl, func) => {
+    static Tempest = new Weather("Tempest", "Progression and Regression.", 0xFF1281C3, 1, {
+        "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
                 const hole = activeHoleOnTimeline(worldState, tl)
-                if (unsunkPlayers(worldState, hole).length >= 3 && Math.random() < 0.05) Greedler.queueEvent([ tl, EventWeatherTempest ])
+                if (unsunkPlayers(worldState, hole).length >= 3 && Math.random() < 0.02) Greedler.queueEvent([ tl, EventWeatherTempest ])
 
                 let out = func.apply(this, arguments)
                 return out
@@ -32,17 +32,18 @@ class Weather {
 
     static Weathers = [ Weather.Mirage, Weather.Oversight, Weather.Tempest ]
 
-    constructor(name, report, color, eventChanges) {
+    constructor(name, report, color, weight, eventChanges) {
         this.name = name
         this.report = report
         this.color = color
         this.priority = 1
+        this.weight = weight
         this.eventChanges = eventChanges
     }
 
-    modify(type, tl, func) {
+    modify(type, func) {
         if (this.eventChanges[type] !== undefined) {
-            return this.eventChanges[type](tl, func)
+            return this.eventChanges[type](func)
         }
         else return func
     }
@@ -54,9 +55,9 @@ class EventWeatherMirage extends Event {
 
     calculateEdit(worldState, tl) {
         const hole = activeHoleOnTimeline(worldState, tl)
-        const p1 = randomFromArray(unsunkPlayers(worldState, hole))
+        const p1 = chooseFromAutism(unsunkPlayers(worldState, hole))
         const pidx1 = hole.players.indexOf(p1.id)
-        const p2 = randomFromArray(unsunkPlayers(worldState, hole))
+        const p2 = chooseFromAutism(unsunkPlayers(worldState, hole))
         const pidx2 = hole.players.indexOf(p2.id)
 
         const newPlayRay = hole.players.slice(0)
@@ -86,7 +87,7 @@ class EventWeatherOversight extends Event {
 
     calculateEdit(worldState, tl) {
         const hole = activeHoleOnTimeline(worldState, tl)
-        const player = randomFromArray(unsunkPlayers(worldState, hole))
+        const player = chooseFromAutism(unsunkPlayers(worldState, hole))
 
         let worldEdit, report
         if (player.mods.includes(Mod.Overseen)) {
@@ -131,7 +132,7 @@ class EventWeatherTempest extends Event {
 
     calculateEdit(worldState, tl) {
         const hole = activeHoleOnTimeline(worldState, tl)
-        const [p1, p2] = chooseNumFromArray(unsunkPlayers(worldState, hole), 2)
+        const [p1, p2] = chooseNumFromAutism(unsunkPlayers(worldState, hole), 2)
 
         const worldEdit = {
             "timetravel": {

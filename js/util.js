@@ -42,10 +42,10 @@ function averageArray(array) {
 }
 
 function chooseFromWeights(array) {
-    const totalWeight = array.reduce((total, w) => total += w)
+    const totalWeight = array.reduce((total, w) => total += Math.max(0,w))
     let choice = randomReal(totalWeight)
     for ([i, w] of array.entries()) {
-        choice -= w
+        choice -= Math.max(0,w)
         if (choice < 0) return i
     }
     return -1
@@ -73,6 +73,28 @@ function chooseNumFromArrayAndRemove(array, num) {
             let t = randomFromArray(array)
             chosen.push(t)
             removeFromArray(array, t)
+        }
+        return chosen
+    }
+}
+
+function chooseFromAutism(ps) {
+    return ps.at(chooseFromWeights(ps.map(p => p.stats.autism)))
+}
+
+function chooseIDFromAutism(worldState, pids) {
+    return chooseFromAutism(pids.map(pid => getWorldItem(worldState, "players", pid)))
+}
+
+function chooseNumFromAutism(array, num) {
+    let arrayCopy = array.slice(0)
+    let chosen = []
+    if (array.length <= num) return arrayCopy
+    else {
+        for (let i = 0; i < num; i++) {
+            let t = chooseFromAutism(arrayCopy)
+            chosen.push(t)
+            removeFromArray(arrayCopy, t)
         }
         return chosen
     }
@@ -364,7 +386,7 @@ function modifyFunction(type, depth, worldState, tl, func) {
     applicableMods.sort((m1,m2) => m1.priority - m2.priority)
 
     for (let m of applicableMods) {
-        moddedFunc = m.modify(type, tl, moddedFunc)
+        moddedFunc = m.modify(type, moddedFunc)
     }
 
     return moddedFunc

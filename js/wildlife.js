@@ -1,9 +1,10 @@
 class Wildlife {
-    static None = new Wildlife("None", "No critters on this hole.", 0x000000, {})
-        static mosqBiteFunc = (tl, func) => {
+    static None = new Wildlife("None", "No critters on this hole.", 0x000000, 3, {})
+        static mosqBiteFunc = (func) => {
             return function (worldState, tl, options) {
                 const hole = activeHoleOnTimeline(worldState, tl)
-                const randomPlayer = randomFromArray(unsunkPlayers(worldState, hole))
+                const activePlayers = unsunkPlayers(worldState, hole)
+                const randomPlayer = activePlayers.at(chooseFromWeights(activePlayers.map(p => p.juiciness())))
                 if (randomPlayer !== undefined && Math.random() < 0.05 * hole.stats.quench)
                     Greedler.queueEvent([ tl, EventMosquitoBite, { "player": randomPlayer, "damage": 0.01 }])
 
@@ -11,10 +12,10 @@ class Wildlife {
                 return out
             }
         }
-    static Mosquito = new Wildlife("Mosquitoes", "Mosquitoes in the skies! Players, hope you brought bug spray.", 0x000000,
+    static Mosquito = new Wildlife("Mosquitoes", "Mosquitoes in the skies! Players, hope you brought bug spray.", 0x000000, 1,
         { "strokeType": this.mosqBiteFunc, "strokeOutcome": this.mosqBiteFunc })
-    static Komodo = new Wildlife("Komodo Dragons", "Komodo dragons in the shadows. Players, keep your antibiotics handy!", 0x000000, {
-        "strokeOutcome": (tl, func) => {
+    static Komodo = new Wildlife("Komodo Dragons", "Komodo dragons in the shadows. Players, keep your antibiotics handy!", 0x000000, 1, {
+        "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
                 let [outEdit, outReport] = func.apply(this, arguments)
 
@@ -27,8 +28,8 @@ class Wildlife {
                 return [outEdit, outReport]
             }
         }})
-    static Worm = new Wildlife("Sand Worms", "Worms in the sand! Players, be wary of those bunkers.", 0x000000, {
-        "strokeOutcome": (tl, func) => {
+    static Worm = new Wildlife("Sand Worms", "Worms in the sand! Players, be wary of those bunkers.", 0x000000, 1, {
+        "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
                 let [outEdit, outReport] = func.apply(this, arguments)
                 const player = activePlayerOnTimeline(worldState, tl)
@@ -43,17 +44,18 @@ class Wildlife {
 
     static Wildlives = [ Wildlife.None, Wildlife.Mosquito, Wildlife.Komodo, Wildlife.Worm ]
 
-    constructor(name, report, color, eventChanges) {
+    constructor(name, report, color, weight, eventChanges) {
         this.name = name
         this.report = report
         this.color = color
         this.priority = 2
+        this.weight = weight
         this.eventChanges = eventChanges
     }
 
-    modify(type, tl, func) {
+    modify(type, func) {
         if (this.eventChanges[type] !== undefined) {
-            return this.eventChanges[type](tl, func)
+            return this.eventChanges[type](func)
         }
         else return func
     }

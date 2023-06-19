@@ -56,6 +56,11 @@ class ThingFactory {
                 "scrappiness": randomGaussian(6,2),
                 "charisma": randomGaussian(6,2),
                 "autism": randomGaussian(6,2)
+            },
+            "juiciness": () => {
+                let total = 0
+                for (let [k,v] of Object.entries(p.stats)) total += v
+                return total
             }
         }
 

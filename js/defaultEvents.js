@@ -184,7 +184,7 @@ class EventWeatherReport extends Event {
 
     calculateEdit(worldState, tl) {
         const course = activeCourseOnTimeline(worldState, tl)
-        const chosenWeather = randomFromArray(Weather.Weathers)
+        const chosenWeather = Weather.Weathers.at(chooseFromWeights(Weather.Weathers.map(w => w.weight)))
         const worldEdit = {
             "timetravel": {
                 "timeline": tl,
@@ -247,7 +247,7 @@ class EventWildlifeReport extends Event {
 
     calculateEdit(worldState, tl) {
         const hole = activeHoleOnTimeline(worldState, tl)
-        const chosenWildlife = randomFromArray(Wildlife.Wildlives)
+        const chosenWildlife = Wildlife.Wildlives.at(chooseFromWeights(Wildlife.Wildlives.map(w => w.weight)))
         const worldEdit = {
             "timetravel": {
                 "timeline": tl,

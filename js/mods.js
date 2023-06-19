@@ -1,6 +1,6 @@
 class Mod {
     static Aggressive = new Mod("AGRO", 0.1, 0, "LEAGUE", {
-            "strokeOutcome": (tl, func) => {
+            "strokeOutcome": (func) => {
                 return function (worldState, tl, options) {
                     // Do stroke as normal
                     let [outEdit, outReport] = func.apply(this, arguments)
@@ -24,7 +24,7 @@ class Mod {
                 }
             }})
     static SemiAquatic = new Mod("AQUA", 0.1, 1, "LEAGUE", {
-            "strokeOutcome": (tl, func) => {
+            "strokeOutcome": (func) => {
                 return function (worldState, tl, options) {
                     let [outEdit, outReport] = func.apply(this, arguments)
 
@@ -41,7 +41,7 @@ class Mod {
     
     static Entangled = new Mod("ENTG", 0, 0, "LEAGUE", {})
     static Harmonized = new Mod("HRMZ", 0, 2, "LEAGUE", {
-            "strokeOutcome": (tl, func) => {
+            "strokeOutcome": (func) => {
                 return function (worldState, tl, options) {
                     let [outEdit, outReport] = func.apply(this, arguments)
 
@@ -63,7 +63,7 @@ class Mod {
             }})
     static Overseen = new Mod("OVSN", 0, 0, "TOURNEY", {})
     static Poisoned = new Mod("PSND", 0, 0, "HOLE", {
-        "strokeOutcome": (tl, func) => {
+        "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
                 let [outEdit, outReport] = func.apply(this, arguments)
                 const player = activePlayerOnTimeline(worldState, tl)
@@ -106,7 +106,7 @@ class Mod {
             player.stats.trigonometry += 2
         })
         static Poisoned = new Mod("PSND", 0, 0, "HOLE", {
-        "strokeOutcome": (tl, func) => {
+        "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
                 let [outEdit, outReport] = func.apply(this, arguments)
                 const player = activePlayerOnTimeline(worldState, tl)
@@ -149,7 +149,7 @@ class Mod {
             player.stats.trigonometry += 2
         })
     static SuddenlyDying = new Mod("DYIN", 0, 2, "HOLE", {
-        "strokeOutcome": (tl, func) => {
+        "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
                 let [outEdit, outReport] = func.apply(this, arguments)
 
@@ -192,7 +192,7 @@ class Mod {
             h.stats.thirst *= 3
         })
     static Swampland = new Mod("SWMP", 0.1, 0, "LEAGUE", {
-        "wildlifeReport": (tl, func) => {
+        "wildlifeReport": (func) => {
             return function (worldState, tl, options) {
                 let [outEdit, outReport] = func.apply(this, arguments)
 
@@ -206,7 +206,7 @@ class Mod {
                 return [outEdit, outReport]
             }
         },
-        "mosquitoBite": (tl, func) => {
+        "mosquitoBite": (func) => {
             return function (worldState, tl, options) {
                 options.damage *= 5
                 let out = func.apply(this, arguments)
@@ -218,7 +218,7 @@ class Mod {
             h.stats.quench *= 1.5
         })
     static SuddenDeath = new Mod("SUDN", 0, 0, "LEAGUE", {
-        "strokeOutcome": (tl, func) => {
+        "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
                 let [outEdit, outReport] = func.apply(this, arguments)
 
@@ -258,7 +258,7 @@ class Mod {
         })
     
     static CharityMatch = new Mod("CHRT", 0.1, 0, "LEAGUE", {
-        "tourneyStart": (tl, func) => {
+        "tourneyStart": (func) => {
             return function (worldState, options) {
                 let out = func.apply(this, arguments)
                 return out
@@ -286,9 +286,9 @@ class Mod {
         this.remove = remove === undefined ? (x) => { removeFromArray(x.mods, this) } : remove
     }
 
-    modify(type, tl, func) {
+    modify(type, func) {
         if (this.eventChanges[type] !== undefined) {
-            return this.eventChanges[type](tl, func)
+            return this.eventChanges[type](func)
         }
         else return func
     }
