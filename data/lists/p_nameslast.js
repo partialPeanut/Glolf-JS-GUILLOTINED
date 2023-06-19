@@ -322,5 +322,15 @@ const p_nameslast = [
     "Quispe",
     "Flores",
     "Pinas",
-    "Mohan"
+    "Mohan",
+    "<lastname>",
+    "Butts",
+    "Futz",
+    "Fuss",
+    "Muts",
+    "Lutz",
+    "Putts",
+    "What-Is-Glolf-How-Do-I-Play-This",
+    "Gildehaus",
+    "Spiteri"
 ]

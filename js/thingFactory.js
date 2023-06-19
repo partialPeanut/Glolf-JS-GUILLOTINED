@@ -144,7 +144,7 @@ class ThingFactory {
             "sinReward": randomInt(100000, 200000),
             "placesRewarded": 3,
             "numCourses": 4,
-            "holesPerCourse": 1,
+            "holesPerCourse": 9,
             "players": randomLivingPlayers(48).map(p => p.id),
             "kia": [],
             "courses": []

@@ -87,9 +87,9 @@ class EventDivison extends Event {
 
         const newCourses = []
         for (let i = 0; i < tourney.numCourses-1; i++) {
-            newCourses.push(ThingFactory.generateNewCourse(worldState, chooseNumFromArrayAndRemove(playersLeft, playersPerCourse), "Division", true, worldState.league.divisionNames[i]))
+            newCourses.push(ThingFactory.generateNewCourse(worldState, chooseNumFromArrayAndRemove(playersLeft, playersPerCourse), "Division", false, worldState.league.divisionNames[i]))
         }
-        newCourses.push(ThingFactory.generateNewCourse(worldState, playersLeft, "Division", true, worldState.league.divisionNames[tourney.numCourses-1]))
+        newCourses.push(ThingFactory.generateNewCourse(worldState, playersLeft, "Division", false, worldState.league.divisionNames[tourney.numCourses-1]))
 
         const worldEdit = {
             "timetravel": {
@@ -530,41 +530,33 @@ class EventTourneyReward extends Event {
     type = "tourneyReward"
     depth = "Tourney"
 
-    calculateEdit(worldState, tl) {
-        let winners = []
-        function bestOfUnchosenPlayers(pid1, pid2) {
-            if (winners.includes(pid1)) return pid2
-            else if (winners.includes(pid2)) return pid1
-            else return bestOfPlayers(worldState, pid1, pid2)
-        }
-        
-        const course = activeCourseOnTimeline(worldState, tl)
-        for (let i = 0; i < 3; i++) {
-            let wid = course.players.reduce(bestOfUnchosenPlayers, course.players[0])
-            winners.push(wid)
-        }
-
+    calculateEdit(worldState, tl, options) {
         const tourney = activeTourney(worldState)
+        const course = activeCourseOnTimeline(worldState, tl)
+
+        const placeWinners = course.winners[options.place].map(wid => getWorldItem(worldState, "players", wid))
+        const placeReward = placeWinners.length > 0 ? Math.floor(Math.pow(2, -options.place) * tourney.sinReward / placeWinners.length) : 0
         const worldEdit = {
             "timetravel": {
                 "timeline": tl,
                 "phase": EventTourneyReward
             },
-            "players": winners.map((wid, i) => {
-                const player = getWorldItem(worldState, "players", wid)
+            "courses": [{
+                "id": course.id,
+                "currentRewardPlace": options.place
+            }],
+            "players": placeWinners.map(w => {
                 return {
-                    "id": wid,
-                    "netWorth": player.netWorth + Math.floor(Math.pow(2, -i) * tourney.sinReward)
+                    "id": w.id,
+                    "netWorth": w.netWorth + placeReward
                 }
             })
         }
 
-        let report = ``
-        for (let [i,w] of winners.entries()) {
-            const player = getWorldItem(worldState, "players", w)
-            if (i != 0) report += `\n`
-            report += `For coming ${nth(i+1)}th place, ${player.fullName()} receives ${(worldEdit.players[i].netWorth - player.netWorth).toLocaleString()} $ins!`
-        }
+        let report
+        if (placeWinners.length == 0) report = `There were no ${nth(options.place+1)} place winners...`
+        else if (placeWinners.length > 1) report = `The ${nth(options.place+1)} place winners recieve ${placeReward.toLocaleString()} $ins each: ${joinGrammatically(placeWinners.map(p => p.fullName()))}!`
+        else report = `The ${nth(options.place+1)} place winner recieves ${placeReward.toLocaleString()} $ins: ${placeWinners[0].fullName()}!`
         return [worldEdit, report]
     }
 }
@@ -583,7 +575,7 @@ class EventMemoriam extends Event {
 
         const tourney = activeTourney(worldState)
         const report = `We dedicated this tournament to those lost to Death's clutches: ${joinGrammatically(tourney.kia.map(pid => getWorldItem(worldState, "players", pid).fullName()))}.` + 
-                      ` May they ace forever in the All Holes Halls.`
+                       `\nMay they ace forever in the All Holes Halls.`
         return [worldEdit, report]
     }
 }

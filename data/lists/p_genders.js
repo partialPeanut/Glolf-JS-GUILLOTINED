@@ -170,5 +170,8 @@ const p_genders = [
     "Inverse",
     "Dude",
     "Guy",
-    "The Early 2000's"
+    "The Early 2000's",
+    "WHAT",
+    "Warlike",
+    "<gender>"
 ]

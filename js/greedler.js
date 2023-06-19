@@ -10,9 +10,9 @@ class Greedler {
     static doTimeStep(stuck = false) {
         let tls = Onceler.currentWorldState.timelines.length
         let didStep = false
-        
+
         let unstick = EventVoid
-        if (stuck) unstick = [EventHoleFinish, EventCourseFinish].find(e => Onceler.currentWorldState.timelines.includes(e))
+        if (stuck) unstick = [EventHoleFinish, EventCourseFinish, EventTourneyFinish].find(e => Onceler.currentWorldState.timelines.includes(e))
 
         for (let i = 0; i < tls; i++) {
             if (i >= Onceler.currentWorldState.timelines.length) break
@@ -97,14 +97,16 @@ class Greedler {
                 else return [tl, EventCourseReward, { "place": 0 }]
             case EventCourseReward:
                 const nextPlace = course.currentRewardPlace + 1
-                if (nextPlace >= activeTourney(worldState).placesRewarded) return [tl, EventMultiplication]
-                else return [tl, EventCourseReward, { "place": nextPlace }]
+                if (nextPlace < activeTourney(worldState).placesRewarded) return [tl, EventCourseReward, { "place": nextPlace }]
+                else return [tl, EventMultiplication]
             
             case EventTourneyFinish:
-                return [tl, EventTourneyReward]
-
+                if (unstick != EventTourneyFinish) return [tl, EventWait]
+                else return [tl, EventTourneyReward, { "place": 0 }]
             case EventTourneyReward:
-                if (tourney.kia.length > 0) return [tl, EventMemoriam]
+                const nextPlaceT = course.currentRewardPlace + 1
+                if (nextPlaceT < activeTourney(worldState).placesRewarded) return [tl, EventTourneyReward, { "place": nextPlaceT }]
+                else if (tourney.kia.length > 0) return [tl, EventMemoriam]
                 else return [tl, EventTourneyConclude]
             case EventMemoriam:
                 return [tl, EventTourneyConclude]

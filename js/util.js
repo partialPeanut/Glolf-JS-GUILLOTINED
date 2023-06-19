@@ -150,8 +150,9 @@ function playerOnTimelineAtIndex(worldState, tl, idx) {
     return getWorldItem(worldState, "players", hole.players.at(idx))
 }
 function activePlayerOnTimeline(worldState, tl) {
-    if (activeHoleOnTimeline(worldState, tl) === undefined) return undefined
-    else return playerOnTimelineAtIndex(worldState, tl, activeHoleOnTimeline(worldState, tl).currentPlayer)
+    const hole = activeHoleOnTimeline(worldState, tl)
+    if (hole === undefined) return undefined
+    else return playerOnTimelineAtIndex(worldState, tl, hole.currentPlayer)
 }
 
 function editOfKillPlayerInTourney(worldState, tl, player) {
