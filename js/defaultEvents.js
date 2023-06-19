@@ -207,8 +207,12 @@ class EventHoleStart extends Event {
 
     calculateEdit(worldState, tl, options) {
         const course = activeCourseOnTimeline(worldState, tl)
+
         const suddenDeath = options === undefined || options.suddenDeath === undefined ? false : options.suddenDeath
-        const hole = ThingFactory.generateNewHole(worldState, suddenDeath)
+        const playingPlayers = suddenDeath ? course.winners[0] : course.players
+        const hole = ThingFactory.generateNewHole(worldState, playingPlayers)
+        if (suddenDeath) Mod.SuddenDeath.apply(hole)
+
         const worldEdit = {
             "timetravel": {
                 "timeline": tl,
@@ -287,14 +291,9 @@ class EventStrokeType extends Event {
     depth = "Ball"
 
     calculateEdit(worldState, tl) {
-        const course = activeCourseOnTimeline(worldState, tl)
         const hole = activeHoleOnTimeline(worldState, tl)
         const oldCP = hole.currentPlayer
-        const playingPlayers = hole.suddenDeath ? course.winners[0] : course.players
-        const newCP = playingPlayers.findIndex((pid, i) => {
-            const p = getWorldItem(worldState, "players", pid)
-            return i > oldCP && !p.ball.sunk
-        })
+        const newCP = hole.players.findIndex((pid, i) => i > oldCP && !getWorldItem(worldState, "players", pid).ball.sunk)
         const player = playerOnTimelineAtIndex(worldState, tl, newCP)
 
         const type = calculateStrokeType(worldState, tl, player)
@@ -379,8 +378,7 @@ class EventHoleFinish extends Event {
         const course = activeCourseOnTimeline(worldState, tl)
         const hole = activeHoleOnTimeline(worldState, tl)
 
-        const playingPlayers = hole.suddenDeath ? course.winners[0] : course.players
-        const editPlayers = playingPlayers.map(pid => {
+        const editPlayers = hole.players.map(pid => {
             const player = getWorldItem(worldState, "players", pid)
             return {
                 "id": pid,
@@ -427,9 +425,11 @@ class EventHoleFinish extends Event {
             for (let i = 1; i < winners.length; i++) {
                 survivors = survivors.concat(winners[i])
             }
-            let newWinners = [ winners[0], survivors ]
-            for (let i = 1; i < tourney.placesRewarded-1; i++) {
-                newWinners.push(course.winners[i])
+            let newWinners = [ winners[0] ]
+            if (survivors.length > 0) newWinners.push(survivors)
+            for (let i = 1; newWinners.length < tourney.placesRewarded; i++) {
+                if (course.winners[i] === undefined) newWinners.push([])
+                else newWinners.push(course.winners[i])
             }
             holeEndEffect.courses = [{
                 "id": course.id,
@@ -442,7 +442,7 @@ class EventHoleFinish extends Event {
         if (hole.suddenDeath) {
             if (winners[0].length == 0) report += ` There were no survivors.`
             else if (winners[0].length == 1) report += ` One player came out on top.`
-            else report += ` Sudden death continues.`
+            else report += ` There can only be one winner. Sudden death continues.`
         }
         return [worldEdit, report]
     }
@@ -563,7 +563,7 @@ class EventTourneyReward extends Event {
         for (let [i,w] of winners.entries()) {
             const player = getWorldItem(worldState, "players", w)
             if (i != 0) report += `\n`
-            report += `For coming ${i+1}th place, ${player.fullName()} receives ${(worldEdit.players[i].netWorth - player.netWorth).toLocaleString()} $ins!`
+            report += `For coming ${nth(i+1)}th place, ${player.fullName()} receives ${(worldEdit.players[i].netWorth - player.netWorth).toLocaleString()} $ins!`
         }
         return [worldEdit, report]
     }

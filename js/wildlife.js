@@ -2,8 +2,9 @@ class Wildlife {
     static None = new Wildlife("None", "No critters on this hole.", 0x000000, {})
         static mosqBiteFunc = (tl, func) => {
             return function (worldState, tl, options) {
-                const randomPlayer = randomFromArray(unsunkPlayers(worldState, activeCourseOnTimeline(worldState, tl)))
-                if (randomPlayer !== undefined && Math.random() < 0.05 * activeHoleOnTimeline(worldState, tl).stats.quench)
+                const hole = activeHoleOnTimeline(worldState, tl)
+                const randomPlayer = randomFromArray(unsunkPlayers(worldState, hole))
+                if (randomPlayer !== undefined && Math.random() < 0.05 * hole.stats.quench)
                     Greedler.queueEvent([ tl, EventMosquitoBite, { "player": randomPlayer, "damage": 0.01 }])
 
                 let out = func.apply(this, arguments)

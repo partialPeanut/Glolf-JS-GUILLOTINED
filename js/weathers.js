@@ -2,8 +2,8 @@ class Weather {
     static Mirage = new Weather("Mirage", "Irrelevance and Falsehoods.", 0xFFEA6BE6, {
         "strokeOutcome": (tl, func) => {
             return function (worldState, tl, options) {
-                const course = activeCourseOnTimeline(worldState, tl)
-                if (unsunkPlayers(worldState, course).length >= 2 && Math.random() < 0.05) Greedler.queueEvent([ tl, EventWeatherMirage ])
+                const hole = activeHoleOnTimeline(worldState, tl)
+                if (unsunkPlayers(worldState, hole).length >= 2 && Math.random() < 0.05) Greedler.queueEvent([ tl, EventWeatherMirage ])
 
                 let out = func.apply(this, arguments)
                 return out
@@ -12,8 +12,8 @@ class Weather {
     static Oversight = new Weather("Oversight", "Everything Is Fine.", 0xFFFF0000, {
         "strokeOutcome": (tl, func) => {
             return function (worldState, tl, options) {
-                const course = activeCourseOnTimeline(worldState, tl)
-                if (unsunkPlayers(worldState, course).length >= 2 && Math.random() < 0.005) Greedler.queueEvent([ tl, EventWeatherOversight ])
+                const hole = activeHoleOnTimeline(worldState, tl)
+                if (unsunkPlayers(worldState, hole).length >= 2 && Math.random() < 0.005) Greedler.queueEvent([ tl, EventWeatherOversight ])
 
                 let out = func.apply(this, arguments)
                 return out
@@ -22,8 +22,8 @@ class Weather {
     static Tempest = new Weather("Tempest", "Progression and Regression.", 0xFF1281C3, {
         "strokeOutcome": (tl, func) => {
             return function (worldState, tl, options) {
-                const course = activeCourseOnTimeline(worldState, tl)
-                if (unsunkPlayers(worldState, course).length >= 3 && Math.random() < 0.05) Greedler.queueEvent([ tl, EventWeatherTempest ])
+                const hole = activeHoleOnTimeline(worldState, tl)
+                if (unsunkPlayers(worldState, hole).length >= 3 && Math.random() < 0.05) Greedler.queueEvent([ tl, EventWeatherTempest ])
 
                 let out = func.apply(this, arguments)
                 return out
@@ -53,13 +53,13 @@ class EventWeatherMirage extends Event {
     depth = "Hole"
 
     calculateEdit(worldState, tl) {
-        const course = activeCourseOnTimeline(worldState, tl)
-        const p1 = randomFromArray(unsunkPlayers(worldState, course))
-        const pidx1 = course.players.indexOf(p1.id)
-        const p2 = randomFromArray(unsunkPlayers(worldState, course))
-        const pidx2 = course.players.indexOf(p2.id)
+        const hole = activeHoleOnTimeline(worldState, tl)
+        const p1 = randomFromArray(unsunkPlayers(worldState, hole))
+        const pidx1 = hole.players.indexOf(p1.id)
+        const p2 = randomFromArray(unsunkPlayers(worldState, hole))
+        const pidx2 = hole.players.indexOf(p2.id)
 
-        const newPlayRay = course.players.slice(0)
+        const newPlayRay = hole.players.slice(0)
         newPlayRay[pidx1] = p2.id
         newPlayRay[pidx2] = p1.id
 
@@ -67,8 +67,8 @@ class EventWeatherMirage extends Event {
             "timetravel": {
                 "timeline": tl
             },
-            "courses": [{
-                "id": course.id,
+            "holes": [{
+                "id": hole.id,
                 "players": newPlayRay
             }]
         }
@@ -85,34 +85,22 @@ class EventWeatherOversight extends Event {
     depth = "Hole"
 
     calculateEdit(worldState, tl) {
-        const course = activeCourseOnTimeline(worldState, tl)
-        const player = randomFromArray(unsunkPlayers(worldState, course))
+        const hole = activeHoleOnTimeline(worldState, tl)
+        const player = randomFromArray(unsunkPlayers(worldState, hole))
 
         let worldEdit, report
         if (player.mods.includes(Mod.Overseen)) {
             const tourney = activeTourney(worldState)
-            const course = activeCourseOnTimeline(worldState, tl)
             
             let newPlayer = ThingFactory.generateNewPlayer(worldState)
             newPlayer.ball = player.ball
-            worldEdit = {
-                "timetravel": {
-                    "timeline": tl
-                },
-                "tourneys": [{
-                    "id": tourney.id,
-                    "players": tourney.players.map(pid => pid == player.id ? newPlayer.id : pid),
-                    "kia": tourney.kia.concat([player.id])
-                }],
-                "courses": [{
-                    "id": course.id,
-                    "players": course.players.map(pid => pid == player.id ? newPlayer.id : pid)
-                }],
-                "players": [{
+            worldEdit = editOfReplacePlayerInTourney(worldState, tl, player, newPlayer)
+            worldEdit.tourneys[0].kia = tourney.kia.concat([player.id])
+            worldEdit.players = [
+                {
                     "id": player.id,
                     "mortality": "DEAD"
                 }, newPlayer ]
-            }
     
             report = `A Loophole is found. Contract Terminated. ${player.fullName()} rots. ${newPlayer.fullName()} emerges from the ground to take their place.`
         }
@@ -142,8 +130,8 @@ class EventWeatherTempest extends Event {
     depth = "Hole"
 
     calculateEdit(worldState, tl) {
-        const course = activeCourseOnTimeline(worldState, tl)
-        const [p1, p2] = chooseNumFromArray(unsunkPlayers(worldState, course), 2)
+        const hole = activeHoleOnTimeline(worldState, tl)
+        const [p1, p2] = chooseNumFromArray(unsunkPlayers(worldState, hole), 2)
 
         const worldEdit = {
             "timetravel": {

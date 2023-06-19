@@ -35,7 +35,7 @@ function calculateStrokeType(worldState, tl, player) {
     weights[0] = 0
     // Cap nothing at ~0.2% chance
     const biggestWeightThatIsntNothing = weights.slice(0,-1).reduce((max, w) => max > w ? max : w, 0)
-    weights[5] = Math.min(weights[5] * 0.1 / (4 + player.stats.competence), biggestWeightThatIsntNothing * 0.002)
+    weights[5] = Math.min(weights[5] / Math.max(1, player.stats.competence * player.stats.smartassery), biggestWeightThatIsntNothing * 0.002)
 
     if (biggestWeightThatIsntNothing == 0) return StrokeType.Drive
     else return StrokeType.TypesArray.at(chooseFromWeights(weights))

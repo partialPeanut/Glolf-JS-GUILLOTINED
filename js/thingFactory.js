@@ -65,7 +65,7 @@ class ThingFactory {
         return p
     }
 
-    static generateNewHole(worldState, suddenDeath = false) {
+    static generateNewHole(worldState, players) {
         let id = this.generateNewID()
 
         function parFromLength(len) {
@@ -83,8 +83,9 @@ class ThingFactory {
         let h = {
             "id": id,
             "mods": [],
+            "players": players,
             "wildlife": Wildlife.None,
-            "suddenDeath": suddenDeath,
+            "suddenDeath": false,
             "currentPlayer": -1,
             "succblow": 0,
             "stats": {
