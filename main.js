@@ -4,6 +4,7 @@
 // > Ruby
 // > Vue
 // > https://github.com/Kanahiro/harp.gl-vue-example
+// > Bootstrap
 
 // ------------------------------------------Main Features------------------------------------------
 // > Main menu
