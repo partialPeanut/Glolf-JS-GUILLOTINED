@@ -100,7 +100,7 @@
 // hook.appendChild(greedlerScript)
 
 function main() {
-    
+    console.log("meow")
 }
 
 // saved for posterity
