@@ -95,9 +95,21 @@ function prevEvent() {
 // playback4
 function nextEvent() {
     Greedler.doTimeStep()
+    let player1 = activePlayerOnTimeline(Onceler.currentWorldState, 0)
+    let player2 = activePlayerOnTimeline(Onceler.currentWorldState, 1)
+    let player3 = activePlayerOnTimeline(Onceler.currentWorldState, 2)
+    let player4 = activePlayerOnTimeline(Onceler.currentWorldState, 3)
     if (reports.length > 0) pastReports = reports.length
     reports = Onceler.mostRecentReports()
     // Handles Transforming the Feed
+    document.getElementById("temp-pd-1").textContent = playerStatsToString(player1)[0]
+    document.getElementById("temp-px-1").textContent = playerStatsToString(player1)[1]
+    document.getElementById("temp-pd-2").textContent = playerStatsToString(player2)[0]
+    document.getElementById("temp-px-2").textContent = playerStatsToString(player2)[1]
+    document.getElementById("temp-pd-3").textContent = playerStatsToString(player3)[0]
+    document.getElementById("temp-px-3").textContent = playerStatsToString(player3)[1]
+    document.getElementById("temp-pd-4").textContent = playerStatsToString(player4)[0]
+    document.getElementById("temp-px-4").textContent = playerStatsToString(player4)[1]
     if (reports.length != pastReports) {
         if (reports.length == 1) switchFeedsToOne()
         else if (reports.length > 1) switchFeedsToFour()
@@ -146,6 +158,81 @@ function changePlaybackSpeed() {
 }
 
 // additional playback functions
+function playerStatsToString(p) {
+    if (!p) {
+        let s1 = `
+            Name: ERROR
+            \r\nGender: null
+            \r\nNet Worth: $inful
+            \r\nMods: Index out of bounds
+            \r\n 
+            \r\nCompetence:
+            \r\nSmartassery:
+            \r\nYeetness:
+            \r\nTrigonometry:
+            \r\nBisexuality:
+            \r\nAsexuality:
+            \r\nScrappiness:
+            \r\nCharisma:
+            \r\nAutism:
+        `
+        let s2 = `
+             
+            \r\n 
+            \r\n 
+            \r\n 
+            \r\n 
+            \r\nNaN
+            \r\nNaN
+            \r\nNaN
+            \r\nNaN
+            \r\nNaN
+            \r\nNaN
+            \r\nNaN
+            \r\nNaN
+            \r\nNaN
+        `
+        let s = [s1,s2]
+        return s
+    }
+    else {
+        const player = p
+        let s1 = `
+            Name: ${player.firstName} ${player.lastName}
+            \r\nGender: ${player.gender}
+            \r\nNet Worth: ${Intl.NumberFormat('en-US').format(player.netWorth)} $ins
+            \r\nMods: ${player.mods}
+            \r\n 
+            \r\nCompetence:
+            \r\nSmartassery:
+            \r\nYeetness:
+            \r\nTrigonometry:
+            \r\nBisexuality:
+            \r\nAsexuality: 
+            \r\nScrappiness:
+            \r\nCharisma:
+            \r\nAutism:
+        `
+        let s2 = `
+             
+            \r\n 
+            \r\n 
+            \r\n 
+            \r\n 
+            \r\n${player.stats.competence.toFixed(2)}
+            \r\n${player.stats.smartassery.toFixed(2)}
+            \r\n${player.stats.yeetness.toFixed(2)}
+            \r\n${player.stats.trigonometry.toFixed(2)}
+            \r\n${player.stats.bisexuality.toFixed(2)}
+            \r\n${player.stats.asexuality.toFixed(2)}
+            \r\n${player.stats.scrappiness.toFixed(2)}
+            \r\n${player.stats.charisma.toFixed(2)}
+            \r\n${player.stats.autism.toFixed(2)}
+        `
+        let s = [s1,s2]
+        return s
+    }
+}
 function updateInterval() {
     if (!playbackTimer) {
         playbackTimer = setInterval(nextEvent, speed)
