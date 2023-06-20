@@ -1,8 +1,11 @@
+// Creates players!
 class EventCreatePlayers extends Event {
     type = "createPlayers"
     depth = "League"
 
-    calculateEdit(worldState, tl, options) {
+    defaultEffect(worldState, tl, options) {
+        // options = { "playerCount": num }
+
         let worldEdit = {
             "timetravel": {
                 "timeline": tl
@@ -19,22 +22,27 @@ class EventCreatePlayers extends Event {
     }
 }
 
+// Kills a player via sudden death
 class EventReaperKill extends Event {
     type = "reaperKill"
     depth = "Player"
 
-    calculateEdit(worldState, tl, options) {
+    defaultEffect(worldState, tl, options) {
+        // options = { "player": p }
+
         const worldEdit = editOfKillPlayerInTourney(worldState, tl, options.player)
         const report = `Death takes ${options.player.fullName()}.`
         return [worldEdit, report]
     }
 }
 
+// Makes every player donate!
 class EventTourneyDonate extends Event {
     type = "tourneyDonate"
     depth = "Tourney"
 
-    calculateEdit(worldState, tl) {
+    defaultEffect(worldState, tl) {
+        // 20% of the average sins of everyone in the tourney
         const tourney = activeTourney(worldState)
         const totalSins = tourney.players.reduce((total, pid) => total + getWorldItem(worldState, "players", pid).netWorth, 0)
         const donation = Math.floor(0.2 * totalSins / tourney.players.length)

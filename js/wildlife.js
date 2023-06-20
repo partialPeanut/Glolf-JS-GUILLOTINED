@@ -65,7 +65,7 @@ class EventKomodoAttack extends Event {
     type = "komodoAttack"
     depth = "Player"
 
-    calculateEdit(worldState, tl, options) {
+    defaultEffect(worldState, tl, options) {
         const player = options.player
         const hole = activeHoleOnTimeline(worldState, tl)
 
@@ -93,7 +93,7 @@ class EventKomodoKill extends Event {
     type = "komodoKill"
     depth = "Player"
 
-    calculateEdit(worldState, tl, options) {
+    defaultEffect(worldState, tl, options) {
         const worldEdit = editOfKillPlayerInTourney(worldState, tl, options.player)
         const report = `Too slow. The komodos feast on ${options.player.fullName()}.`
         return [worldEdit, report]
@@ -104,7 +104,7 @@ class EventMosquitoBite extends Event {
     type = "mosquitoBite"
     depth = "Player"
 
-    calculateEdit(worldState, tl, options) {
+    defaultEffect(worldState, tl, options) {
         const player = options.player
         const randomStat = randomFromArray(Object.keys(player.stats))
         let modifiedStats = JSON.parse(JSON.stringify(player.stats))
@@ -129,7 +129,7 @@ class EventWormBattle extends Event {
     type = "wormBattle"
     depth = "Player"
 
-    calculateEdit(worldState, tl, options) {
+    defaultEffect(worldState, tl, options) {
         const hole = activeHoleOnTimeline(worldState, tl)
         const player = options.player
         const wonBattle = Math.random() < curveLoggy(0, 1, player.stats.scrappiness)

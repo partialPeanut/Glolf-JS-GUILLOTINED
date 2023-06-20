@@ -1,7 +1,10 @@
+// Clamp a value between a min and a max
 function clamp(val, min, max) {
     return val > max ? max : val < min ? min : val;
 }
 
+// Return a random real number between min and max
+// If only 1 argument, return between 0 and that number
 function randomReal(min, max) {
     if (max === undefined) {
         max = min
@@ -10,6 +13,8 @@ function randomReal(min, max) {
     return min + Math.random() * (max-min)
 }
 
+// Return a random integer between min and max (inclusive)
+// If only 1 argument, return between 0 and that number
 function randomInt(min, max) {
     if (max === undefined) {
         max = min
@@ -18,6 +23,7 @@ function randomInt(min, max) {
     return Math.floor(randomReal(min, max+1))
 }
 
+// Return a random real number based on a gaussian curve with mean mean and standard deviation stdev
 function randomGaussian(mean=0, stdev=1) {
     const u = 1 - Math.random(); // Converting [0,1) to (0,1]
     const v = Math.random();
@@ -26,21 +32,26 @@ function randomGaussian(mean=0, stdev=1) {
     return z * stdev + mean;
 }
 
+// Return a random element from an array
 function randomFromArray(array) { return array.at(randomInt(array.length-1)) }
 
+// Remove a value from an array
 function removeFromArray(array, val) {
     if (array.includes(val)) array.splice(array.indexOf(val), 1)
 }
 
+// Remove an array of values from an array
 function removeManyFromArray(array, vals) {
     for (let val of vals) removeFromArray(array, val)
 }
 
+// Return the average value of an array of numbers
 function averageArray(array) {
     const total = array.reduce((total, x) => total += x)
     return total/array.length
 }
 
+// Given an array of weights, return a randomly chosen index based on those weights
 function chooseFromWeights(array) {
     const totalWeight = array.reduce((total, w) => total += Math.max(0,w))
     let choice = randomReal(totalWeight)
@@ -51,6 +62,7 @@ function chooseFromWeights(array) {
     return -1
 }
 
+// Return num amount of elements from an array
 function chooseNumFromArray(array, num) {
     let arrayCopy = array.slice(0)
     let chosen = []
@@ -65,6 +77,7 @@ function chooseNumFromArray(array, num) {
     }
 }
 
+// Return num amount of elements from an array, and remove those elements from the original array
 function chooseNumFromArrayAndRemove(array, num) {
     let chosen = []
     if (array.length <= num) return array.slice(0)
@@ -78,14 +91,17 @@ function chooseNumFromArrayAndRemove(array, num) {
     }
 }
 
+// Given an array of players, pick one based on their autism
 function chooseFromAutism(ps) {
     return ps.at(chooseFromWeights(ps.map(p => p.stats.autism)))
 }
 
+// Given the worldstate and an array of player ids, pick a player id based on their autism
 function chooseIDFromAutism(worldState, pids) {
-    return chooseFromAutism(pids.map(pid => getWorldItem(worldState, "players", pid)))
+    return chooseFromAutism(pids.map(pid => getWorldItem(worldState, "players", pid))).id
 }
 
+// Given an array of players, pick num amount based on their autism
 function chooseNumFromAutism(array, num) {
     let arrayCopy = array.slice(0)
     let chosen = []
@@ -100,6 +116,7 @@ function chooseNumFromAutism(array, num) {
     }
 }
 
+// Translate a number into its bird/bogey representation
 function intToBird(num) {
     if (num < -5) return "MegaBird"
     switch(num) {
@@ -129,6 +146,7 @@ function intToBird(num) {
     }
 }
 
+// 1 -> 1st, 2 -> 2nd, etc
 function nth(num) {
     let end = "th"
     const absnum = Math.abs(num)
@@ -140,6 +158,7 @@ function nth(num) {
     return `${num}${end}`
 }
 
+// Join an array of words together grammatically (x and y; a, b, and c; etc)
 function joinGrammatically(array) {
     if (array.length == 0) return ``
     else if (array.length == 1) return array[0]
@@ -151,32 +170,39 @@ function joinGrammatically(array) {
     }
 }
 
+// Given a worldstate, a type ("players", "tourneys", etc, yes they have to be plural lol), and an id, fetch the item that id belongs to
 function getWorldItem(worldState, type, id) {
     return worldState[type].find(t => t.id == id)
 }
 
+// Given a worldstate, return the current tourney
 function activeTourney(worldState) {
     return getWorldItem(worldState, "tourneys", worldState.league.currentTourney)
 }
+// Given a worldstate and the number of the timeline it's on, return the current course
 function activeCourseOnTimeline(worldState, tl) {
     if (activeTourney(worldState) === undefined) return undefined
     return getWorldItem(worldState, "courses", activeTourney(worldState).courses[tl])
 }
+// Given a worldstate and the number of the timeline it's on, return the current hole
 function activeHoleOnTimeline(worldState, tl) {
     if (activeCourseOnTimeline(worldState, tl) === undefined) return undefined
     return getWorldItem(worldState, "holes", activeCourseOnTimeline(worldState, tl).currentHole)
 }
+// Given a worldstate, the number of the timeline it's on, and the index that the player is at (ON THE HOLE PLAYERS ARRAY), return the player
 function playerOnTimelineAtIndex(worldState, tl, idx) {
     const hole = activeHoleOnTimeline(worldState, tl)
     if (hole === undefined) return undefined
     return getWorldItem(worldState, "players", hole.players.at(idx))
 }
+// Given a worldstate and the number of the timeline it's on, return the current player
 function activePlayerOnTimeline(worldState, tl) {
     const hole = activeHoleOnTimeline(worldState, tl)
     if (hole === undefined) return undefined
     else return playerOnTimelineAtIndex(worldState, tl, hole.currentPlayer)
 }
 
+// Returns the world edit of what needs to happen if player is killed in worldstate on timeline number tl
 function editOfKillPlayerInTourney(worldState, tl, player) {
     const tourney = activeTourney(worldState)
     const course = activeCourseOnTimeline(worldState, tl)
@@ -217,6 +243,7 @@ function editOfKillPlayerInTourney(worldState, tl, player) {
     }
 }
 
+// Returns the world edit of what needs to happen if every player in players is killed in worldstate on timeline number tl
 function editOfKillPlayersInTourney(worldState, tl, players) {
     const tourney = activeTourney(worldState)
     const course = activeCourseOnTimeline(worldState, tl)
@@ -259,6 +286,8 @@ function editOfKillPlayersInTourney(worldState, tl, players) {
     }
 }
 
+// Returns the world edit of what needs to happen if playerA is replaced with playerB in worldstate on timeline number tl
+// This does not mark playerA as killed, just makes playerB take their place in the turn order
 function editOfReplacePlayerInTourney(worldState, tl, playerA, playerB) {
     const tourney = activeTourney(worldState)
     const course = activeCourseOnTimeline(worldState, tl)
@@ -284,6 +313,7 @@ function editOfReplacePlayerInTourney(worldState, tl, playerA, playerB) {
     }
 }
 
+// Returns the world edit which removes all mods that need to be removed with the duration given, on timeline number tl
 function editOfEndDurations(worldState, tl, duration) {
     let players = []
     let holes = []
@@ -291,6 +321,7 @@ function editOfEndDurations(worldState, tl, duration) {
     let tourneys = []
     let leagueMods = []
 
+    // Returns a set of everything from an array with mods removed with the duration given
     function filterAndMap(array) {
         return array.filter(x => x.mods.includes(m => m.duration == duration)).map(x => {
             return {
@@ -347,10 +378,12 @@ function editOfEndDurations(worldState, tl, duration) {
     return edit
 }
 
+// Returns every player on a hole who hasn't sunk it yet
 function unsunkPlayers(worldState, hole) {
     return hole.players.map(pid => getWorldItem(worldState, "players", pid)).filter(p => !p.ball.sunk)
 }
 
+// Given a worldstate and two player ids, returns the id of the player who is best, based on score and then autism for a tiebreaker
 function bestOfPlayers(worldState, pid1, pid2) {
     const p1 = getWorldItem(worldState, "players", pid1)
     const p2 = getWorldItem(worldState, "players", pid2)
@@ -359,6 +392,8 @@ function bestOfPlayers(worldState, pid1, pid2) {
     else return pid2
 }
 
+// Takes in the type and depth of an event (i.e. strokeType and Player), the worldstate, number of the timeline, and the defaultEffect function of the event
+// It then applies every applicable mod, weather, and wildlife
 function modifyFunction(type, depth, worldState, tl, func) {
     const leagueMods =  worldState.league.mods
     const tourneyMods = activeTourney(worldState)              === undefined ? [] : activeTourney(worldState).mods

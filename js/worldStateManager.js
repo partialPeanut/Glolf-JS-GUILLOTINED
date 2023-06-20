@@ -1,4 +1,10 @@
+// Manages the editing of world states!
 class WorldStateManager {
+    // This is the default world state
+    // The big bang
+    // Genesis
+    // The beginning of all things
+    // All hail
     static nullWorldState() {
         return {
             "timelines": [
@@ -9,37 +15,32 @@ class WorldStateManager {
             "holes": [],
             "courses": [],
             "tourneys": [],
-            "league": {
-                "mods": [],
-                "currentTourney": 0,
-                "divisionNames": [
-                    "RED",
-                    "GREEN",
-                    "BLUE",
-                    "YELLOW",
-                    "CYAN",
-                    "MAGENTA",
-                    "BLACK",
-                    "WHITE"
-                ]
-            }
+            "league": ThingFactory.generateNewLeague()
         }
     }
 
+    // Applies a world edit to a world state
     static causeEdit(worldState, worldEdit) {
+        // Sets the prev timeline number to the one given by 'timetravel'
+        // Also updates the timeline phase if applicable
         worldState.prevTimeline = worldEdit.timetravel.timeline
         if (worldEdit.timetravel.phase !== undefined) {
             worldState.timelines[worldEdit.timetravel.timeline] = worldEdit.timetravel.phase
         }
 
+        // Look through every object in the edit
         for (const type of Object.keys(worldEdit)) {
+            // We already covered timetravel
             if (type == "timetravel") continue
 
+            // If we're changing the timelines, we're setting it to what the edit gives us
+            // This makes it easier to do divisions or multiplications of timelines
             if (type == "timelines") {
                 worldState.timelines = worldEdit.timelines
                 continue
             }
 
+            // There's only one league, so handle it accordingly
             if (type == "league") {
                 const entries = Object.entries(worldEdit.league)
                 for (let [key,val] of entries)  {
@@ -48,12 +49,20 @@ class WorldStateManager {
                 continue
             }
 
+            // This is for all the arrays of things
+            // In this block of code, each thing is called 'thing'
+            // They're also called things in ThingFactory
+            // It's consistent and makes sense I swear
             for (const thing of worldEdit[type]) {
+                // Try and find a pre-existing thing with this id
                 let wsMatch = worldState[type].find(t => t.id == thing.id)
+                // If there's no pre-existing thing with that id, the thing must be new! Welcome!
                 if (wsMatch === undefined)
                     worldState[type].push(thing)
+                // Remove it if it should be removed (This should almost NEVER happen, this means deleting it from all worlds living or dead!!)
                 else if (thing.remove == true)
                     removeFromArray(worldState[type], wsMatch)
+                // If there is a pre-existing thing, update it with all the new values
                 else {
                     const entries = Object.entries(thing)
                     for (let [key,val] of entries)  {
@@ -71,6 +80,7 @@ class WorldStateManager {
         }
     }
 
+    // Combines two edits together! Very similar to causeEdit but slightly different in ways I won't bore you with
     static combineEdits(oldEdit, worldEdit) {
         for (const type of Object.keys(worldEdit)) {
             if (type == "timetravel") {

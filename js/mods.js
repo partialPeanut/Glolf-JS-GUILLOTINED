@@ -1,4 +1,5 @@
 class Mod {
+    // Mod that makes players' balls collide
     static Aggressive = new Mod("AGRO", 0.1, 0, "LEAGUE", {
             "strokeOutcome": (func) => {
                 return function (worldState, tl, options) {
@@ -23,6 +24,7 @@ class Mod {
                     return [outEdit, outReport]
                 }
             }})
+    // Mod that lets players float on water
     static SemiAquatic = new Mod("AQUA", 0.1, 1, "LEAGUE", {
             "strokeOutcome": (func) => {
                 return function (worldState, tl, options) {
@@ -38,8 +40,9 @@ class Mod {
                     return [outEdit, outReport]
                 }
             }})
-    
-    static Entangled = new Mod("ENTG", 0, 0, "LEAGUE", {})
+    // Mod that makes the player harmonized if they get quantum squid
+    static Entangled = new Mod("ENTG", 0, 0, "LEAGUE")
+    // Mod that lets the player choose the best hit of two on their first stroke
     static Harmonized = new Mod("HRMZ", 0, 2, "LEAGUE", {
             "strokeOutcome": (func) => {
                 return function (worldState, tl, options) {
@@ -61,7 +64,9 @@ class Mod {
                     return [outEdit, outReport]
                 }
             }})
-    static Overseen = new Mod("OVSN", 0, 0, "TOURNEY", {})
+    // They see you. Everything is Fine.
+    static Overseen = new Mod("OVSN", 0, 0, "TOURNEY")
+    // Ticks down to death by komodo dragon unless they escape by sinking it
     static Poisoned = new Mod("PSND", 0, 0, "HOLE", {
         "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
@@ -105,49 +110,7 @@ class Mod {
             player.stats.yeetness += 2
             player.stats.trigonometry += 2
         })
-        static Poisoned = new Mod("PSND", 0, 0, "HOLE", {
-        "strokeOutcome": (func) => {
-            return function (worldState, tl, options) {
-                let [outEdit, outReport] = func.apply(this, arguments)
-                const player = activePlayerOnTimeline(worldState, tl)
-                let editPlayer = outEdit.players.find(p => p.id == player.id)
-
-                if (editPlayer.ball.sunk) {
-                    outReport += `\nThe prey escapes, and is cured of poison.`
-                    editPlayer.mods = editPlayer.mods === undefined ? player.mods : editPlayer.mods
-                    editPlayer.stats = editPlayer.stats === undefined ? player.stats : editPlayer.stats
-                    Mod.Poisoned.remove(editPlayer)
-                }
-                else if (player.poisonCounters > 0) {
-                    outReport += `\n${player.poisonCounters} strokes until the predators strike.`
-                    editPlayer.poisonCounters = player.poisonCounters-1
-                }
-                else {
-                    outReport += `\nLizards hiss.`
-
-                    const hole = activeHoleOnTimeline(worldState, tl)
-                    editPlayer.poisonCounters = hole.dimensions.par + Math.floor(curveLoggy(0, 4, player.stats.scrappiness))
-
-                    Greedler.queueEvent([ tl, EventKomodoKill, { "player": player }])
-                }
-
-                return [outEdit, outReport]
-            }
-        }},
-        (player, counters) => {
-            player.mods.push(Mod.Poisoned)
-            player.poisonCounters = counters
-            player.stats.competence -= 4
-            player.stats.yeetness -= 2
-            player.stats.trigonometry -= 2
-        },
-        player => {
-            removeFromArray(player.mods, Mod.Poisoned)
-            player.poisonCounters = undefined
-            player.stats.competence += 4
-            player.stats.yeetness += 2
-            player.stats.trigonometry += 2
-        })
+    // Ticks down until death by Death in sudden death
     static SuddenlyDying = new Mod("DYIN", 0, 2, "HOLE", {
         "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
@@ -184,13 +147,14 @@ class Mod {
             player.suddenCounters = undefined
         })
 
-
+    // Triple the sand, triple the water. Absolute hell.
     static Coastal = new Mod("CSTL", 0.1, 0, "LEAGUE", {},
         h => {
             h.mods.push(Mod.Coastal)
             h.stats.quench *= 3
             h.stats.thirst *= 3
         })
+    // 1.5 times the water, a 75% chance of mosquitoes, and mosquitoes are 5 times as dangerous. Also hell.
     static Swampland = new Mod("SWMP", 0.1, 0, "LEAGUE", {
         "wildlifeReport": (func) => {
             return function (worldState, tl, options) {
@@ -217,6 +181,7 @@ class Mod {
             h.mods.push(Mod.Swampland)
             h.stats.quench *= 1.5
         })
+    // Once the first player sinks it, everyone has two turns until Death takes them. Suddenly.
     static SuddenDeath = new Mod("SUDN", 0, 0, "LEAGUE", {
         "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
@@ -257,9 +222,11 @@ class Mod {
             h.suddenDeath = true
         })
     
+    // Makes the sin reward negative, and causes all players to donate to charity at the beginning of the tourney
     static CharityMatch = new Mod("CHRT", 0.1, 0, "LEAGUE", {
         "tourneyStart": (func) => {
             return function (worldState, options) {
+                Greedler.queueEvent([ tl, EventTourneyDonate ])
                 let out = func.apply(this, arguments)
                 return out
             }
@@ -269,23 +236,33 @@ class Mod {
             t.sinReward *= -1
         })
     
+    // Lists of all the mods for all the types of things
+    // Techincally any mod can apply to anything but watch out! For consequences
     static BallMods =    []
-    static PlayerMods =  [ Mod.Aggressive, Mod.SemiAquatic, Mod.Entangled, Mod.Harmonized, Mod.Overseen, Mod.Poisoned ]
-    static HoleMods =    [ Mod.Coastal, Mod.Swampland ]
+    static PlayerMods =  [ Mod.Aggressive, Mod.SemiAquatic, Mod.Entangled, Mod.Harmonized, Mod.Overseen, Mod.Poisoned, Mod.SuddenlyDying ]
+    static HoleMods =    [ Mod.Coastal, Mod.Swampland, Mod.SuddenDeath ]
     static CourseMods =  []
     static TourneyMods = [ Mod.CharityMatch ]
     static LeagueMods =  []
-
-    constructor(name, naturalChance, priority, duration, eventChanges, apply, remove) {
+    
+    // Natural chance = the chance it's naturally added to a thing on thing creation
+    // Priority = the order it's applied, smallest first (weather = 1 and wildlife = 2)
+    // Duration = the length of time it stays on until removed
+    // Event changes = the ways the mod affects other events
+    // Apply/remove = what happens when it's applied/removed
+    // Event changes, apply, and remove are all optional
+    constructor(name, naturalChance, priority, duration, eventChanges = {}, apply = (x) => { x.mods.push(this) }, remove = (x) => { removeFromArray(x.mods, this) }) {
         this.name = name
         this.naturalChance = naturalChance
         this.priority = priority
         this.duration = duration
         this.eventChanges = eventChanges
-        this.apply = apply === undefined ? (x) => { x.mods.push(this) } : apply
-        this.remove = remove === undefined ? (x) => { removeFromArray(x.mods, this) } : remove
+        this.apply = apply
+        this.remove = remove
     }
 
+    // Modifies a function based on its type
+    // If the mod doesn't affect this type, then don't change it
     modify(type, func) {
         if (this.eventChanges[type] !== undefined) {
             return this.eventChanges[type](func)
@@ -294,14 +271,16 @@ class Mod {
     }
 }
 
+// What happens when a player gets aggressive
 class EventAggression extends Event {
     type = "aggression"
     depth = "Player"
 
-    calculateEdit(worldState, tl, options) {
+    defaultEffect(worldState, tl, options) {
         const atkPlayer = options.atkPlayer
         const defPlayer = options.defPlayer
 
+        // Whack em 1-5 * yeetness away from the hole
         const newDist = defPlayer.ball.distance + randomReal(1,5) * atkPlayer.stats.yeetness
         const newTerrain = calculatePostRollTerrain(worldState, tl, defPlayer, newDist)
 

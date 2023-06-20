@@ -9,6 +9,8 @@ class Terrain {
     static Bunker      = new Terrain("leaves the sand bunker", "in a sand bunker.",         0xFFFFC107, [ 0.0, 0.2, 0.2, 0.6, 0.1 ], false)
     static WaterFloat  = new Terrain("splashes away",          "safely in a water hazard.", 0xFF03A9F4, [ 0.0, 0.1, 0.1, 0.3, 0.1 ], false)
 
+    // Smoothness = the effectiveness of different stroke types on each terrain
+
     constructor(leavingText, arrivingText, color, smoothness, oob) {
         this.leavingText = leavingText
         this.arrivingText = arrivingText
