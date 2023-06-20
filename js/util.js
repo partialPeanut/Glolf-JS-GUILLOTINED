@@ -160,38 +160,36 @@ function nth(num) {
 
 function playerStatsToString(p) {
     if (!p) {
-        let s1 = `
-            Name: ERROR
-            \r\nGender: null
-            \r\nNet Worth: $inful
-            \r\nMods: Index out of bounds
-            \r\n 
-            \r\nCompetence:
-            \r\nSmartassery:
-            \r\nYeetness:
-            \r\nTrigonometry:
-            \r\nBisexuality:
-            \r\nAsexuality:
-            \r\nScrappiness:
-            \r\nCharisma:
-            \r\nAutism:
-        `
-        let s2 = `
-             
-            \r\n 
-            \r\n 
-            \r\n 
-            \r\n 
-            \r\nNaN
-            \r\nNaN
-            \r\nNaN
-            \r\nNaN
-            \r\nNaN
-            \r\nNaN
-            \r\nNaN
-            \r\nNaN
-            \r\nNaN
-        `
+        let s1 = 
+            `Name: ERROR` +
+            `\r\nGender: null` +
+            `\r\nNet Worth: $inful` +
+            `\r\nMods: Index out of bounds` +
+            `\r\n ` +
+            `\r\nCompetence:` +
+            `\r\nSmartassery:` +
+            `\r\nYeetness:` +
+            `\r\nTrigonometry:` +
+            `\r\nBisexuality:` +
+            `\r\nAsexuality:` +
+            `\r\nScrappiness:` +
+            `\r\nCharisma:` +
+            `\r\nAutism:` 
+        let s2 = 
+            ` ` +
+            `\r\n ` +
+            `\r\n ` +
+            `\r\n ` +
+            `\r\n ` +
+            `\r\nNaN` +
+            `\r\nNaN` +
+            `\r\nNaN` +
+            `\r\nNaN` +
+            `\r\nNaN` +
+            `\r\nNaN` +
+            `\r\nNaN` +
+            `\r\nNaN` +
+            `\r\nNaN` 
         let s = [s1,s2]
         return s
     }
@@ -202,7 +200,7 @@ function playerStatsToString(p) {
             `\r\nGender: ${player.gender}` +
             `\r\nNet Worth: ${Intl.NumberFormat('en-US').format(player.netWorth)} $ins` +
             `\r\nMods: ${player.mods.map(m => m.name).join(", ")}` +
-            `\r\n` +
+            `\r\n ` +
             `\r\nCompetence:` +
             `\r\nSmartassery:` +
             `\r\nYeetness:` +
@@ -212,22 +210,21 @@ function playerStatsToString(p) {
             `\r\nScrappiness:` +
             `\r\nCharisma:` +
             `\r\nAutism:`
-        let s2 = `
-             
-            \r\n 
-            \r\n 
-            \r\n 
-            \r\n 
-            \r\n${player.stats.competence.toFixed(2)}
-            \r\n${player.stats.smartassery.toFixed(2)}
-            \r\n${player.stats.yeetness.toFixed(2)}
-            \r\n${player.stats.trigonometry.toFixed(2)}
-            \r\n${player.stats.bisexuality.toFixed(2)}
-            \r\n${player.stats.asexuality.toFixed(2)}
-            \r\n${player.stats.scrappiness.toFixed(2)}
-            \r\n${player.stats.charisma.toFixed(2)}
-            \r\n${player.stats.autism.toFixed(2)}
-        `
+        let s2 = 
+            ` ` +
+            `\r\n ` +
+            `\r\n ` +
+            `\r\n ` +
+            `\r\n ` +
+            `\r\n${player.stats.competence.toFixed(2)}` +
+            `\r\n${player.stats.smartassery.toFixed(2)}` +
+            `\r\n${player.stats.yeetness.toFixed(2)}` +
+            `\r\n${player.stats.trigonometry.toFixed(2)}` +
+            `\r\n${player.stats.bisexuality.toFixed(2)}` +
+            `\r\n${player.stats.asexuality.toFixed(2)}` +
+            `\r\n${player.stats.scrappiness.toFixed(2)}` +
+            `\r\n${player.stats.charisma.toFixed(2)}` +
+            `\r\n${player.stats.autism.toFixed(2)}`
         let s = [s1,s2]
         return s
     }
