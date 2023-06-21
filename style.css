@@ -14,6 +14,18 @@ body {
   margin: 0px;
   background-color: rgb(0, 0, 0);
 }
+#center-area {
+  display: block;
+  position: absolute;
+  left:20px;
+	top:150px;
+	right:20px;
+	height: 450px;
+}
+.center-block{
+  width: 100%;
+  height: 100%;
+}
 
 @keyframes rainbow {
   from {background-position: -100vh 0}
@@ -115,11 +127,6 @@ body {
 /*============================================= Feed Display ==============================================*/
 #feed-displayers {
   display: grid;
-  position:absolute;
-	left:20px;
-	top:150px;
-	right:20px;
-	height: 450px;
 	overflow:hidden;
 }
 #feed-displayer0 {
