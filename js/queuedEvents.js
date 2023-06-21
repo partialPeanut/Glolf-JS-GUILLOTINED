@@ -30,7 +30,7 @@ class EventReaperKill extends Event {
     defaultEffect(worldState, tl, options) {
         // options = { "player": p }
 
-        const worldEdit = editOfKillPlayerInTourney(worldState, tl, options.player)
+        const worldEdit = editOfKillPlayersInTourney(worldState, tl, [options.player])
         const report = `Death takes ${options.player.fullName()}.`
         return [worldEdit, report]
     }

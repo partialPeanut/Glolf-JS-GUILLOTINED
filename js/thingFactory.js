@@ -188,7 +188,7 @@ class ThingFactory {
     }
 
     // Cursed function
-    // Only used to keep everything in one place, this will always be the same for now
+    // Only used to keep everything in one place/apply mods, this will always be the same for now
     static generateNewLeague() {
         let l = {
             "mods": [],
@@ -204,6 +204,9 @@ class ThingFactory {
                 "WHITE"
             ]
         }
+
+        // "Randomly" pick and apply mods for the league
+        Mod.LeagueMods.filter(m => Math.random() < m.naturalChance).sort((m1,m2) => m1.priority - m2.priority).forEach(m => m.apply(l))
 
         return l
     }

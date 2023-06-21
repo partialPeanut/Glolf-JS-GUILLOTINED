@@ -1,5 +1,8 @@
 class Weather {
-    // Switches players' turn order!
+    // Wow, look, nothing
+    static Clear = new Weather("Clear", "Sunshine and Rainbows.", 0xFF5555FF, 0)
+
+    // Switches players' turn order and scores!
     static Mirage = new Weather("Mirage", "Irrelevance and Falsehoods.", 0xFFEA6BE6, 1, {
         "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
@@ -16,37 +19,84 @@ class Weather {
     static Oversight = new Weather("Oversight", "Everything Is Fine.", 0xFFFF0000, 1, {
         "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
-                // 0.3% chance per stroke
+                // 0.5% chance per stroke
                 const hole = activeHoleOnTimeline(worldState, tl)
-                if (unsunkPlayers(worldState, hole).length >= 2 && Math.random() < 0.003) Greedler.queueEvent([ tl, EventWeatherOversight ])
+                if (unsunkPlayers(worldState, hole).length >= 2 && Math.random() < 0.005) Greedler.queueEvent([ tl, EventWeatherOversight ])
 
                 let out = func.apply(this, arguments)
                 return out
             }
         }})
+
+    // Players go quantum and collapse superpositions, for better or worse
+    static Quantum = new Weather("Quantum", "Ups and Downs.", 0xFFFF0000, 1, {
+        "upTop": (func) => {
+            return function (worldState, tl, options) {
+                let [outEdit, outReport] = func.apply(this, arguments)
+                const course = activeCourseOnTimeline(worldState, tl)
+                let spinEdit = {
+                    "courses": [{
+                        "id": course.id,
+                        "upSpin": !course.upSpin
+                    }]
+                }
+                WorldStateManager.combineEdits(outEdit, spinEdit)
+
+                if (!course.upSpin) outReport += ` The quantum foam is in up-spin.`
+                else outReport += ` The quantum foam is in down-spin.`
+
+                return [outEdit, outReport]
+            }
+        },
+        "strokeOutcome": (func) => {
+            return function (worldState, tl, options) {
+                let [outEdit, outReport] = func.apply(this, arguments)
+                let [outEdit2, outReport2] = func.apply(this, arguments)
+
+                const course = activeCourseOnTimeline(worldState, tl)
+                const player = activePlayerOnTimeline(worldState, tl)
+
+                let editBall1 = outEdit.players.find(p => p.id == player.id).ball
+                let editBall2 = outEdit2.players.find(p => p.id == player.id).ball
+                const flip = course.upSpin ? 1 : -1
+
+                if (flip * editBall1.distance > flip * editBall2.distance) {
+                    [outEdit, outReport] = [outEdit2, outReport2]
+                }
+                if (course.upSpin) outReport = `The best of two outcomes is observed. ` + outReport
+                else outReport = `The worst of two outcomes is observed. ` + outReport
+
+                return [outEdit, outReport]
+            }
+        }},
+        c => {
+            c.weather = Weather.Quantum
+            c.upSpin = false
+        })
 
     // Switches players' balls!
     static Tempest = new Weather("Tempest", "Progression and Regression.", 0xFF1281C3, 1, {
         "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
-                // 2% chance per stroke
+                // 10% chance per stroke
                 const hole = activeHoleOnTimeline(worldState, tl)
-                if (unsunkPlayers(worldState, hole).length >= 3 && Math.random() < 0.02) Greedler.queueEvent([ tl, EventWeatherTempest ])
+                if (unsunkPlayers(worldState, hole).length >= 3 && Math.random() < 0.1) Greedler.queueEvent([ tl, EventWeatherTempest ])
 
                 let out = func.apply(this, arguments)
                 return out
             }
         }})
 
-    static Weathers = [ Weather.Mirage, Weather.Oversight, Weather.Tempest ]
+    static Weathers = [ Weather.Clear, Weather.Mirage, Weather.Oversight, Weather.Quantum, Weather.Tempest ]
 
-    constructor(name, report, color, weight, eventChanges) {
+    constructor(name, report, color, weight, eventChanges = {}, apply = (x) => { x.weather = this }) {
         this.name = name
         this.report = report
         this.color = color
         this.priority = 1
         this.weight = weight
         this.eventChanges = eventChanges
+        this.apply = apply
     }
 
     // See: mods
@@ -83,12 +133,20 @@ class EventWeatherMirage extends Event {
             "holes": [{
                 "id": hole.id,
                 "players": newPlayRay
+            }],
+            "players": [{
+                "id": p1.id,
+                "score": p2.score
+            },
+            {
+                "id": p2.id,
+                "score": p1.score
             }]
         }
 
         let report
         if (p1 == p2) report = `Illusions dance. ${p1.fullName()} gets confused.`
-        else report = `Illusions dance. ${p1.fullName()} and ${p2.fullName()} confuse their turns.`
+        else report = `Illusions dance. ${p1.fullName()} and ${p2.fullName()} confuse their scores.`
         return [worldEdit, report]
     }
 }
@@ -167,7 +225,7 @@ class EventWeatherTempest extends Event {
             }]
         }
 
-        const report = `Chaotic winds blow. ${p1.fullName()} and ${p2.fullName()}'s balls defect to each other's owners.`
+        const report = `Chaotic winds blow. ${p1.fullName()} and ${p2.fullName()} are tossed to each other's balls.`
         return [worldEdit, report]
     }
 }

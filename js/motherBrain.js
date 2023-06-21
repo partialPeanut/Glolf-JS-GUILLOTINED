@@ -25,10 +25,7 @@ function calculateBaseDistances(worldState, tl, player) {
 // Uses dumbassery and distance to find how likely the player is to pick each stroke type
 function calculateBaseWeights(worldState, tl, player, dists) {
     let weights = dists.map(d => 4096 * curveGaussy(player.ball.distance, Math.max(curveLoggy(100, 10, player.stats.smartassery), 10), d))
-    // Normalized
-    const biggestWeight = Math.max.apply(weights)
-    if (biggestWeight == 0) return weights
-    else return weights.map(w => w/biggestWeight)
+    return weights
 }
 
 // Calculates stroke type fully

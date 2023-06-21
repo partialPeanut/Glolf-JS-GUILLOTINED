@@ -220,5 +220,9 @@ const p_genders = [
     "Numinous",
     "Nominal",
     "Taken",
-    "Biblical"
+    "Biblical",
+    "Cheese",
+    "Pizza",
+    "Choleric",
+    "Mouse"
 ]

@@ -19,7 +19,8 @@ class Greedler {
 
         // If the events are stuck (all of them are waiting) then tell what events to unstick
         let unstick = EventVoid
-        if (stuck) unstick = [EventHoleFinish, EventCourseFinish, EventTourneyFinish].find(e => Onceler.currentWorldState.timelines.includes(e))
+        const unstickables = [EventHoleFinish, EventCourseFinish, EventCourseReward, EventTourneyFinish]
+        if (stuck) unstick = unstickables.find(e => Onceler.currentWorldState.timelines.includes(e))
 
         // Progress every timeline sequentially in one tick!
         for (let i = 0; i < tls; i++) {
@@ -91,7 +92,9 @@ class Greedler {
                 return [tl, EventUpTop]
 
             case EventUpTop:
-                return [tl, EventStrokeType]
+                // Juuuust in case something's gone horribly wrong (such as, say, a hole having zero players)
+                if (unsunkPlayers(worldState, hole).length > 0) return [tl, EventStrokeType]
+                else return [tl, EventHoleFinish]
             case EventStrokeType:
                 return [tl, EventStrokeOutcome]
             case EventStrokeOutcome:
@@ -101,7 +104,7 @@ class Greedler {
 
                 const oldCP = hole.currentPlayer
                 if (hole.players.some((pid, i) => i > oldCP && !getWorldItem(worldState, "players", pid).ball.sunk)) return [tl, EventStrokeType]
-                else if (hole.players.some(pid => !getWorldItem(worldState, "players", pid).ball.sunk)) return [tl, EventUpTop]
+                else if (unsunkPlayers(worldState, hole).length > 0) return [tl, EventUpTop]
                 else return [tl, EventHoleFinish]
 
             case EventHoleFinish:
@@ -128,6 +131,7 @@ class Greedler {
 
                 const nextPlace = course.currentRewardPlace + 1
                 if (nextPlace < tourney.placesRewarded) return [tl, EventCourseReward, { "place": nextPlace }]
+                else if (unstick != EventCourseReward) return [tl, EventWait]
                 else return [tl, EventMultiplication]
             
             case EventTourneyFinish:

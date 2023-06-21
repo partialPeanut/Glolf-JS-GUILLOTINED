@@ -118,31 +118,31 @@ function chooseNumFromAutism(array, num) {
 
 // Translate a number into its bird/bogey representation
 function intToBird(num) {
-    if (num < -5) return "MegaBird"
+    if (num < -5) return `OmniBird (${num})`
     switch(num) {
-        case -5: return "Peregrine"
-        case -4: return "Condor"
-        case -3: return "Albatross"
-        case -2: return "Eagle"
-        case -1: return "Birdie"
-        case 0: return "Par"
-        case 1: return "Bogey"
-        case 2: return "Double Bogey"
-        case 3: return "Triple Bogey"
-        case 4: return "OverBogey"
-        case 5: return "SuperBogey"
-        case 6: return "HyperBogey"
-        case 7: return "UltraBogey"
-        case 8: return "KiloBogey"
-        case 9: return "MegaBogey"
-        case 10: return "GigaBogey"
-        case 11: return "TeraBogey"
-        case 12: return "PetaBogey"
-        case 13: return "ExaBogey"
-        case 14: return "ZettaBogey"
-        case 15: return "YottaBogey"
-        case 16: return "FinalBogey"
-        default: return "BeyondBogey"
+        case -5: return `Peregrine (${num})`
+        case -4: return `Condor (${num})`
+        case -3: return `Albatross (${num})`
+        case -2: return `Eagle (${num})`
+        case -1: return `Birdie (${num})`
+        case 0: return `Par (±0)`
+        case 1: return `Bogey (+${num})`
+        case 2: return `Double Bogey (+${num})`
+        case 3: return `Triple Bogey (+${num})`
+        case 4: return `OverBogey (+${num})`
+        case 5: return `SuperBogey (+${num})`
+        case 6: return `HyperBogey (+${num})`
+        case 7: return `UltraBogey (+${num})`
+        case 8: return `KiloBogey (+${num})`
+        case 9: return `MegaBogey (+${num})`
+        case 10: return `GigaBogey (+${num})`
+        case 11: return `TeraBogey (+${num})`
+        case 12: return `PetaBogey (+${num})`
+        case 13: return `ExaBogey (+${num})`
+        case 14: return `ZettaBogey (+${num})`
+        case 15: return `YottaBogey (+${num})`
+        case 16: return `FinalBogey (+${num})`
+        default: return `BeyondBogey (+${num})`
     }
 }
 
@@ -270,49 +270,8 @@ function playerOnTimelineAtIndex(worldState, tl, idx) {
 // Given a worldstate and the number of the timeline it's on, return the current player
 function activePlayerOnTimeline(worldState, tl) {
     const hole = activeHoleOnTimeline(worldState, tl)
-    if (hole === undefined) return undefined
+    if (hole === undefined || hole.currentPlayer == -1) return undefined
     else return playerOnTimelineAtIndex(worldState, tl, hole.currentPlayer)
-}
-
-// Returns the world edit of what needs to happen if player is killed in worldstate on timeline number tl
-function editOfKillPlayerInTourney(worldState, tl, player) {
-    const tourney = activeTourney(worldState)
-    const course = activeCourseOnTimeline(worldState, tl)
-    const hole = activeHoleOnTimeline(worldState, tl)
-    
-    let newTourneyPlayers = tourney.players.slice(0)
-    let newCoursePlayers = course.players.slice(0)
-    let newCourseWinners = course.winners.map(w => w.slice(0))
-    let newHolePlayers = hole.players.slice(0)
-    removeFromArray(newTourneyPlayers, player.id)
-    removeFromArray(newCoursePlayers, player.id)
-    removeFromArray(newHolePlayers, player.id)
-    for (let ncw of newCourseWinners) {
-        removeFromArray(ncw, player.id)
-    }
-    return {
-        "timetravel": {
-            "timeline": tl
-        },
-        "tourneys": [{
-            "id": tourney.id,
-            "players": newTourneyPlayers,
-            "kia": tourney.kia.concat([player.id])
-        }],
-        "courses": [{
-            "id": course.id,
-            "players": newCoursePlayers,
-            "winners": newCourseWinners
-        }],
-        "holes": [{
-            "id": hole.id,
-            "players": newHolePlayers
-        }],
-        "players": [{
-            "id": player.id,
-            "mortality": "DEAD"
-        }]
-    }
 }
 
 // Returns the world edit of what needs to happen if every player in players is killed in worldstate on timeline number tl
@@ -331,6 +290,7 @@ function editOfKillPlayersInTourney(worldState, tl, players) {
         removeManyFromArray(ncw, players.map(p => p.id))
     }
     removeManyFromArray(newHolePlayers, players.map(p => p.id))
+
     return {
         "timetravel": {
             "timeline": tl

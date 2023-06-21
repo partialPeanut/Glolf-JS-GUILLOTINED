@@ -27,6 +27,10 @@
 // > Tourny of the Damned (Revive player?)
 // > Sainthood
 // > Strikes
+// > Guillotine
+// > Quantum Interference
+// > The world ripples. Winds tear. Divides are crossed. P1/P2 is torn into another space. P2/P1 staggers upright.
+// > The world ripples. Winds tear. Divides are crossed. P1/P2 distorts into another space. P2/P1 awakens from a daze.
 
 // ----------------------------------------------Bugs-----------------------------------------------
 // There are zero bugs. Glolf is perfect. Glolf is eternal.

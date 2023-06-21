@@ -397,5 +397,11 @@ const p_nameslast = [
     "Jones",
     "Regus",
     "Host",
-    "Soul"
+    "Soul",
+    "Knowledge",
+    "Scarlet",
+    "Kirisame",
+    "Blortingarong",
+    "Blechijangibaron",
+    "Sex"
 ]

@@ -507,5 +507,9 @@ const p_namesfirst = [
     "Grief",
     "Triad",
     "Pyrrhic",
-    "Malevolent"
+    "Malevolent",
+    "Patchouli",
+    "Remilia",
+    "Marisa",
+    "Gamer"
 ]

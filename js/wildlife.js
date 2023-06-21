@@ -1,5 +1,5 @@
 class Wildlife {
-    static None = new Wildlife("None", "No critters on this hole.", 0x000000, 3, {})
+    static None = new Wildlife("None", "No critters on this hole.", 0x000000, 0)
         static mosqBiteFunc = (func) => {
             return function (worldState, tl, options) {
                 const hole = activeHoleOnTimeline(worldState, tl)
@@ -32,10 +32,14 @@ class Wildlife {
         "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
                 let [outEdit, outReport] = func.apply(this, arguments)
+
                 const player = activePlayerOnTimeline(worldState, tl)
                 let editPlayer = outEdit.players.find(p => p.id == player.id)
+
                 if (Math.random() < 0.3 && editPlayer.ball.terrain == Terrain.Bunker) {
                     editPlayer.ball.terrain = Terrain.WormPit
+                    outReport = `The ball ${player.ball.terrain.leavingText}, flying ${Math.round(editPlayer.ball.distanceJustFlown)} gallons and landing ${Terrain.WormPit.arrivingText}`
+
                     Greedler.queueEvent([ tl, EventWormBattle, { "player": player }])
                 }
                 return [outEdit, outReport]
@@ -44,13 +48,14 @@ class Wildlife {
 
     static Wildlives = [ Wildlife.None, Wildlife.Mosquito, Wildlife.Komodo, Wildlife.Worm ]
 
-    constructor(name, report, color, weight, eventChanges) {
+    constructor(name, report, color, weight, eventChanges = {}, apply = (x) => { x.wildlife = this }) {
         this.name = name
         this.report = report
         this.color = color
         this.priority = 2
         this.weight = weight
         this.eventChanges = eventChanges
+        this.apply = apply
     }
 
     modify(type, func) {
@@ -94,7 +99,7 @@ class EventKomodoKill extends Event {
     depth = "Player"
 
     defaultEffect(worldState, tl, options) {
-        const worldEdit = editOfKillPlayerInTourney(worldState, tl, options.player)
+        const worldEdit = editOfKillPlayersInTourney(worldState, tl, [options.player])
         const report = `Too slow. The komodos feast on ${options.player.fullName()}.`
         return [worldEdit, report]
     }

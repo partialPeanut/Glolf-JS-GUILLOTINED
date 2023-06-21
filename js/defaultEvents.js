@@ -207,15 +207,15 @@ class EventWeatherReport extends Event {
         // Chooses the weather from their weights
         const course = activeCourseOnTimeline(worldState, tl)
         const chosenWeather = Weather.Weathers.at(chooseFromWeights(Weather.Weathers.map(w => w.weight)))
+        let weatheredCourse = { "id": course.id }
+        chosenWeather.apply(weatheredCourse)
+
         const worldEdit = {
             "timetravel": {
                 "timeline": tl,
                 "phase": EventWeatherReport
             },
-            "courses": [{
-                "id": course.id,
-                "weather": chosenWeather
-            }]
+            "courses": [ weatheredCourse ]
         }
 
         const report = `This course's weather report predicts: ${chosenWeather.report}`
@@ -277,15 +277,15 @@ class EventWildlifeReport extends Event {
         // Chooses the wildlife based on their weights
         const hole = activeHoleOnTimeline(worldState, tl)
         const chosenWildlife = Wildlife.Wildlives.at(chooseFromWeights(Wildlife.Wildlives.map(w => w.weight)))
+        let wildlifedHole = { "id": hole.id }
+        chosenWildlife.apply(wildlifedHole)
+
         const worldEdit = {
             "timetravel": {
                 "timeline": tl,
                 "phase": EventWildlifeReport
             },
-            "holes": [{
-                "id": hole.id,
-                "wildlife": chosenWildlife
-            }]
+            "holes": [ wildlifedHole ]
         }
 
         const report = `Wildlife Report: ${chosenWildlife.report}`
@@ -509,7 +509,8 @@ class EventCourseFinish extends Event {
         WorldStateManager.combineEdits(worldEdit, courseEndEffect)
 
         const topPlayer = getWorldItem(worldState, "players", course.winners[0].reduce((pid1,pid2) => bestOfPlayers(worldState,pid1,pid2), course.winners[0][0]))
-        const report = `Division ${course.division} has concluded its course. Congratulations to the divison leader: ${topPlayer.fullName()}!!`
+        const topName = topPlayer === undefined ? "ERROR_NO_LEADER" : topPlayer.fullName()
+        const report = `Division ${course.division} has concluded its course. Congratulations to the divison leader: ${topName}!!`
         return [worldEdit, report]
     }
 }
@@ -578,7 +579,8 @@ class EventTourneyFinish extends Event {
         // The best players are selected from the last course (finals), not from everyone in the tourney
         const course = activeCourseOnTimeline(worldState, tl)
         const topPlayer = getWorldItem(worldState, "players", course.players.reduce((pid1,pid2) => bestOfPlayers(worldState, pid1, pid2), course.players[0]))
-        const report = `The tournament is over!! Congratulations to the winner: ${topPlayer.fullName()}!!`
+        const topName = topPlayer === undefined ? "ERROR_NO_WINNER" : topPlayer.fullName()
+        const report = `The tournament is over!! Congratulations to the winner: ${topName}!!`
         return [worldEdit, report]
     }
 }

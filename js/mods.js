@@ -58,7 +58,7 @@ class Mod {
                         if (editBall1.distance > editBall2.distance) {
                             [outEdit, outReport] = [outEdit2, outReport2]
                         }
-                        outReport = `Worlds harmonize. The best of two outcomes is chosen. ` + outReport
+                        outReport = `Worlds harmonize. The best of two outcomes is observed. ` + outReport
                     }
 
                     return [outEdit, outReport]
@@ -235,6 +235,37 @@ class Mod {
             t.mods.push(Mod.CharityMatch)
             t.sinReward *= -1
         })
+
+    // Viva la resistance
+        static guillotineCutoffPoint = 500000
+        static globalGuillotineCheck = (func) => {
+            return function (worldState, tl, options) {
+                let [outEdit, outReport] = func.apply(this, arguments)
+
+                const tooRich = Mod.guillotineCutoffPoint
+                let theRich = outEdit.players.filter(p => p.netWorth > tooRich).map(p => p.id)
+                let theOtherRich = worldState.players.filter(p => !outEdit.players.map(p => p.id).includes(p.id) && p.netWorth > tooRich).map(p => p.id)
+                theRich = theRich.concat(theOtherRich)
+                if (theRich.length > 0) Greedler.queueEvent([tl, EventGuillotine, { "theRich": theRich }])
+
+                return [outEdit, outReport]
+            }
+        }
+        static localGuillotineCheck = (func) => {
+            return function (worldState, tl, options) {
+                let [outEdit, outReport] = func.apply(this, arguments)
+
+                const tooRich = Mod.guillotineCutoffPoint
+                let theRich = outEdit.players.filter(p => p.netWorth > tooRich).map(p => p.id)
+                if (theRich.length > 0) Greedler.queueEvent([tl, EventGuillotine, { "theRich": theRich }])
+
+                return [outEdit, outReport]
+            }
+        }
+    static MaximumWage = new Mod("MXWG", 1, 0, "LEAGUE", {
+        "createPlayers": this.globalGuillotineCheck, "tourneyReward": this.globalGuillotineCheck,
+        "guillotine": this.localGuillotineCheck, "weatherOversight": this.localGuillotineCheck, "courseReward": this.localGuillotineCheck
+    })
     
     // Lists of all the mods for all the types of things
     // Techincally any mod can apply to anything but watch out! For consequences
@@ -243,7 +274,7 @@ class Mod {
     static HoleMods =    [ Mod.Coastal, Mod.Swampland, Mod.SuddenDeath ]
     static CourseMods =  []
     static TourneyMods = [ Mod.CharityMatch ]
-    static LeagueMods =  []
+    static LeagueMods =  [ Mod.MaximumWage ]
     
     // Natural chance = the chance it's naturally added to a thing on thing creation
     // Priority = the order it's applied, smallest first (weather = 1 and wildlife = 2)
@@ -298,6 +329,53 @@ class EventAggression extends Event {
         }
 
         const report = `${atkPlayer.fullName()}'s ball hits ${defPlayer.fullName()}'s ball away from the hole!`
+        return [worldEdit, report]
+    }
+}
+
+// OFF WITH THEIR HEADS!
+class EventGuillotine extends Event {
+    type = "guillotine"
+    depth = "League"
+
+    defaultEffect(worldState, tl, options) {
+        const theRich = options.theRich.map(rid => getWorldItem(worldState, "players", rid))
+        const theNotRich = worldState.players.filter(p => p.mortality == "ALIVE" && p.netWorth < Mod.guillotineCutoffPoint && !options.theRich.includes(p.id))
+        const tourney = activeTourney(worldState)
+
+        const totalSins = theRich.reduce((total, r) => total + r.netWorth, 0)
+        const redistribution = Math.floor(totalSins / theNotRich.length)
+        const leftOver = totalSins - (redistribution * theNotRich.length)
+
+        let worldEdit = {
+            "timetravel": {
+                "timeline": tl
+            },
+            "players": theRich.map(r => { return {
+                "id": r.id,
+                "mortality": "DEAD",
+                "netWorth": 0
+            }}).concat(theNotRich.map(p => { return {
+                "id": p.id,
+                "netWorth": p.netWorth + redistribution
+            }}))
+        }
+        if (tourney !== undefined) {
+            for (let i = 0; i < tourney.courses; i++) {
+                const richHere = theRich.filter(r => activeCourseOnTimeline(i).players.includes(r.id))
+                if (richHere.length > 0) {
+                    const cEdit = editOfKillPlayersInTourney(worldState, i, richHere)
+                    WorldStateManager.combineEdits(worldEdit, cEdit)
+                }
+            }
+            worldEdit.timetravel = {
+                "timeline": tl
+            }
+        }
+
+        const report = `It is time to topple the bourgeoisie. The League has been weighed down by their sins.` +
+                       `\n${joinGrammatically(theRich.map(r => r.fullName()))} will face the guillotine.` +
+                       `\nTheir wealth will be redistributed.`
         return [worldEdit, report]
     }
 }
