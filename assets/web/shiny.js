@@ -195,7 +195,7 @@ function isLocalHost() {
         return true
     }
     else {
-        return false
+        return null
     }
 }
 
