@@ -170,16 +170,34 @@ function updateInterval() {
 
 //===========================================================================================
 
-function loadDoc() {
+function loadDoc(source) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             document.getElementById("content").innerHTML = this.responseText;
            }
     };
-    xhttp.open("GET", "/Glolf/pages/ajax_info.txt", true);
+    xhttp.open("GET", xhttpPath(source), true)
     xhttp.send(); 
-  }
+}
+
+function xhttpPath(source) {
+    if (isLocalHost) {
+        return source
+    }
+    else {
+        return `/Glolf/${source}`
+    }
+}
+
+function isLocalHost() {
+    if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+        return true
+    }
+    else {
+        return false
+    }
+}
 
 function switchFeedsToOne() {
     document.getElementById("feed-displayers").style.gridTemplateColumns = "1fr"
