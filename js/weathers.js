@@ -3,12 +3,28 @@ class Weather {
     static Clear = new Weather("Clear", "Sunshine and Rainbows.", 0xFF5555FF, 0)
 
     // Switches players' turn order and scores!
+        static mirageProcCheck(worldState, tl) {
+            // 2% chance per stroke
+            const hole = activeHoleOnTimeline(worldState, tl)
+            return unsunkPlayers(worldState, hole).length >= 2 && Math.random() < 0.02
+        }
     static Mirage = new Weather("Mirage", "Irrelevance and Falsehoods.", 0xFFEA6BE6, 1, {
         "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
-                // 2% chance per stroke
-                const hole = activeHoleOnTimeline(worldState, tl)
-                if (unsunkPlayers(worldState, hole).length >= 2 && Math.random() < 0.02) Greedler.queueEvent([ tl, EventWeatherMirage ])
+                if (Weather.mirageProcCheck(worldState, tl)) {
+                    let combo = false
+                    for (let i = 0; i < tl; i++) {
+                        const otherCourse = activeCourseOnTimeline(worldState, i)
+                        if (!combo && worldState.timelines[i] == EventStrokeOutcome && otherCourse.weather == Weather.Tempest && Weather.tempestProcCheck(worldState, i)) {
+                            combo = true
+                            const pid1 = chooseFromAutism(unsunkPlayers(worldState, activeHoleOnTimeline(worldState, tl)).filter(p => p.id != activePlayerOnTimeline(worldState, tl).id)).id
+                            const pid2 = chooseFromAutism(unsunkPlayers(worldState, activeHoleOnTimeline(worldState, i))).id
+                            Greedler.queueEventImmediately([ tl, EventDivisionTear, { "side": "Mirage", "leaving": pid1, "arriving": pid2, "alternateTimeline": i } ])
+                            Greedler.queueEventImmediately([ i, EventDivisionTear, { "side": "Tempest", "leaving": pid2, "arriving": pid1, "alternateTimeline": tl } ])
+                        }
+                    }
+                    if (!combo) Greedler.queueEvent([ tl, EventWeatherMirage ])
+                }
 
                 let out = func.apply(this, arguments)
                 return out
@@ -75,12 +91,28 @@ class Weather {
         })
 
     // Switches players' balls!
+        static tempestProcCheck(worldState, tl) {
+            // 10% chance per stroke
+            const hole = activeHoleOnTimeline(worldState, tl)
+            return unsunkPlayers(worldState, hole).length >= 3 && Math.random() < 0.1
+        }
     static Tempest = new Weather("Tempest", "Progression and Regression.", 0xFF1281C3, 1, {
         "strokeOutcome": (func) => {
             return function (worldState, tl, options) {
-                // 10% chance per stroke
-                const hole = activeHoleOnTimeline(worldState, tl)
-                if (unsunkPlayers(worldState, hole).length >= 3 && Math.random() < 0.1) Greedler.queueEvent([ tl, EventWeatherTempest ])
+                if (Weather.tempestProcCheck(worldState, tl)) {
+                    let combo = false
+                    for (let i = 0; i < tl; i++) {
+                        const otherCourse = activeCourseOnTimeline(worldState, i)
+                        if (!combo && worldState.timelines[i] == EventStrokeOutcome && otherCourse.weather == Weather.Mirage && Weather.mirageProcCheck(worldState, i)) {
+                            combo = true
+                            const pid1 = chooseFromAutism(unsunkPlayers(worldState, activeHoleOnTimeline(worldState, tl)).filter(p => p.id != activePlayerOnTimeline(worldState, tl).id)).id
+                            const pid2 = chooseFromAutism(unsunkPlayers(worldState, activeHoleOnTimeline(worldState, i))).id
+                            Greedler.queueEventImmediately([ tl, EventDivisionTear, { "side": "Tempest", "leaving": pid1, "arriving": pid2, "alternateTimeline": i } ])
+                            Greedler.queueEventImmediately([ i, EventDivisionTear, { "side": "Mirage", "leaving": pid2, "arriving": pid1, "alternateTimeline": tl } ])
+                        }
+                    }
+                    if (!combo) Greedler.queueEvent([ tl, EventWeatherTempest ])
+                }
 
                 let out = func.apply(this, arguments)
                 return out
@@ -126,15 +158,17 @@ class EventWeatherMirage extends Event {
         newPlayRay[pidx1] = p2.id
         newPlayRay[pidx2] = p1.id
 
-        const worldEdit = {
+        let worldEdit = {
             "timetravel": {
                 "timeline": tl
             },
             "holes": [{
                 "id": hole.id,
                 "players": newPlayRay
-            }],
-            "players": [{
+            }]
+        }
+        if (p1 != p2) {
+            worldEdit.players = [{
                 "id": p1.id,
                 "score": p2.score
             },
@@ -226,6 +260,72 @@ class EventWeatherTempest extends Event {
         }
 
         const report = `Chaotic winds blow. ${p1.fullName()} and ${p2.fullName()} are tossed to each other's balls.`
+        return [worldEdit, report]
+    }
+}
+
+// Swapping two players ACROSS DIVISIONS
+class EventDivisionTear extends Event {
+    type = "divisionTear"
+    depth = "Tourney"
+
+    defaultEffect(worldState, tl, options) {
+        // options = { "side": "Mirage" or "Tempest", "leaving": player, "arriving": player, "alternateTimeline": num }
+
+        const p1 = getWorldItem(worldState, "players", options.leaving)
+        const p2 = getWorldItem(worldState, "players", options.arriving)
+        const atl = options.alternateTimeline
+
+        let worldEdit = {
+            "timetravel": {
+                "timeline": tl
+            }
+        }
+        if (atl > tl) {
+            const thisCourse = activeCourseOnTimeline(worldState, tl)
+            const thisHole = activeHoleOnTimeline(worldState, tl)
+            const otherCourse = activeCourseOnTimeline(worldState, atl)
+            const otherHole = activeHoleOnTimeline(worldState, atl)
+
+            worldEdit = {
+                "timetravel": {
+                    "timeline": tl
+                },
+                "courses": [{
+                    "id": thisCourse.id,
+                    "players": thisCourse.players.map(pid => pid == p1.id ? p2.id : pid),
+                    "winners": thisCourse.winners.map(w => w.map(pid => pid == p1.id ? p2.id : pid))
+                },
+                {
+                    "id": otherCourse.id,
+                    "players": otherCourse.players.map(pid => pid == p2.id ? p1.id : pid),
+                    "winners": otherCourse.winners.map(w => w.map(pid => pid == p2.id ? p1.id : pid))
+                }],
+                "holes": [{
+                    "id": thisHole.id,
+                    "players": thisHole.players.map(pid => pid == p1.id ? p2.id : pid)
+                },
+                {
+                    "id": otherHole.id,
+                    "players": otherHole.players.map(pid => pid == p2.id ? p1.id : pid)
+                }],
+                "players": [{
+                    "id": p1.id,
+                    "score": p2.score,
+                    "ball": p2.ball
+                },
+                {
+                    "id": p2.id,
+                    "score": p1.score,
+                    "ball": p1.ball
+                }]
+            }
+        }
+
+        let report
+        if (options.side == "Tempest") report = `The world ripples. Winds tear. Divides are crossed. ${p1.fullName()} is torn into another space. ${p2.fullName()} staggers upright.`
+        if (options.side == "Mirage") report = `The world ripples. Winds tear. Divides are crossed. ${p1.fullName()} distorts into another space. ${p2.fullName()} awakens from a daze.`
+        
         return [worldEdit, report]
     }
 }

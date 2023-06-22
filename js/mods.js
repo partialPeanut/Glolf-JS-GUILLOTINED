@@ -361,8 +361,8 @@ class EventGuillotine extends Event {
             }}))
         }
         if (tourney !== undefined) {
-            for (let i = 0; i < tourney.courses; i++) {
-                const richHere = theRich.filter(r => activeCourseOnTimeline(i).players.includes(r.id))
+            for (let i = 0; i < tourney.courses.length; i++) {
+                const richHere = theRich.filter(r => activeCourseOnTimeline(worldState, i).players.includes(r.id))
                 if (richHere.length > 0) {
                     const cEdit = editOfKillPlayersInTourney(worldState, i, richHere)
                     WorldStateManager.combineEdits(worldEdit, cEdit)

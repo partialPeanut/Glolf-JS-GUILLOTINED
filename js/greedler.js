@@ -5,9 +5,12 @@ class Greedler {
         [0, EventCreatePlayers, { "playerCount": 96 }]
     ]
 
-    // Friend :)
+    // Friends :)
     static queueEvent(eventData) {
         this.eventQueue.push(eventData)
+    }
+    static queueEventImmediately(eventData) {
+        this.eventQueue.unshift(eventData)
     }
 
     // Honestly looking at this too long makes my head hurt
