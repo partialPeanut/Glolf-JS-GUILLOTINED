@@ -186,7 +186,9 @@ function xhttpPath(source) {
         return source
     }
     else {
-        return `/Glolf${source}`
+        let x = `/Glolf${source}`
+        console.log(x)
+        return x
     }
 }
 
