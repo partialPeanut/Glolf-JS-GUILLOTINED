@@ -36,7 +36,7 @@ class Wildlife {
                 const player = activePlayerOnTimeline(worldState, tl)
                 let editPlayer = outEdit.players.find(p => p.id == player.id)
 
-                if (Math.random() < 0.3 && editPlayer.ball.terrain == Terrain.Bunker) {
+                if (editPlayer.ball.terrain == Terrain.Bunker) {
                     editPlayer.ball.terrain = Terrain.WormPit
                     outReport = `The ball ${player.ball.terrain.leavingText}, flying ${Math.round(editPlayer.ball.distanceJustFlown)} gallons and landing ${Terrain.WormPit.arrivingText}`
 
@@ -137,10 +137,15 @@ class EventWormBattle extends Event {
     defaultEffect(worldState, tl, options) {
         const hole = activeHoleOnTimeline(worldState, tl)
         const player = options.player
-        const wonBattle = Math.random() < curveLoggy(0, 1, player.stats.scrappiness)
+
+        let battleOutcome
+        const roll = Math.random()
+        if (roll < curveLoggy(0.4, 0, player.stats.competence)) battleOutcome = "LOSS"
+        else if (roll < curveLoggy(1, 0.6, player.stats.scrappiness)) battleOutcome = "DRAW"
+        else battleOutcome = "WIN"
 
         let worldEdit, report
-        if (wonBattle) {
+        if (battleOutcome == "WON") {
             worldEdit = {
                 "timetravel": {
                     "timeline": tl
@@ -158,18 +163,26 @@ class EventWormBattle extends Event {
             report = `${player.fullName()} knocks the worm unconscious! The ball rolls into the wormhole for a ` +
                      `${player.ball.stroke == 1 ? "hole in one!" : intToBird(player.ball.stroke - hole.dimensions.par)}!`
         }
+        else if (battleOutcome == "DRAW") {
+            worldEdit = {
+                "timetravel": {
+                    "timeline": tl
+                }
+            }
+
+            report = `${player.fullName()}'s battles the worm and manages to drive it away!`
+        }
         else {
+            let newBall = ThingFactory.generateNewBall(worldState)
+            newBall.stroke = player.ball.stroke
+            newBall.distance = hole.dimensions.length
             worldEdit = {
                 "timetravel": {
                     "timeline": tl
                 },
                 "players": [{
                     "id": player.id,
-                    "ball": {
-                        "sunk": false,
-                        "distance": hole.dimensions.length,
-                        "terrain": Terrain.Tee
-                    }
+                    "ball": newBall
                 }]
             }
 

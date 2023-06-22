@@ -15,6 +15,26 @@ class ThingFactory {
         return id
     }
 
+    // Generates a new ball
+    static generateNewBall(worldState) {
+        let b = {
+            "mods": [],
+            "color": 0xFFFFFF,
+            "nextStrokeType": StrokeType.Nothing,
+            "stroke": 0,
+            "sunk": false,
+            "past": false,
+            "distance": 0,
+            "distanceJustFlown": 0,
+            "terrain": Terrain.Tee
+        }
+
+        // Randomly pick and apply mods for the player
+        Mod.BallMods.filter(m => Math.random() < m.naturalChance).sort((m1,m2) => m1.priority - m2.priority).forEach(m => m.apply(b))
+
+        return b
+    }
+
     // Generates a new player
     static generateNewPlayer(worldState) {
         let id = this.generateNewID()
@@ -47,17 +67,7 @@ class ThingFactory {
             "mortality": "ALIVE",
             "score": 0,
             // Each player has their very own ball! Wow!
-            "ball": {
-                "mods": [],
-                "color": 0xFFFFFF,
-                "nextStrokeType": StrokeType.Nothing,
-                "stroke": 0,
-                "sunk": false,
-                "past": false,
-                "distance": 0,
-                "distanceJustFlown": 0,
-                "terrain": Terrain.Tee
-            },
+            "ball": this.generateNewBall(worldState),
             "stats": {
                 "competence": randomGaussian(6,2),
                 "smartassery": randomGaussian(6,2),
@@ -78,9 +88,8 @@ class ThingFactory {
             }
         }
 
-        // Randomly pick and apply mods for the player and ball
+        // Randomly pick and apply mods for the player
         Mod.PlayerMods.filter(m => Math.random() < m.naturalChance).sort((m1,m2) => m1.priority - m2.priority).forEach(m => m.apply(p))
-        Mod.BallMods.filter(m => Math.random() < m.naturalChance).sort((m1,m2) => m1.priority - m2.priority).forEach(m => m.apply(p.ball))
 
         return p
     }
