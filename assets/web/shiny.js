@@ -177,7 +177,7 @@ function loadDoc() {
             document.getElementById("content").innerHTML = this.responseText;
            }
     };
-    xhttp.open("GET", "/pages/ajax_info.txt", true);
+    xhttp.open("GET", "/Glolf/pages/ajax_info.txt", true);
     xhttp.send(); 
   }
 
