@@ -186,7 +186,7 @@ function xhttpPath(source) {
         return source
     }
     else {
-        return `/Glolf/${source}`
+        return `/Glolf${source}`
     }
 }
 
