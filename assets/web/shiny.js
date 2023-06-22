@@ -182,22 +182,22 @@ function loadDoc(source) {
 }
 
 function xhttpPath(source) {
-    if (isLocalHost) {
-        return source
+    if (isLocalHost() == true) {
+        return source;
     }
     else {
         let x = `/Glolf${source}`
         console.log(x)
-        return x
+        return x;
     }
 }
 
 function isLocalHost() {
     if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-        return true
+        return true;
     }
     else {
-        return null
+        return null;
     }
 }
 
