@@ -7,8 +7,11 @@ class Event {
     depth = "League"
 
     // Events always need to know what timeline they are in
-    constructor(tl) {
+    constructor(worldState, tl) {
         this.timeline = tl
+        const thisCourse = activeCourseOnTimeline(worldState, tl)
+        if (thisCourse === undefined) this.color = 0x000000
+        else this.color = worldState.league.divisions[thisCourse.division]
     }
 
     // Makes the event calculate its world edit and report, including applicable mods. Only ever done once.
@@ -104,9 +107,9 @@ class EventDivison extends Event {
         // This ensures every player in the tourney gets to play, in case the number is not divisible by n.
         const newCourses = []
         for (let i = 0; i < tourney.numCourses-1; i++) {
-            newCourses.push(ThingFactory.generateNewCourse(worldState, chooseNumFromArrayAndRemove(playersLeft, playersPerCourse), "Division", false, worldState.league.divisionNames[i]))
+            newCourses.push(ThingFactory.generateNewCourse(worldState, chooseNumFromArrayAndRemove(playersLeft, playersPerCourse), "Division", false, Object.keys(worldState.league.divisions)[i]))
         }
-        newCourses.push(ThingFactory.generateNewCourse(worldState, playersLeft, "Division", false, worldState.league.divisionNames[tourney.numCourses-1]))
+        newCourses.push(ThingFactory.generateNewCourse(worldState, playersLeft, "Division", false, Object.keys(worldState.league.divisions)[tourney.numCourses-1]))
 
         // Creates more timelines! Also adds the new courses to the list, and makes them accessible to the tourney
         const worldEdit = {

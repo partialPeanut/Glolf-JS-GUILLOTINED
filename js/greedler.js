@@ -47,7 +47,7 @@ class Greedler {
 
         // This creates an object of the type of event we want, on the timeline we want
         // Does the event, adds it to onceler, and logs it to the console
-        let nextEvent = new tlPhase[1](tlPhase[0])
+        let nextEvent = new tlPhase[1](Onceler.currentWorldState, tlPhase[0])
         nextEvent.formEvent(Onceler.currentWorldState, tlPhase[2])
         Onceler.addEvent(nextEvent)
         console.log(`(${tl}) ${nextEvent.report}`)

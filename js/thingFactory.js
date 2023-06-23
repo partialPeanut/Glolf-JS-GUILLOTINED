@@ -256,16 +256,17 @@ class ThingFactory {
         let l = {
             "mods": [],
             "currentTourney": -1,
-            "divisionNames": [
-                "RED",
-                "GREEN",
-                "BLUE",
-                "YELLOW",
-                "CYAN",
-                "MAGENTA",
-                "BLACK",
-                "WHITE"
-            ]
+            "divisions": {
+                "Red": 0xFF0000,
+                "Green": 0x00FF00,
+                "Blue": 0x0000FF,
+                "Yellow": 0xFFFF00,
+                "Cyan": 0x00FFFF,
+                "Magenta": 0xFF00FF,
+                "Black": 0x000000,
+                "White": 0xFFFFFF,
+                "Finals": 0x777777
+            }
         }
 
         // "Randomly" pick and apply mods for the league
