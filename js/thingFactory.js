@@ -35,6 +35,27 @@ class ThingFactory {
         return b
     }
 
+    // Generates a ball clone
+    static generateNewBallClone(worldState, ball) {
+        let b = {
+            "mods": ball.mods,
+            "color": ball.color,
+            "nextStrokeType": ball.nextStrokeType,
+            "stroke": ball.stroke,
+            "sunk": ball.sunk,
+            "past": ball.past,
+            "distance": ball.distance,
+            "distanceJustFlown": ball.distanceJustFlown,
+            "terrain": ball.terrain
+        }
+
+        // Reapply to ensure things are set up properly
+        ball.mods.forEach(m => m.remove(b))
+        ball.mods.forEach(m => m.apply(b))
+
+        return b
+    }
+
     // Generates a new player
     static generateNewPlayer(worldState) {
         let id = this.generateNewID()
@@ -90,6 +111,39 @@ class ThingFactory {
 
         // Randomly pick and apply mods for the player
         Mod.PlayerMods.filter(m => Math.random() < m.naturalChance).sort((m1,m2) => m1.priority - m2.priority).forEach(m => m.apply(p))
+
+        return p
+    }
+
+    // Generates a clone of a player
+    static generateNewPlayerClone(worldState, player) {
+        let id = this.generateNewID()
+        let p = {
+            "id": id,
+            "mods": player.mods.slice(0),
+            "firstName": player.firstName,
+            "lastName": player.lastName,
+            "suffixes": player.suffixes.slice(0),
+            "fullName": () => {
+                if (p.suffixes.length == 0) return `${p.firstName} ${p.lastName}`
+                else return `${p.firstName} ${p.lastName} ${p.suffixes.join(" ")}`
+            },
+            "gender": player.gender,
+            "netWorth": player.netWorth,
+            "mortality": player.mortality,
+            "score": player.score,
+            "ball": ThingFactory.generateNewBallClone(worldState, player.ball),
+            "stats": JSON.parse(JSON.stringify(player.stats)),
+            "juiciness": () => {
+                let total = 0
+                for (let [k,v] of Object.entries(p.stats)) total += v
+                return total
+            }
+        }
+
+        // Reapply to ensure things are set up properly
+        player.mods.forEach(m => m.remove(p))
+        player.mods.forEach(m => m.apply(p))
 
         return p
     }

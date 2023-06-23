@@ -44,7 +44,7 @@ class EventTourneyDonate extends Event {
     defaultEffect(worldState, tl) {
         // 20% of the average sins of everyone in the tourney
         const tourney = activeTourney(worldState)
-        const totalSins = tourney.players.reduce((total, pid) => total + getWorldItem(worldState, "players", pid).netWorth, 0)
+        const totalSins = tourney.players.reduce((total, pid) => total + getWorldItem(worldState, "players", pid).netWorth)
         const donation = Math.floor(0.2 * totalSins / tourney.players.length)
 
         const worldEdit = {

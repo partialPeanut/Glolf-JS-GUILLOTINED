@@ -69,18 +69,123 @@ class Weather {
                 let [outEdit, outReport] = func.apply(this, arguments)
                 let [outEdit2, outReport2] = func.apply(this, arguments)
 
+                const tourney = activeTourney(worldState)
                 const course = activeCourseOnTimeline(worldState, tl)
+                const hole = activeHoleOnTimeline(worldState, tl)
                 const player = activePlayerOnTimeline(worldState, tl)
 
                 let editBall1 = outEdit.players.find(p => p.id == player.id).ball
                 let editBall2 = outEdit2.players.find(p => p.id == player.id).ball
-                const flip = course.upSpin ? 1 : -1
+                let flip = course.upSpin ? 1 : -1
 
-                if (flip * editBall1.distance > flip * editBall2.distance) {
+                let interference = false
+                let squid = false
+                let unsquid = false
+                const otherPlayers = unsunkPlayers(worldState, hole).filter(p => p.id != player.id && p.id != player.entangledOtherself)
+                let closestOtherPlayer
+                if (player.ball.terrain != Terrain.Tee && otherPlayers.length > 0) {
+                    closestOtherPlayer = otherPlayers.reduce((closest, p) => {
+                        const thisDist = ballDist(p.ball, player.ball)
+                        if (thisDist < ballDist(closest.ball, player.ball)) return p
+                        else return closest
+                    })
+                    const closestCloseness = ballDist(closestOtherPlayer.ball, player.ball)
+                    const interferenceChance = curveGaussy(0, player.stats.autism + closestOtherPlayer.stats.autism, closestCloseness)
+                    const roll = Math.random()
+                    if (roll < Math.pow(interferenceChance, 3) && !player.mods.includes(Mod.Harmonized) && !player.mods.includes(Mod.Discordant)) {
+                        squid = true
+                    }
+                    else if (roll < interferenceChance) {
+                        interference = true
+                        flip *= -1
+                    }
+                }
+
+                if (squid && player.mods.includes(Mod.Entangled)) {
+                    unsquid = true
+                    const otherself = getWorldItem(worldState, "players", player.entangledOtherself)
+                    for (let i = 0; i < tourney.courses.length; i++) {
+                        const thisCourse = activeCourseOnTimeline(worldState, i)
+                        if (thisCourse.players.includes(otherself.id)) {
+                            WorldStateManager.combineEdits(outEdit, editOfRemovePlayersFromTourney(worldState, i, [ otherself ]))
+                        }
+                    }
+                    
+                    let detangledPlayer = {
+                        "id": player.id,
+                        "suffixes": player.suffixes,
+                        "mods": player.mods,
+                        "entangledSpin": player.entangledSpin,
+                        "entangledOtherself": otherself.id
+                    }
+                    Mod.Entangled.remove(detangledPlayer)
+                    if (player.entangledSpin == "UP") Mod.Harmonized.apply(detangledPlayer)
+                    if (player.entangledSpin == "DOWN") Mod.Discordant.apply(detangledPlayer)
+
+                    let detangledPlayerEdit = {
+                        "timetravel": {
+                            "timeline": tl
+                        },
+                        "players": [ detangledPlayer, {
+                            "id": otherself.id,
+                            "remove": true
+                        }]
+                    }
+                    WorldStateManager.combineEdits(outEdit, detangledPlayerEdit)
+                }
+                else if (squid) {
+                    const newIsDown = editBall1.distance < editBall2.distance
+                    const oldPlayerEdit = { "id": player.id, "suffixes": player.suffixes, "mods": player.mods }
+                    const newPlayer = ThingFactory.generateNewPlayerClone(worldState, player)
+
+                    Mod.Entangled.apply(oldPlayerEdit, { "direction": newIsDown ? "UP": "DOWN", "otherself": newPlayer.id })
+                    Mod.Entangled.apply(newPlayer, { "direction": newIsDown ? "DOWN": "UP", "otherself": player.id })
+                    
+                    let newTP = tourney.players.slice(0)
+                    newTP.splice(newTP.indexOf(player.id), 0, newPlayer.id)
+                    let newCP = course.players.slice(0)
+                    newCP.splice(newCP.indexOf(player.id), 0, newPlayer.id)
+                    let newCW = course.winners.map(w => w.slice(0))
+                    newCW.forEach(w => {
+                        if (w.includes(player.id)) w.splice(w.indexOf(player.id), 0, newPlayer.id)
+                    })
+                    let newHP = hole.players.slice(0)
+                    newHP.splice(newHP.indexOf(player.id), 0, newPlayer.id)
+
+                    let newPlayerEdit = {
+                        "tourneys": [{
+                            "id": tourney.id,
+                            "players": newTP
+                        }],
+                        "courses": [{
+                            "id": course.id,
+                            "players": newCP,
+                            "winners": newCW
+                        }],
+                        "holes": [{
+                            "id": hole.id,
+                            "currentPlayer": hole.currentPlayer+1,
+                            "players": newHP
+                        }],
+                        "players": [ oldPlayerEdit, newPlayer ]
+                    }
+                    WorldStateManager.combineEdits(outEdit, newPlayerEdit)
+
+                    let editPlayer2 = outEdit2.players.find(p => p.id == player.id)
+                    editPlayer2.id = newPlayer.id
+                    let newPlayerResult = {
+                        "players": [ editPlayer2 ]
+                    }
+                    WorldStateManager.combineEdits(outEdit, newPlayerResult)
+                }
+                else if (flip * editBall1.distance > flip * editBall2.distance) {
                     [outEdit, outReport] = [outEdit2, outReport2]
                 }
-                if (course.upSpin) outReport = `The best of two outcomes is observed. ` + outReport
-                else outReport = `The worst of two outcomes is observed. ` + outReport
+
+                if (unsquid) outReport = `${closestOtherPlayer.fullName()} causes interference! Waves collapse. UP and DOWN collide. ${outReport}`
+                else if (squid) outReport = `${closestOtherPlayer.fullName()} causes interference! Both of two outcomes are observed. ${outReport} ${outReport2}`
+                else if (flip > 0) outReport = `${interference ? `${closestOtherPlayer.fullName()} causes interference! ` : ``}The best of two outcomes is observed. ` + outReport
+                else if (flip < 0) outReport = `${interference ? `${closestOtherPlayer.fullName()} causes interference! ` : ``}The worst of two outcomes is observed. ` + outReport
 
                 return [outEdit, outReport]
             }

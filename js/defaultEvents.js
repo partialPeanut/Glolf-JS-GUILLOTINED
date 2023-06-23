@@ -152,7 +152,7 @@ class EventMultiplication extends Event {
         // If there are slots left, adds the rest of the best
         let numFinalists = Math.floor(tourney.players.length/tourney.numCourses)
         for (let i = finalists.length; i < numFinalists; i++) {
-            let fin = tourney.players.reduce(bestOfUnchosenPlayers, tourney.players[0])
+            let fin = tourney.players.reduce(bestOfUnchosenPlayers)
             finalists.push(fin)
         }
 
@@ -508,7 +508,7 @@ class EventCourseFinish extends Event {
         }
         WorldStateManager.combineEdits(worldEdit, courseEndEffect)
 
-        const topPlayer = getWorldItem(worldState, "players", course.winners[0].reduce((pid1,pid2) => bestOfPlayers(worldState,pid1,pid2), course.winners[0][0]))
+        const topPlayer = getWorldItem(worldState, "players", course.winners[0].reduce((pid1,pid2) => bestOfPlayers(worldState,pid1,pid2)))
         const topName = topPlayer === undefined ? "ERROR_NO_LEADER" : topPlayer.fullName()
         const report = `Division ${course.division} has concluded its course. Congratulations to the divison leader: ${topName}!!`
         return [worldEdit, report]
@@ -578,7 +578,7 @@ class EventTourneyFinish extends Event {
 
         // The best players are selected from the last course (finals), not from everyone in the tourney
         const course = activeCourseOnTimeline(worldState, tl)
-        const topPlayer = getWorldItem(worldState, "players", course.players.reduce((pid1,pid2) => bestOfPlayers(worldState, pid1, pid2), course.players[0]))
+        const topPlayer = getWorldItem(worldState, "players", course.players.reduce((pid1,pid2) => bestOfPlayers(worldState, pid1, pid2)))
         const topName = topPlayer === undefined ? "ERROR_NO_WINNER" : topPlayer.fullName()
         const report = `The tournament is over!! Congratulations to the winner: ${topName}!!`
         return [worldEdit, report]

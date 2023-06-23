@@ -38,7 +38,7 @@ function calculateStrokeType(worldState, tl, player) {
     let weights = calculateBaseWeights(worldState, tl, player, dists)
     // Never tee and cap nothing at ~0.2% chance
     weights[0] = 0
-    const biggestWeightThatIsntNothing = weights.slice(0,-1).reduce((max, w) => max > w ? max : w, 0)
+    const biggestWeightThatIsntNothing = weights.slice(0,-1).reduce((max, w) => max > w ? max : w)
     weights[5] = Math.min(weights[5] / Math.max(1, player.stats.competence * player.stats.smartassery), biggestWeightThatIsntNothing * 0.002)
 
     // If players are too smart, they decide every stroke type is too weak and always pick nothing

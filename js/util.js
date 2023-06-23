@@ -274,8 +274,8 @@ function activePlayerOnTimeline(worldState, tl) {
     else return playerOnTimelineAtIndex(worldState, tl, hole.currentPlayer)
 }
 
-// Returns the world edit of what needs to happen if every player in players is killed in worldstate on timeline number tl
-function editOfKillPlayersInTourney(worldState, tl, players) {
+// Returns the world edit of what needs to happen if every player in players is removed in worldstate on timeline number tl
+function editOfRemovePlayersFromTourney(worldState, tl, players) {
     const tourney = activeTourney(worldState)
     const course = activeCourseOnTimeline(worldState, tl)
     const hole = activeHoleOnTimeline(worldState, tl)
@@ -297,8 +297,7 @@ function editOfKillPlayersInTourney(worldState, tl, players) {
         },
         "tourneys": [{
             "id": tourney.id,
-            "players": newTourneyPlayers,
-            "kia": tourney.kia.concat(players.map(p => p.id))
+            "players": newTourneyPlayers
         }],
         "courses": [{
             "id": course.id,
@@ -308,14 +307,24 @@ function editOfKillPlayersInTourney(worldState, tl, players) {
         "holes": [{
             "id": hole.id,
             "players": newHolePlayers
-        }],
-        "players": players.map(p => {
-            return {
-                "id": p.id,
-                "mortality": "DEAD"
-            }
-        })
+        }]
     }
+}
+
+// Returns the world edit of what needs to happen if every player in players is killed in worldstate on timeline number tl
+function editOfKillPlayersInTourney(worldState, tl, players) {
+    const tourney = activeTourney(worldState)
+    
+    let removedEdit = editOfRemovePlayersFromTourney(worldState, tl, players)
+    removedEdit.tourneys[0].kia = tourney.kia.concat(players.map(p => p.id))
+    removedEdit.players = players.map(p => {
+        return {
+            "id": p.id,
+            "mortality": "DEAD"
+        }
+    })
+
+    return removedEdit
 }
 
 // Returns the world edit of what needs to happen if playerA is replaced with playerB in worldstate on timeline number tl
@@ -413,6 +422,12 @@ function editOfEndDurations(worldState, tl, duration) {
 // Returns every player on a hole who hasn't sunk it yet
 function unsunkPlayers(worldState, hole) {
     return hole.players.map(pid => getWorldItem(worldState, "players", pid)).filter(p => !p.ball.sunk)
+}
+
+// Returns the distance between two balls
+function ballDist(b1, b2) {
+    const flip = b1.past == b2.past ? 1 : -1
+    return Math.abs(b1.distance - flip * b2.distance)
 }
 
 // Given a worldstate and two player ids, returns the id of the player who is best, based on score and then autism for a tiebreaker

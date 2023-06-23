@@ -67,10 +67,12 @@ class WorldStateManager {
                     const entries = Object.entries(thing)
                     for (let [key,val] of entries)  {
                         if (key == "ball") {
-                            const ballstuff = Object.entries(thing.ball)
-                            for (let [bkey,bval] of ballstuff)  {
-                                wsMatch.ball[bkey] = bval;
-                            }
+                            let newBall = {}
+                            const oldBallStuff = Object.entries(wsMatch.ball)
+                            const newBallStuff = Object.entries(thing.ball)
+                            for (let [bkey,bval] of oldBallStuff) newBall[bkey] = bval;
+                            for (let [bkey,bval] of newBallStuff) newBall[bkey] = bval;
+                            wsMatch.ball = newBall
                         }
                         else if (val === undefined) delete(wsMatch[key])
                         else wsMatch[key] = val;
@@ -119,10 +121,12 @@ class WorldStateManager {
                     const entries = Object.entries(thing)
                     for (let [key,val] of entries)  {
                         if (key == "ball") {
-                            const ballstuff = Object.entries(thing.ball)
-                            for (let [bkey,bval] of ballstuff)  {
-                                wsMatch.ball[bkey] = bval;
-                            }
+                            let newBall = {}
+                            const oldBallStuff = Object.entries(wsMatch.ball)
+                            const newBallStuff = Object.entries(thing.ball)
+                            for (let [bkey,bval] of oldBallStuff) newBall[bkey] = bval;
+                            for (let [bkey,bval] of newBallStuff) newBall[bkey] = bval;
+                            wsMatch.ball = newBall
                         }
                         else if (val === undefined) delete(wsMatch[key])
                         else wsMatch[key] = val;

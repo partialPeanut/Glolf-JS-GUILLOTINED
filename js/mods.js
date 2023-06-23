@@ -12,8 +12,7 @@ class Mod {
                     const hole = activeHoleOnTimeline(worldState, tl)
                     const nearbyPlayers = unsunkPlayers(worldState, hole).filter(p => {
                         if (player == p) return false
-                        if (p.ball.past != editPlayer.ball.past) return false
-                        return Math.abs(p.ball.distance - editPlayer.ball.distance) <= player.stats.yeetness
+                        return ballDist(p.ball, editPlayer.ball) <= player.stats.yeetness
                     })
 
                     // If there are nearby players, 20% chance to hit a random one
@@ -41,10 +40,23 @@ class Mod {
                 }
             }})
     // Mod that makes the player harmonized if they get quantum squid
-    static Entangled = new Mod("ENTG", 0, 0, "LEAGUE")
+    static Entangled = new Mod("ENTG", 0, 0, "LEAGUE", {},
+        (player, options) => {
+            // options = { "direction": "UP" or "DOWN", "otherself": pid }
+            player.mods.push(Mod.Entangled)
+            player.suffixes.push(options.direction)
+            player.entangledSpin = options.direction
+            player.entangledOtherself = options.otherself
+        },
+        player => {
+            removeFromArray(player.mods, Mod.Entangled)
+            removeFromArray(player.suffixes, player.entangledSpin)
+            player.entangledSpin = undefined
+            player.entangledOtherself = undefined
+        })
     // Mod that lets the player choose the best hit of two on their first stroke
-    static Harmonized = new Mod("HRMZ", 0, 2, "LEAGUE", {
-            "strokeOutcome": (func) => {
+        static detangled(spin) {
+            return (func) => {
                 return function (worldState, tl, options) {
                     let [outEdit, outReport] = func.apply(this, arguments)
 
@@ -55,15 +67,24 @@ class Mod {
                         let editBall1 = outEdit.players.find(p => p.id == player.id).ball
                         let editBall2 = outEdit2.players.find(p => p.id == player.id).ball
 
-                        if (editBall1.distance > editBall2.distance) {
+                        let flip
+                        if (spin = "UP")   flip = 1
+                        if (spin = "DOWN") flip = -1
+
+                        if (flip * editBall1.distance > flip * editBall2.distance) {
                             [outEdit, outReport] = [outEdit2, outReport2]
                         }
-                        outReport = `Worlds harmonize. The best of two outcomes is observed. ` + outReport
+                        if (flip > 0) outReport = `Worlds harmonize. The best of two outcomes is observed. ` + outReport
+                        if (flip < 0) outReport = `Worlds deharmonize. The worst of two outcomes is observed. ` + outReport
                     }
 
                     return [outEdit, outReport]
                 }
-            }})
+            }
+        }
+    static Discordant = new Mod("DSCD", 0, 2, "LEAGUE", { "strokeOutcome": Mod.detangled("DOWN") })
+    static Harmonized = new Mod("HRMZ", 0, 2, "LEAGUE", { "strokeOutcome": Mod.detangled("UP") })
+
     // They see you. Everything is Fine.
     static Overseen = new Mod("OVSN", 0, 0, "TOURNEY")
     // Ticks down to death by komodo dragon unless they escape by sinking it
