@@ -177,7 +177,7 @@ function loadDoc(source) {
             document.getElementById("content").innerHTML = this.responseText;
            }
     };
-    xhttp.open("GET", xhttpPath(source), true)
+    xhttp.open("GET", xhttpPath(source), true) 
     xhttp.send(); 
 }
 
@@ -186,9 +186,7 @@ function xhttpPath(source) {
         return source;
     }
     else {
-        let x = `/Glolf${source}`
-        console.log(x)
-        return x;
+        return `/Glolf${source}`
     }
 }
 
