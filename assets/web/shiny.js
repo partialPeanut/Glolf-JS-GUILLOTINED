@@ -171,32 +171,28 @@ function updateInterval() {
 //===========================================================================================
 
 function loadDoc(source) {
-    var xhttp = new XMLHttpRequest();
+    makeXhttpRequest(source, (xhttp) => document.getElementById("content").innerHTML = xhttp.responseText)
+}
+
+function makeXhttpRequest(source, func, async = false) {
+    var xhttp = new XMLHttpRequest()
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("content").innerHTML = this.responseText;
-           }
-    };
-    xhttp.open("GET", xhttpPath(source), true) 
-    xhttp.send(); 
+            func(this)
+        }
+    }
+    xhttp.open("GET", xhttpPath(source), async)
+    xhttp.send()
 }
 
 function xhttpPath(source) {
-    if (isLocalHost() == true) {
-        return source;
-    }
-    else {
-        return `/Glolf${source}`
-    }
+    if (isLocalHost() == true) return source;
+    else return `/Glolf${source}`
 }
 
 function isLocalHost() {
-    if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-        return true;
-    }
-    else {
-        return null;
-    }
+    if (location.hostname === "localhost" || location.hostname === "127.0.0.1") return true;
+    else return null;
 }
 
 function switchFeedsToOne() {

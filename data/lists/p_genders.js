@@ -277,5 +277,8 @@ const p_genders = [
     "Crowdfunded",
     "The Bit",
     "[CLASSIFIED]",
-    "Hiveform"
+    "Hiveform",
+    "Creepy",
+    "Creepy and Wet",
+    "Halfpipe"
 ]
