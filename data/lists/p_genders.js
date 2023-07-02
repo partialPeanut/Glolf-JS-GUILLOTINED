@@ -280,5 +280,6 @@ const p_genders = [
     "Hiveform",
     "Creepy",
     "Creepy and Wet",
-    "Halfpipe"
+    "Halfpipe",
+    "Jump"
 ]
