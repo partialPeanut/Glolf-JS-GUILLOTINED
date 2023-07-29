@@ -1,0 +1,42 @@
+/* 
+  COLOR REFERENCE:
+    background:           rgba(200, 200, 200, 1)
+    button pressed:       rgba(150, 150, 150, 1)
+    button unpressed:     rgba(225, 225, 225, 1)
+    variable bg:          rgba(50, 50, 50, 1)
+    selected player:      rgba(100, 100, 255, 1)
+    hovered player:       rgba(160, 160, 255, 1)
+    active player:        rgba(255, 166, 102, 1)
+*/
+
+body {
+  font-family: 'pixel_operator_regular', serif;
+  margin: 0px;
+  background-color: rgba(0, 0, 0, 1);
+}
+#content {
+  display: block;
+  position: absolute;
+  left:20px;
+	top:150px;
+	right:20px;
+}
+.center-area {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+}
+#center-area-null {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+#center-area-game {
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: 450px 325px;
+}
+
+@keyframes rainbow {
+  from {background-position: -100vh 0}
+  to {background-position: 100vh 0}
+}
